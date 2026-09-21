@@ -152,3 +152,18 @@ api.slack.com/apps → 앱 선택 → **Basic Information → Display Informatio
 - 메시지마다 나오는 얼굴(`pa-기본` 등)은 반대로 **투명** — 작은 동그라미로 나와서 배경이 있으면 네모가 도드라진다
 - **배경색은 `#0A3A42`** (짙은 청록). 매니페스트의 `background_color` 는 앱 이름이 흰 글씨로 얹히는 자리라
   어두워야 한다 — 민트(`#02c2d3`)는 대비 2.2:1 이라 Slack 이 거절한다 (권장 4.5:1 이상)
+
+## 앱 아이콘
+
+`moa-icon-1024.png` — **투명 배경 1024×1024.** 앱 설정에 올리는 것은 이것 하나다
+(Basic Information → Display Information → App icon).
+
+**투명이라야 한다** (2026-09-22 사장님 지적). 예전 `pa-icon-white-1024.png` 는 흰 배경이
+구워져 있어서, Slack 의 어두운 테마에서 **흰 네모**가 그대로 보인다.
+
+**512 는 Slack 이 거절한다** — 안내문에는 512~2000px 이라고 나오지만 딱 512 는 튕긴다 (9/20 실측).
+**API 로는 못 올린다** — 매니페스트에 아이콘 항목이 없다 (display_information 은 name ·
+description · long_description · background_color 넷뿐, 9/22 확인). 사람이 한 번 올려야 한다.
+
+메시지에 보이는 얼굴은 이것과 **다른 것**이다 — 봇이 `icon_url` 로 매번 실어 보낸다
+(`slack.py` 의 `ICON_BASE`, webn77/pa-icons). 그쪽은 올릴 필요가 없다.

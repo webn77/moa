@@ -249,6 +249,12 @@ def main():
         print(f"   제거:  launchctl bootout gui/$(id -u)/{label}")
 
     print("\n끝. 다음:")
+    # 앱 아이콘은 **매니페스트에 항목이 없어서** API 로 못 올린다 (2026-09-22 확인:
+    # display_information 은 name·description·long_description·background_color 넷뿐).
+    # 안 올려도 대화에는 지장이 없다 — 메시지 속 얼굴과 이름은 봇이 매번 실어 보낸다.
+    print(f"  0. (선택) 앱 아이콘 올리기 — api.slack.com/apps/{bot.get('app_id','')}"
+          " → Basic Information → Display Information → App icon")
+    print(f"     파일: {CODE / 'assets/pa-icon-white-1024.png'}  (512 는 Slack 이 거절한다)")
     print(f"  1. {data}/project.md · team.md · roadmap.md 를 팀에 맞게 고친다")
     print(f"  2. 실행:  MOA_DATA='{data}' python3 {CODE / 'bot.py'}")
     print(f"  3. #{a.talk} 에 「🎫 첫 요청」 을 써 본다")
