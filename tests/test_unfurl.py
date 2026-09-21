@@ -270,7 +270,7 @@ class DmTest(unittest.IsolatedAsyncioTestCase):
         self.went = []
         self.old = (handlers.show_digest, handlers.tidy_propose, handlers.propose_issue,
                     handlers.find, handlers.refresh_draft)
-        handlers.show_digest = lambda s, ch, u: self._go("현황")
+        handlers.show_digest = lambda s, ch, u, th=None: self._go("현황")   # th = 답할 스레드 (2026-09-22)
         handlers.tidy_propose = lambda s, ch, u: self._go("정리")
         handlers.propose_issue = lambda s, e, q: self._go("만들기")
         handlers.find = lambda s, e, q: self._go("찾기")

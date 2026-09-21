@@ -63,8 +63,12 @@ def _asking(user):
     return (STATE.get("new_project") or {}).get(user)
 
 
-async def _say(s, ch, text):
-    await api(s, "chat.postMessage", body={"channel": ch, "text": text, "unfurl_links": False})
+async def _say(s, ch, text, thread=None):
+    """**물어본 글 아래 스레드로** (2026-09-22) — 세 마디 대화가 맨 위에 흩어지면 읽기 어렵다."""
+    body = {"channel": ch, "text": text, "unfurl_links": False}
+    if thread:
+        body["thread_ts"] = thread
+    await api(s, "chat.postMessage", body=body)
 
 
 async def _create(s, e, st):
@@ -106,17 +110,18 @@ async def _create(s, e, st):
 async def maybe(s, e, q):
     """DM 의 이 말이 프로젝트 만들기와 관련 있으면 처리하고 True. 아니면 False (다른 갈래로 간다)."""
     user, ch = e.get("user"), e.get("channel")
+    th = e.get("thread_ts") or e.get("ts")
     st = _asking(user)
     if st is None:
         if not START.search(q):
             return False
         STATE.setdefault("new_project", {})[user] = {"step": "title", "by": user}
         save()
-        await _say(s, ch, say("proj_ask_name"))
+        await _say(s, ch, say("proj_ask_name"), th)
         return True
     if q.strip() in CANCEL:
         STATE["new_project"].pop(user, None); save()
-        await _say(s, ch, say("proj_cancel"))
+        await _say(s, ch, say("proj_cancel"), th)
         return True
     from common import PROJECTS
     taken = {p.get("key") for p in PROJECTS if p.get("key")}
@@ -124,35 +129,35 @@ async def maybe(s, e, q):
         st["title"] = q.strip()[:60]
         st["key"] = _suggest_key(st["title"], taken)
         st["step"] = "key"; save()
-        await _say(s, ch, say("proj_ask_key", title=st["title"], k=st["key"]))
+        await _say(s, ch, say("proj_ask_key", title=st["title"], k=st["key"]), th)
         return True
     if st["step"] == "key":
         word = q.strip()
         if word.lower() not in YES:
             if not KEY_OK.match(word):
-                await _say(s, ch, say("proj_ask_key", title=st["title"], k=st["key"]))
+                await _say(s, ch, say("proj_ask_key", title=st["title"], k=st["key"]), th)
                 return True
             if word.upper() in taken:
-                await _say(s, ch, say("proj_key_taken", k=word.upper()))
+                await _say(s, ch, say("proj_key_taken", k=word.upper()), th)
                 return True
             st["key"] = word.upper()
         st["step"] = "who"; save()
-        await _say(s, ch, say("proj_ask_who"))
+        await _say(s, ch, say("proj_ask_who"), th)
         return True
     if st["step"] == "who":
         st["who"] = [] if any(a in q for a in ALONE) else re.findall(r"<@(U[A-Z0-9]+)>", q)
         save()
-        await _say(s, ch, say("proj_making"))
+        await _say(s, ch, say("proj_making"), th)
         try:
             got, err = await _create(s, e, st)
         except Exception as ex:                       # 만들다 터져도 묻는 상태로 붙잡아 두지 않는다
             got, err = None, f"{type(ex).__name__}"
         STATE["new_project"].pop(user, None); save()
         if not got:
-            await _say(s, ch, say("proj_fail", err=err))
+            await _say(s, ch, say("proj_fail", err=err), th)
             return True
         head = "" if got["made"] else say("proj_exists", name=got["name"]) + "\n"
         await _say(s, ch, head + say("proj_done", title=st["title"], channel=got["channel"],
-                                     n=got["people"], k=st["key"]))
+                                     n=got["people"], k=st["key"]), th)
         return True
     return False

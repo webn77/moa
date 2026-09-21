@@ -118,9 +118,10 @@ def set_goal(text):
 async def catch(s, e, q):
     """DM 의 이 말이 온보딩에 속하면 처리하고 True. 아니면 False (다른 갈래로 간다)."""
     user, ch = e.get("user"), e.get("channel")
+    th = e.get("thread_ts") or e.get("ts")
     if skipped(q):
         give_up(user)
-        await say_to(s, ch, say("onboard_skip"))
+        await say_to(s, ch, say("onboard_skip"), th)
         return True
     n = step(user)
     if n != 2:
@@ -131,10 +132,14 @@ async def catch(s, e, q):
     if not set_goal(word[:120]):
         return False
     log(f"목표 정함: {word[:40]} ← {user}")
-    await say_to(s, ch, say("onboard_goal_ok", what=word[:120]) + "\n\n" + nudge(user, head=False))
+    await say_to(s, ch, say("onboard_goal_ok", what=word[:120]) + "\n\n" + nudge(user, head=False), th)
     return True
 
 
-async def say_to(s, ch, text):
+async def say_to(s, ch, text, thread=None):
+    """**물어본 글 아래 스레드로** 답한다 (2026-09-22) — 맨 위에 답하면 짝이 흩어진다."""
     from slack import api
-    await api(s, "chat.postMessage", body={"channel": ch, "text": text, "unfurl_links": False})
+    body = {"channel": ch, "text": text, "unfurl_links": False}
+    if thread:
+        body["thread_ts"] = thread
+    await api(s, "chat.postMessage", body=body)

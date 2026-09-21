@@ -87,8 +87,12 @@ async def post_digest(s, reason=""):
     return d.get("ts")
 
 
-async def show_digest(s, channel, user):
+async def show_digest(s, channel, user, thread=None):
     """현황을 **부른 자리에서 그 사람에게만** 보여 준다 (2026-09-20 사용자 지적).
+
+    `thread` 를 주면 **물어본 글 아래 스레드로** 답한다 (2026-09-22 사장님 지적: 「질문에 대한
+    대답은 다 스레드였던 거 같아서」). DM 이 길어질 때 묻고 답한 짝이 안 흩어진다 —
+    `agent_view` 를 켜면서 Slack 도 「…하는 중」 을 그 글 아래에 그린다. 답만 맨 위로 가면 어긋난다.
 
     예전에는 어디서 물어도 프로젝트 방에 새 글을 올렸다 — 방이 현황으로 쌓이고,
     다른 채널에서 물으면 링크만 받아 건너가야 했다. 지금 상태를 보는 건 읽기라서 팀에 알릴 일이 아니다.
@@ -98,6 +102,8 @@ async def show_digest(s, channel, user):
     rb = risk_blocks()
     body = {"channel": channel, "text": "현황", "unfurl_links": False,
             "blocks": (main + (rb[:20] if rb else ""))[:48]}
+    if thread:
+        body["thread_ts"] = thread
     if channel.startswith("D"):                        # DM 은 원래 나만 보는 자리다
         await api(s, "chat.postMessage", body=body)
     else:

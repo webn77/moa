@@ -237,3 +237,45 @@ class OnboardTest(unittest.TestCase):
                 self.assertFalse(self.o.goal_set())
                 self.assertTrue(self.o.set_goal("결제 실패를 하루 40건에서 20건으로 줄인다"))
                 self.assertTrue(self.o.goal_set())
+
+
+class ThreadReplyTest(unittest.TestCase):
+    """DM 의 답은 **물어본 글 아래 스레드로** 간다 (2026-09-22 사장님 지적).
+
+    `agent_view` 를 켜면서 「…하는 중」 은 그 글 아래에 붙였는데 **답은 맨 위로 갔다** —
+    둘을 같이 옮겼어야 했다. 묻고 답한 짝이 흩어지면 DM 이 길어질수록 읽기 어렵다.
+    """
+
+    def sent(self, fn):
+        got = []
+
+        async def api(s, method, body=None, **p):
+            got.append((method, body or {}))
+            return {"ok": True}
+        return got, api
+
+    def test_find_answers_in_the_thread(self):
+        from flows import find as find_mod
+        got, api = self.sent(None)
+        e = {"user": ME, "channel": "D0TEST", "ts": "111.1", "channel_type": "im"}
+        with mock.patch.object(find_mod, "api", api):
+            run(find_mod.find(None, e, "내 할 일"))
+        posts = [b for m, b in got if m == "chat.postMessage"]
+        self.assertTrue(posts, "답을 안 보냈다")
+        self.assertEqual(posts[0].get("thread_ts"), "111.1")
+
+    def test_a_reply_inside_a_thread_stays_there(self):
+        """이미 스레드 안에서 물으면 **그 스레드**에 답한다 — 새 스레드를 파면 안 된다."""
+        from flows import find as find_mod
+        got, api = self.sent(None)
+        e = {"user": ME, "channel": "D0TEST", "ts": "222.2", "thread_ts": "111.1", "channel_type": "im"}
+        with mock.patch.object(find_mod, "api", api):
+            run(find_mod.find(None, e, "내 할 일"))
+        self.assertEqual([b for m, b in got if m == "chat.postMessage"][0].get("thread_ts"), "111.1")
+
+    def test_project_flow_answers_in_the_thread(self):
+        fake = Fake()
+        with mock.patch.object(project, "api", fake.api), mock.patch.object(project, "save", lambda: None):
+            run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "333.3"}, "프로젝트 만들기"))
+        STATE.pop("new_project", None)
+        self.assertEqual([b for m, b in fake.sent if m == "chat.postMessage"][0].get("thread_ts"), "333.3")
