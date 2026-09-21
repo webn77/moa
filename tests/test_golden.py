@@ -14,7 +14,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..")
 
 
 def run(script, expected):
-    env = dict(os.environ, MOA_DATA=os.path.join(ROOT, "example"))
+    env = dict(os.environ)      # tests/__init__ 이 **베낀 곳**을 가리킨다 — 원본에 쓰지 않게
     r = subprocess.run([sys.executable, os.path.join(ROOT, "tests", "golden", script)],
                        capture_output=True, text=True, env=env, cwd=ROOT)
     if r.returncode:
