@@ -1,0 +1,78 @@
+# Slack 앱 매니페스트 (#50)
+#
+# 새로 만들 때:  api.slack.com/apps → Create New App → From a manifest 에 붙여 넣는다
+# 이미 있는 앱의 이름·아이콘을 바꿀 때:
+#   api.slack.com/apps → 그 앱 → 왼쪽 App Manifest → 이 내용으로 바꾸고 Save Changes
+#   → 왼쪽 Basic Information → Display Information 에서 App icon 으로 assets/pa-icon-white-1024.png 올리기 (512 는 거절당한다)
+#   → Install App → Reinstall to Workspace
+# 앱 이름·아이콘은 API 로 못 바꾼다 — 사람이 한 번 해야 한다. 메시지에 보이는 이름·얼굴은 봇이 매번 실어 보낸다.
+# 설치 순서 전체는 docs/install.md
+display_information:
+  name: 모아
+  description: 흩어진 대화를 모아 할 일로 — 담당·일정·회의록·지난 결정까지 챙겨요
+  background_color: "#0A3A42"   # 짙은 청록 — 앱 이름이 흰 글씨로 얹히는 배경이라 어두워야 한다 (민트 #02c2d3 은 Slack 이 막는다)
+features:
+  # Slack 의 「Agents & AI Apps」 — 이것 하나로 셋이 온다 (2026-09-21 사장님 결정):
+  #   ① 메시지 탭이 기본 선택 ② 대화가 스레드로 이어짐 ③ 기다릴 때 **우리 말**로 상태가 뜸
+  #
+  # ③ 이 이것 없이는 안 된다는 것을 실측했다 — `assistant.threads.setStatus` 가 ok 를 돌려줘도
+  # 화면에는 Slack 기본값 「PA 앱이 작업 중」 만 뜨고, `loading_messages` 를 보내면 상태가 아예
+  # 안 뜬다. 「Custom loading labels can be restored **under agentView**」 (Slack 문서).
+  #
+  # ⚠️ **되돌릴 수 없다** — agent_view 로 바꾸면 예전 방식으로 못 돌아간다 (Slack 문서).
+  # 스레드로 대화가 묶이면 그 덩어리가 곧 기록 단위가 된다 — PA-73(팀의 기억)의 빈칸 절반이 여기서 메워진다.
+  agent_view:
+    agent_description: 흩어진 대화를 모아 할 일로 — 담당과 일정, 회의록, 지난 결정 찾기까지 챙겨요
+    suggested_prompts:
+      - title: 내 할 일
+        message: 내 할 일
+      - title: 현황
+        message: 현황 알려줘
+      - title: 할 일로 만들기
+        message: 할 일로 만들어줘
+      - title: 무엇을 할 수 있나
+        message: 도움말
+  app_home:
+    home_tab_enabled: true                  # 현황판은 그대로 둔다 — 기본 선택만 메시지로 바뀐다
+    messages_tab_enabled: true              # DM 으로도 말할 수 있게 (2026-09-20)
+    messages_tab_read_only_enabled: false   # 빠뜨리면 Slack 이 읽기 전용으로 켠다 — 탭은 생기는데 글을 못 쓴다
+  bot_user:
+    display_name: 모아
+    always_online: true
+  shortcuts:
+    - name: 할 일로 만들기
+      type: message
+      callback_id: make_issue
+      description: 이 메시지를 할 일 카드로 만든다
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read      # @모아 정리 · 질문
+      - canvases:read
+      - canvases:write         # 채널 캔버스 갱신
+      - channels:history       # 채널·스레드 읽기
+      - channels:join          # setup.py 가 채널에 들어간다
+      - channels:manage        # setup.py 가 채널을 만든다 (이미 있으면 안 씀)
+      - channels:read
+      - chat:write
+      - chat:write.customize   # 메시지마다 이름·얼굴을 실어 보낸다
+      - commands               # 메시지 ⋮ 「이슈로 만들기」 단축키에 필요 (슬래시를 빼도 이건 남는다)
+      - emoji:read
+      - im:history             # DM 읽기
+      - im:write               # DM 보내기 (아침 알림·확인 부탁)           # 표정 이모지가 실제로 있는지 확인용
+      - reactions:read
+      - reactions:write        # 하는 동안 ⏳ 를 달아 둔다         # 👀 ⛔ ✅ 로 상태 바꾸기
+      - users:read             # 이름 표시 · 앱 홈
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_home_opened
+      - app_mention
+      - message.channels
+      - message.im             # DM 으로 말 걸기
+      - reaction_added
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false

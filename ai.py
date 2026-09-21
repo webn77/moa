@@ -1,0 +1,293 @@
+"""AI 호출 — claude -p · 구체화 질문 · 정리 · 답 · 추천 담당 · 우선순위 숫자 (#30 에서 bot.py 를 나눔)."""
+import asyncio, json, os, re, pathlib
+import core
+from messages import say
+from common import AI_FACTOR, CHANNEL, HERE, SPEC_KEYS, log  # noqa: E402,F401
+from docs import load_features, load_team  # noqa: E402,F401
+from slack import api, mood, name_of  # noqa: E402,F401
+from store import STATE, chan, save  # noqa: E402,F401
+
+
+AI_CWD = pathlib.Path.home() / ".cache/moa-ai"
+
+
+def model():
+    """어느 모델을 부를까. **무슨 일이 나든 "sonnet" 으로 물러난다** (2026-09-21 실측).
+
+    예전에는 `~/projects/config.sh` 를 그냥 읽었는데 **그건 만든 사람 맥에만 있는 파일**이다.
+    `HOME` 을 바꿔치기해 남의 맥을 흉내 내 보니 `FileNotFoundError` 로 터졌고, 그러면
+    `ask_ai` 를 부르는 아홉 군데가 전부 죽는다 — 그것도 **조용히** 죽는다. 부르는 쪽이 잡아서
+    「정리 실패」 만 띄우기 때문에, 받은 사람 눈에는 **Slack 에 붙고 카드도 생기는데 생각만 안 하는**
+    봇으로 보인다. 설치한 사람이 제일 알아채기 어려운 고장 모양이라 여기서 막는다.
+
+    `MOA_MODEL` 로 덮어쓸 수 있다 — 다른 모델을 쓰고 싶은 팀을 위해.
+    """
+    if os.environ.get("MOA_MODEL"):
+        return os.environ["MOA_MODEL"]
+    try:
+        for line in (pathlib.Path.home() / "projects/config.sh").read_text().splitlines()[::-1]:
+            if line.startswith("export MODEL_SONNET="):
+                return line.split('"')[1]
+    except Exception:
+        pass
+    return "sonnet"
+
+
+async def ask_ai(system, prompt):
+    """구독으로 Claude Code 를 부른다. 훅·MCP·도구 없이, 세션을 남기지 않는다."""
+    AI_CWD.mkdir(parents=True, exist_ok=True)
+    p = await asyncio.create_subprocess_exec(
+        "claude", "-p", "--model", model(), "--setting-sources", "project", "--strict-mcp-config",
+        "--tools", "", "--no-session-persistence", "--output-format", "json", "--system-prompt", system,
+        cwd=AI_CWD, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+    out, _ = await asyncio.wait_for(p.communicate(prompt.encode()), timeout=180)
+    d = json.loads(out or b"{}")
+    if d.get("is_error"):
+        raise RuntimeError(d.get("result"))
+    return d.get("result", "")
+
+
+async def transcript(s, c):
+    msgs = (await api(s, "conversations.replies", channel=chan(c), ts=c["card_ts"], limit=200)).get("messages", [])
+    lines = [f"[처음 요청] {c['by']}: {c['request']}"]
+    for m in msgs[1:]:
+        if m.get("bot_id") and not m.get("username"):
+            continue
+        lines.append(f"{await name_of(s, m)}: {re.sub(r'<@U[A-Z0-9]+>', '@봇', m.get('text', ''))}")
+    return "\n".join(lines)
+
+
+async def refine(s, c, thread_ts):
+    await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": thread_ts, "text": say("refining"), **mood("생각")})
+    system = ("너는 Slack 이슈를 정리하는 PM 보조다. 대화에 있는 사실만 쓴다. 추측은 쓰지 않고 모르면 '미정'이라고 쓴다. "
+              "반드시 JSON 한 개만 출력한다. 키: title(40자 이내), why, change, expect, not_doing, done_criteria(문자열 배열, 1~4개). "
+              "모든 값은 한국어 한두 문장.")
+    try:
+        raw = await ask_ai(system, "다음 이슈 스레드를 이슈 정의로 정리해줘.\n\n" + await transcript(s, c))
+        spec = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
+    except Exception as e:
+        log(f"정리 실패: {e}")
+        await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": thread_ts,
+                  "text": say("refine_fail", err=str(e)[:120])})
+        return
+    old_title, old_spec = c["title"], dict(c.get("spec") or {})
+    c["title"] = spec.get("title") or c["title"]
+    c["spec"] = spec
+    if old_spec:                                           # 처음 정리는 이력이 아니다
+        await record_change(s, c, None, old_title, old_spec, "스레드 대화를 다시 정리 (@정리)", how="AI 정리")
+    await redraw(s, c)
+    await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": thread_ts,
+              "text": say("refined", n=len(spec.get("done_criteria") or []))})
+    await redraw(s, c)
+
+
+COACH = ("너는 팀의 프로젝트 비서다. 카드 스레드에서 사람과 짧게 대화하며 이슈를 구체화한다. "
+         "이슈 정의는 5칸: why(누가 무엇 때문에 곤란한가), change(무엇이 바뀌나), expect(기대와 확인 방법), "
+         "not_doing(이번에 하지 않을 것), done_criteria(끝났다고 볼 조건, 1~4개). "
+         "규칙: 대화나 지금 정의에 이미 있는 것은 묻지 않는다. 한 번에 최대 2개만, 한 줄씩 짧게 묻는다. "
+         "사람이 질문하면 먼저 답한다 (모르면 모른다고). 양식을 채우라고 하지 않는다 — 말로 묻는다. "
+         "5칸을 쓸 만큼 모였으면 ready=true 로 spec 을 채운다. 대화에 없는 사실은 지어내지 않고 모르는 칸은 '미정'. "
+         "사람이 '됐어·그만·나중에' 라고 하면 stop=true. "
+         "JSON 한 개만 출력: {\"reply\": \"사람에게 할 말(한국어, 3줄 이내)\", \"ready\": false, \"stop\": false, "
+         "\"spec\": {\"title\":\"40자 이내\",\"why\":\"\",\"change\":\"\",\"expect\":\"\",\"not_doing\":\"\",\"done_criteria\":[]} 또는 null}")
+_COACHING = set()
+
+
+async def convo(s, c):
+    """스레드 대화 — 봇의 질문도 포함 (⚙️ 설정·안내 메시지는 뺀다)."""
+    msgs = (await api(s, "conversations.replies", channel=chan(c), ts=c["card_ts"], limit=200)).get("messages", [])
+    lines = [f"[처음 요청] {c.get('by', '')}: {c.get('request') or c['title']}"]
+    for m in msgs[1:]:
+        if m.get("ts") == c.get("ctl_ts") or m.get("ts") == c.get("draft_ts"):
+            continue
+        who = "비서" if (m.get("bot_id") and not m.get("username")) else await name_of(s, m)
+        lines.append(f"{who}: {re.sub(r'<@U[A-Z0-9]+>', '@봇', m.get('text', ''))}")
+    return "\n".join(lines[-40:])
+
+
+async def coach(s, c, trigger):
+    """#31 질문으로 구체화 — 카드가 생기면 먼저 묻고, 사람이 스레드에 답하면 이어서 대화한다."""
+    if c["no"] in _COACHING or c.get("coach") in ("done", "stopped"):
+        return
+    if (c.get("spec") or {}).get("done_criteria") and trigger == "new":
+        c["coach"] = "done"                                       # 이미 정의가 있으면 묻지 않는다
+        return
+    _COACHING.add(c["no"])
+    try:
+        head = (HERE / "project.md").read_text(encoding="utf-8")[:1200]
+        prompt = (f"프로젝트 요약:\n{head}\n\n이슈 #{c['no']} {c['title']}\n지금 정의: "
+                  f"{json.dumps(c.get('spec') or {}, ensure_ascii=False)}\n\n대화:\n{await convo(s, c)}\n\n"
+                  + ("카드가 방금 만들어졌다. **바로 정리안을 내라** — 제목과 프로젝트 요약만으로 "
+                     "채울 수 있는 만큼 채우고, 모르는 칸은 '미정'으로 둔다. ready 는 true 로 하고, "
+                     "꼭 물어야 할 것이 있으면 reply 에 한 가지만 묻는다."
+                     if trigger == "new" else "사람이 방금 답했다. 이어서 대화해라."))
+        raw = await ask_ai(COACH, prompt)
+        r = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
+    except Exception as e:
+        log(f"구체화 실패 #{c['no']}: {e}")
+        _COACHING.discard(c["no"])
+        return
+    c["coach_rounds"] = c.get("coach_rounds", 0) + 1
+    if r.get("stop"):
+        c["coach"] = "stopped"
+    if r.get("reply"):
+        await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": c["card_ts"], "text": r["reply"]})
+    spec = r.get("spec") if isinstance(r.get("spec"), dict) else None
+    # 내용 없는 이슈를 만들지 않는다 (사장님 지시 9/20) — 만들자마자 정리안을 내고 사람이 👍 한다.
+    # **미정투성이 정리안은 내놓지 않는다.** 내놓으면 사람이 👍 를 눌러 버리고, 그러면
+    # 「채워졌지만 뭔지 모를 카드」 가 남는다 — 오늘 19건을 채웠더니 절반이 그랬다.
+    if spec and core.vague({"spec": spec}) >= 3:
+        spec = None
+        if not r.get("reply"):                                    # 물어볼 말이 없으면 우리가 묻는다
+            await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": c["card_ts"],
+                      "text": say("too_vague"), **mood("생각")})
+    if spec and (r.get("ready") or trigger == "new" or c["coach_rounds"] >= 3):
+        c["spec_draft"] = spec
+        lines = [f"*{label}*  {spec.get(k) or '미정'}" for k, label in SPEC_KEYS]
+        lines.append("*완료 조건*\n" + ("\n".join(f"☐ {x}" for x in spec.get("done_criteria") or []) or "미정"))
+        d = await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": c["card_ts"], "text": "정리안",
+            "blocks": [{"type": "section", "text": {"type": "mrkdwn", "text": "📝 *이렇게 정리했어요* — 맞으면 👍, 다르면 고쳐 주세요"}},
+                       {"type": "section", "text": {"type": "mrkdwn", "text": "\n".join(lines)[:2900]}},
+                       {"type": "actions", "elements": [
+                           {"type": "button", "text": {"type": "plain_text", "text": "👍 이대로"}, "style": "primary",
+                            "action_id": "spec_ok", "value": c["card_ts"]},
+                           {"type": "button", "text": {"type": "plain_text", "text": "✏️ 고치기"},
+                            "action_id": "edit_content", "value": c["card_ts"]}]}]})
+        c["draft_ts"] = d.get("ts")
+        c["coach"] = "proposed"
+    else:
+        c.setdefault("coach", "asking")
+    save()
+    _COACHING.discard(c["no"])
+    log(f"구체화 #{c['no']} {trigger} → {c.get('coach')}")
+
+
+async def answer(s, c, thread_ts, question):
+    system = "너는 Slack 이슈 스레드의 AI 동료다. 스레드 내용만 근거로 한국어로 5줄 이내로 답한다. 모르면 모른다고 한다."
+    try:
+        text = await ask_ai(system, f"이슈 #{c['no']} {c['title']}\n\n{await transcript(s, c)}\n\n질문: {question}")
+    except Exception as e:
+        text = f"답을 만들지 못했어요: {str(e)[:120]}"
+    await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": thread_ts, "text": text})
+
+
+async def recommend(s, cards):
+    """team.md 를 근거로 담당을 정한다. 담당 없음을 남기지 않는다. 사람은 수락하거나 바꾼다."""
+    team = load_team()
+    if not team or not cards:
+        return
+    load = {u: sum(1 for c in STATE["cards"].values() if c.get("assignee") == u
+                   and c["status"] in ("doing", "blocked")) for u in team}
+    roster = "\n".join(f"- {uid} | {t['name']} | {t['role']} | 영역: {t['areas']} | 진행 중 {load[uid]}/{t['max']}"
+                       for uid, t in team.items())
+    items = "\n".join(f"- #{c['no']} {c['title']}" + (f" — {c['spec'].get('why','')}" if c.get("spec") else "")
+                      for c in cards)
+    system = ("너는 팀의 일을 나누는 PM 보조다. 각 이슈를 역할 영역이 가장 잘 맞는 사람에게 한 명씩 배정한다. "
+              "영역이 비슷하면 진행 중인 일이 적은 사람에게 준다. 반드시 모든 이슈를 배정한다. "
+              "JSON 배열 하나만 출력한다: [{\"no\": 번호, \"uid\": \"Slack ID\", \"reason\": \"20자 이내 한국어\"}]")
+    raw = await ask_ai(system, f"팀:\n{roster}\n\n{(HERE / 'team.md').read_text(encoding='utf-8')[:2500]}\n\n이슈:\n{items}")
+    picks = json.loads(re.search(r"\[.*\]", raw, re.S).group(0))
+    by_no = {c["no"]: c for c in cards}
+    # 담당을 바로 박지 않는다 — 「추천 담당」 만 적고, 실제 배정은 place() 가 자리를 보고 한다
+    for p in picks:
+        c = by_no.get(int(p.get("no", 0)))
+        if c and p.get("uid") in team:
+            c["suggested"], c["assign_reason"] = p["uid"], p.get("reason", "")
+    for c in cards:                       # AI 가 빠뜨린 것은 진행 중이 가장 적은 사람에게
+        if not c.get("suggested"):
+            c["suggested"], c["assign_reason"] = min(team, key=lambda u: load[u]), "여유가 가장 많음"
+    log(f"담당 추천 {len(cards)}건")
+
+
+async def prioritize(s):
+    """AI 는 숫자(가치·긴급·목표 적합·노력)와 선행·중복·디자인 필요만 추정한다. 순서는 place() 가 계산한다."""
+    team = load_team()
+    # 이미 숫자가 있는 이슈는 다시 매기지 않는다 — 매번 매기면 순서가 흔들린다 (2026-09-19 실측)
+    open_ = [c for c in STATE["cards"].values() if c["status"] not in ("done", "cancelled") and not c.get("scores")]
+    if not open_:
+        place()
+        await asyncio.get_running_loop().run_in_executor(None, write_backlog)
+        return []
+    items = "\n".join(f"- #{c['no']} [{team.get(c.get('assignee'), {}).get('role', '?')}] {c['title']}"
+                      for c in sorted(open_, key=lambda c: c["no"]))
+    # 이미 점수가 있는 열린 이슈도 **보여만 준다** — 안 보여 주면 선행을 찾을 수가 없다.
+    # 2026-09-20 확인: 카드 하나가 혼자 매겨진 것이 로그상 34회인데, 그때 AI 는 다른 이슈를 못 봤다.
+    # 그래서 열린 31건 중 after 가 6건뿐이었고, 그 6건도 전부 「대량 배치」·「본문에 번호가 적힘」 으로 설명된다.
+    others = "\n".join(f"- #{c['no']} {c['title']}"
+                       for c in sorted((x for x in STATE["cards"].values()
+                                        if x["status"] not in ("done", "cancelled") and x.get("scores")),
+                                       key=lambda c: c["no"]))
+    system = ("너는 PM 보조다. 각 이슈에 1~5 점수를 매긴다: value(가치), urgency(긴급), goal_fit(프로젝트 목표·성공 기준에 "
+              "직접 닿는 정도), effort(노력, 클수록 큼). **먼저 끝나야 이 일을 시작할 수 있는 이슈**가 있으면 after 에 "
+              "번호를 넣는다 — 「이미 있는 이슈」 목록과 매길 이슈 목록의 번호만 쓸 수 있고, 확실하지 않으면 비워 둔다. "
+              "그냥 관련 있는 정도는 선행이 아니다. 다른 이슈와 중복이면 duplicate_of 에 "
+              "번호를 넣는다. 화면 구성·문구·흐름이 바뀌면 design=true. 사람이 쓰는 시간이 아니라 일 자체의 예상 시간을 "
+              "hours_min·hours_max(시간)로, AI(코딩 에이전트·LLM)가 얼마나 대신할 수 있는지 ai 에 "
+              "ai(대부분 AI가 가능)|assist(AI가 돕고 사람이 판단)|human(정책·합의 등 사람만) 로 쓴다. "
+              "project.md 「기능」 표에서 이 이슈가 속하는 기능 이름 하나를 feature 에 그대로 쓴다. JSON 배열 하나만 출력: "
+              "[{\"no\":번호,\"value\":n,\"urgency\":n,\"goal_fit\":n,\"effort\":n,\"after\":[],\"duplicate_of\":null,"
+              "\"design\":false,\"hours_min\":n,\"hours_max\":n,\"ai\":\"assist\",\"feature\":\"기능 이름\","
+              "\"reason\":\"20자 이내\"}]")
+    raw = await ask_ai(system, f"{(HERE / 'project.md').read_text(encoding='utf-8')}\n\n"
+                               + (f"이미 있는 이슈 (점수는 매기지 말고 선행·중복을 찾을 때만 본다):\n{others}\n\n" if others else "")
+                               + f"점수를 매길 이슈:\n{items}")
+    picks = {int(p["no"]): p for p in json.loads(re.search(r"\[.*\]", raw, re.S).group(0)) if "no" in p}
+    for c in open_:
+        p = picks.get(c["no"])
+        if not p:
+            continue
+        c["scores"] = {k: p.get(k, 3) for k in ("value", "urgency", "goal_fit", "effort")}
+        if c.get("after_src") != "human":          # 사람이 정한 선행은 AI 가 지우지 않는다 (assign_src 와 같은 규칙)
+            c["after"] = core.clean_after(p.get("after"), c["no"], STATE["cards"])
+        c["duplicate_of"] = p.get("duplicate_of")
+        c["design"], c["prio_reason"] = bool(p.get("design")), p.get("reason", "")
+        c["hours"] = {"min": p.get("hours_min", 2), "max": p.get("hours_max", 4)}
+        c["ai"] = p.get("ai") if p.get("ai") in AI_FACTOR else "assist"
+        if p.get("feature") in load_features() and not c.get("feature"):
+            c["feature"] = p["feature"]
+    place()
+    await asyncio.get_running_loop().run_in_executor(None, write_backlog)
+    log(f"우선순위 {len(open_)}건 계산")
+    return []
+
+
+async def fill_after():
+    """선행만 메운다 — 점수는 건드리지 않는다 (#68).
+
+    점수가 있는 이슈는 `prioritize` 가 다시 보지 않는다(매번 매기면 순서가 흔들려서, 2026-09-19 실측).
+    그래서 선행이 빈 채로 굳은 것들은 이 길로만 메운다. 사람이 정한 것(`after_src`)은 건드리지 않는다.
+    """
+    open_ = sorted((c for c in STATE["cards"].values() if c["status"] not in ("done", "cancelled")),
+                   key=lambda c: c["no"])
+    todo = [c for c in open_ if not c.get("after") and c.get("after_src") != "human"]
+    if not todo:
+        return []
+    # **제목만 주면 못 찾는다** — 2026-09-20 실측: 제목만 26건 → 0건, 「왜·바뀌는 것」 을 붙이니 15건.
+    # 「#54 가 #52 위에 올라타는가」 는 제목으로는 판단할 수 없는 물음이다.
+    def blurb(c):
+        sp = c.get("spec") or {}
+        return (f"- #{c['no']} {c['title']}\n    왜: {(sp.get('why') or '')[:160]}"
+                f"\n    바뀌는 것: {(sp.get('change') or '')[:200]}")
+    system = ("너는 PM 보조다. 아래 열린 이슈들 사이에서 **먼저 끝나야 그 일을 시작할 수 있는** 관계를 찾는다. "
+              "한 이슈가 다른 이슈가 만드는 것(화면·저장 구조·규칙) 위에 올라타면 그것이 선행이다. "
+              "주제가 비슷한 정도는 선행이 아니다. JSON 배열 하나만: [{\"no\":번호,\"after\":[번호,…],\"why\":\"15자\"}] "
+              "— 선행이 없는 이슈는 배열에서 빼라.")
+    raw = await ask_ai(system, f"{(HERE / 'project.md').read_text(encoding='utf-8')}\n\n"
+                               f"열린 이슈:\n" + "\n".join(blurb(c) for c in open_))
+    picks = {int(p["no"]): p.get("after") for p in json.loads(re.search(r"\[.*\]", raw, re.S).group(0)) if "no" in p}
+    filled = []
+    for c in todo:               # **한 건씩 쓰고 다음 건을 거른다** — 몰아서 거르면 방금 생긴 고리를 놓친다
+        got = core.clean_after(picks.get(c["no"]), c["no"], STATE["cards"])
+        if got:
+            c["after"] = got
+            filled.append((c["no"], got))
+    if filled:
+        place()
+        save()
+    log(f"선행 채움 {len(filled)}/{len(todo)}건")
+    return filled
+
+
+# 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다
+from flows.github import write_backlog  # noqa: E402,F401
+from flows.status import place, record_change, redraw  # noqa: E402,F401

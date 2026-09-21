@@ -1,0 +1,30 @@
+{
+ "workspace": "T0EXAMPLE00",
+ "app_id": "A0EXAMPLE00",
+ "bot_name": "모아",
+ "request_channel": "C0EXAMPLETALK",
+ "request_name": "팀-대화",
+ "issue_channel": "C0EXAMPLEPRJ",
+ "issue_name": "프로젝트-예시",
+ "canvas": "F0EXAMPLECNV",
+ "env_file": "~/.config/moa.env",
+ "prefix": "PA",
+ "projects": [
+  {
+   "key": "PA",
+   "name": "프로젝트-예시",
+   "channel": "C0EXAMPLEPRJ",
+   "canvas": "F0EXAMPLECNV",
+   "request": "C0EXAMPLETALK",
+   "repo": null
+  },
+  {
+   "key": "XX",
+   "name": "두 번째 프로젝트",
+   "channel": "C0XXSECOND",
+   "canvas": "F0XXSECOND",
+   "request": "C0XXREQ",
+   "repo": "webn77/second-repo"
+  }
+ ]
+}

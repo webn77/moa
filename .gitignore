@@ -1,0 +1,7 @@
+bot.log
+bot.out
+*.pyc
+__pycache__/
+state.json
+example/bot.log
+bot.pid
