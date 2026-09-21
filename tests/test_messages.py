@@ -77,7 +77,7 @@ class MessageRules(unittest.TestCase):
         「정본」 도 뺐다 — 우리끼리 쓰는 문서 용어이고, 봇이 사람에게 할 말로는 어렵다.
         """
         for k, v in TEXTS.items():
-            for bad, good in (("굴리", "해 나가다"), ("차려", "준비가 끝나다 · 만들다"),
+            for bad, good in (("굴리", "해 나가다"), ("차려", "준비가 끝나다 · 만들다"), ("차리", "만들다"),
                               ("정본", "기록 파일")):
                 self.assertNotIn(bad, v, f"{k}: 「{bad}」 → 「{good}」")
 

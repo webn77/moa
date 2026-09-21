@@ -279,3 +279,48 @@ class ThreadReplyTest(unittest.TestCase):
             run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "333.3"}, "프로젝트 만들기"))
         STATE.pop("new_project", None)
         self.assertEqual([b for m, b in fake.sent if m == "chat.postMessage"][0].get("thread_ts"), "333.3")
+
+
+class NameTest(unittest.TestCase):
+    """사람은 이름만 딱 말하지 않는다 (2026-09-22 사장님 실측).
+
+    「충전성공 이게 프로젝트 이름이야」 를 통째로 받으면 **그게 방 이름이 되고 카드마다
+    따라다닌다.** 붙잡는 모양을 여기 다 적어 둔다 — 새 모양이 나오면 여기에 한 줄 더한다.
+    """
+
+    def test_pulls_the_name_out(self):
+        for q, want in (
+            ("프로젝트 하나 만들어줘 충전성공이라는 프로젝트야!", "충전성공"),
+            ("충전성공 이게 프로젝트 이름이야", "충전성공"),
+            ("새 프로젝트 만들자 결제개편이야", "결제개편"),
+            ("프로젝트 이름은 결제 개편", "결제 개편"),
+            ("충전성공", "충전성공"),
+        ):
+            self.assertEqual(project._name_of(q), want, q)
+
+    def test_a_bare_call_has_no_name(self):
+        """이름을 안 말했으면 **빈 글자** — 그래야 물어본다."""
+        for q in ("프로젝트 만들기", "프로젝트 하나 만들자", "새 프로젝트"):
+            self.assertEqual(project._name_of(q), "", q)
+
+
+class KeyRuleTest(Base):
+    def test_six_letters_pass(self):
+        """`charge` 가 튕겼다 — 4글자까지였다 (2026-09-22 실측). 2~6글자로 넓혔다."""
+        for k in ("PAY", "charge", "moa", "P2"):
+            self.assertTrue(project.KEY_OK.match(k), k)
+        for k in ("a", "toolongkey", "결제"):
+            self.assertFalse(project.KEY_OK.match(k), k)
+
+    def test_a_bad_key_says_why(self):
+        """**같은 질문만 되풀이하면 답을 못 들은 것처럼 보인다** — 왜 안 되는지 말한다."""
+        self.say("프로젝트 만들기"); self.say("충전성공")
+        self.say("이건 앞말이 아니라 문장입니다")
+        self.assertIn("영문", self.fake.texts()[-1])
+
+    def test_name_given_up_front_is_not_asked_again(self):
+        """이름을 같이 말했는데 또 물으면 사람은 자기 말을 못 들은 줄 안다."""
+        self.say("프로젝트 하나 만들어줘 충전성공이라는 프로젝트야!")
+        self.assertIn("충전성공", self.fake.texts()[-1])
+        self.assertIn("번호 앞말", self.fake.texts()[-1])
+        self.assertEqual(STATE["new_project"][ME]["step"], "key")

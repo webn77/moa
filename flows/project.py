@@ -34,7 +34,36 @@ START = re.compile(r"프로젝트\s*(를)?\s*(하나\s*)?(새로\s*)?(만들|생
 CANCEL = ("취소", "그만", "안 할래", "안할래", "아니요", "아니야", "됐어")
 YES = ("네", "웅", "ㅇㅇ", "응", "그래", "좋아", "그걸로", "그거로", "예", "맞아", "ok", "오케이")
 ALONE = ("혼자", "나만", "저만", "없어", "없음")
-KEY_OK = re.compile(r"^[A-Za-z][A-Za-z0-9]{1,3}$")
+# 앞말은 **영문 2~6글자**. 예전엔 4글자까지라 `charge` 가 튕겼는데 **왜 튕겼는지 말도 안 했다**
+# (2026-09-22 사장님 실측 — 답을 했는데 같은 질문이 또 오면 고장으로 보인다)
+KEY_OK = re.compile(r"^[A-Za-z][A-Za-z0-9]{1,5}$")
+
+# 사람은 이름만 딱 말하지 않는다 — 「충전성공이라는 프로젝트야」 · 「충전성공 이게 프로젝트 이름이야」.
+# 통째로 받으면 그게 방 이름이 되고 카드마다 따라다닌다 (2026-09-22 사장님 실측).
+# **순서가 중요하다** — 「이름은 X」 를 먼저 보면 「…이름이야」 의 「야」 를 이름으로 잡는다
+CALL = re.compile(r"(새\s*)?프로젝트\s*(를)?\s*(하나\s*)?(새로\s*)?(만들|생성|추가|시작)\S*|새\s*프로젝트")
+NAME_CUT = (
+    re.compile(r"(.+?)\s*이게\s*(?:프로젝트\s*)?이름"),               # 「X 이게 프로젝트 이름이야」
+    re.compile(r"(.+?)\s*(?:이)?라는\s*(?:프로젝트|이름)"),           # 「X 라는 프로젝트」
+    re.compile(r"(?:프로젝트\s*)?이름은?\s*[:：]?\s*(\S.{1,})"),      # 「프로젝트 이름은 X」
+)
+TAIL = re.compile(r"\s*(?:이야|이에요|예요|입니다|이다|야|임|요)\s*[!.~]*$")
+
+
+def _name_of(text):
+    """사람이 한 말에서 **프로젝트 이름만** 골라낸다. 못 고르면 다듬기만 한 원문.
+
+    붙잡는 모양은 시험에 다 적어 뒀다 (tests/test_project.py NameTest). 지어내지 않는다 —
+    못 고르면 원문을 주고, 다음 줄에서 「…이군요」 로 되읽어 주므로 사람이 바로 안다.
+    """
+    s = re.sub(r"\s+", " ", (text or "").strip())
+    s = CALL.sub(" ", s).strip(" ,.!~")               # 「프로젝트 하나 만들어줘」 같은 부름말은 뺀다
+    for rx in NAME_CUT:
+        m = rx.search(s)
+        if m and len(m.group(1).strip(" ,.!~")) >= 2:
+            s = m.group(1)
+            break
+    return TAIL.sub("", s).strip(" ,.!~\"'「」")[:60]
 
 
 def _slug(title):
@@ -61,6 +90,17 @@ def _suggest_key(title, taken):
 
 def _asking(user):
     return (STATE.get("new_project") or {}).get(user)
+
+
+async def _take_title(s, ch, th, st, name):
+    """이름을 받고 앞말을 물어본다 — 시작할 때 같이 말했든, 따로 답했든 같은 길."""
+    from common import PROJECTS
+    st["title"] = name
+    st["key"] = _suggest_key(name, {p.get("key") for p in PROJECTS if p.get("key")})
+    st["step"] = "key"
+    save()
+    await _say(s, ch, say("proj_ask_key", title=name, k=st["key"]), th)
+    return True
 
 
 async def _say(s, ch, text, thread=None):
@@ -115,7 +155,13 @@ async def maybe(s, e, q):
     if st is None:
         if not START.search(q):
             return False
-        STATE.setdefault("new_project", {})[user] = {"step": "title", "by": user}
+        st = {"step": "title", "by": user}
+        STATE.setdefault("new_project", {})[user] = st
+        # **이름을 같이 말했으면 또 묻지 않는다** — 「프로젝트 하나 만들어줘, 충전성공이야」
+        # 라고 했는데 「어떤 일인가요?」 가 오면 사람은 자기 말을 못 들은 줄 안다 (2026-09-22 실측)
+        name = _name_of(q)
+        if len(name) >= 2:
+            return await _take_title(s, ch, th, st, name)
         save()
         await _say(s, ch, say("proj_ask_name"), th)
         return True
@@ -126,16 +172,13 @@ async def maybe(s, e, q):
     from common import PROJECTS
     taken = {p.get("key") for p in PROJECTS if p.get("key")}
     if st["step"] == "title":
-        st["title"] = q.strip()[:60]
-        st["key"] = _suggest_key(st["title"], taken)
-        st["step"] = "key"; save()
-        await _say(s, ch, say("proj_ask_key", title=st["title"], k=st["key"]), th)
-        return True
+        return await _take_title(s, ch, th, st, _name_of(q) or q.strip()[:60])
     if st["step"] == "key":
         word = q.strip()
         if word.lower() not in YES:
             if not KEY_OK.match(word):
-                await _say(s, ch, say("proj_ask_key", title=st["title"], k=st["key"]), th)
+                # 같은 질문만 되풀이하면 **답을 못 들은 것처럼** 보인다 (2026-09-22 실측)
+                await _say(s, ch, say("proj_key_bad", word=word[:20], k=st["key"]), th)
                 return True
             if word.upper() in taken:
                 await _say(s, ch, say("proj_key_taken", k=word.upper()), th)
