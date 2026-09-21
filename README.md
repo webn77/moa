@@ -66,9 +66,9 @@ launchctl bootout   gui/$(id -u)/<라벨>      # 끄기
 
 토큰은 `~/.config/moa.env` (저장소에 두지 않는다). 봇은 **늘 하나만** 뜬다 (`bot.pid` 파일 잠금).
 
-> 만든 사람 맥에서 도는 것은 이름을 바꾸기 전에 만든 것이라 라벨이 아직
-> `com.dongwon.slack-sandbox-bot` 이고 토큰도 `~/.config/slack-sandbox.env` 다.
-> 새로 설치하는 팀은 `com.moa.<워크스페이스>` · `~/.config/moa.env` 를 쓴다.
+> 만든 사람 맥에서는 **둘이 각자 돈다** — 옛 워크스페이스(`com.dongwon.slack-sandbox-bot`,
+> 토큰 `~/.config/slack-sandbox.env`)와 모아(`com.moa.t0b2mskm7n0`, 토큰 `~/.config/moa.env`).
+> 팀마다 데이터 폴더·토큰·Slack 앱이 따로라 서로 안 부딪힌다 (`bot.pid` 잠금도 데이터 폴더 안).
 
 ## 테스트
 고친 뒤 **반드시** 돌린다 — 267개가 1초면 끝난다. **토큰도 설정도 필요 없다.**

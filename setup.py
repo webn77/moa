@@ -237,6 +237,24 @@ def write_starter(data, project, pm_name, pm):
     return made
 
 
+def _plist_path():
+    """LaunchAgent 의 PATH — **로그인 셸이 아니라서 좁다.** `claude` 가 있는 곳을 찾아 앞에 둔다.
+
+    claude 는 설치 방법에 따라 자리가 다르다 (`~/.local/bin` · `/opt/homebrew/bin` ·
+    `/usr/local/bin`). 박아 둔 목록만 쓰면 **옛 버전을 조용히 쓰거나**, 아예 못 찾아
+    봇이 Slack 에는 붙는데 생각만 안 하게 된다 (2026-09-22 실측: 두 곳에 다른 버전이 있었다).
+    """
+    import shutil
+    dirs = ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin"]
+    got = shutil.which("claude")
+    if got:
+        d = str(pathlib.Path(got).parent)
+        if d in dirs:
+            dirs.remove(d)
+        dirs.insert(0, d)
+    return ":".join(dirs)
+
+
 def write_launchagent(data, team):
     label = f"com.moa.{team.lower()}"
     path = data / f"{label}.plist"
@@ -250,7 +268,7 @@ def write_launchagent(data, team):
   <key>WorkingDirectory</key><string>{CODE}</string>
   <key>EnvironmentVariables</key>
   <dict><key>MOA_DATA</key><string>{data}</string>
-        <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string></dict>
+        <key>PATH</key><string>{_plist_path()}</string></dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>StandardOutPath</key><string>{data / 'bot.out'}</string>
