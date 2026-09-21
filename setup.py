@@ -11,11 +11,33 @@
   3. 프로젝트 방 캔버스를 찾고 없으면 만든다
   4. 데이터 폴더에 config.json 을 쓰고, 없는 문서만 templates/starter 에서 채운다
   5. (--launchagent) 맥 재부팅 뒤에도 봇이 돌게 하는 plist 를 데이터 폴더에 쓴다 — 설치(launchctl)는 사람이 한다
+
+설치 전에 `--check` 를 먼저 돌리면 막힐 것을 미리 잡아 준다 (Slack 에는 아무것도 안 만든다).
 """
 import argparse, datetime, getpass, json, pathlib, re, sys, urllib.parse, urllib.request
 
 CODE = pathlib.Path(__file__).resolve().parent
 STARTER = CODE / "templates" / "starter"
+
+
+def manifest_problems(man):
+    """Slack 이 **링크를 연 뒤에야** 알려 주는 것들을 미리 잡는다 (2026-09-22 실측).
+
+    둘 다 만든 사람이 mju 워크스페이스에 처음부터 깔아 보다 막힌 것이다. 링크를 열고,
+    워크스페이스를 고르고, Next 를 누른 뒤에야 빨간 줄이 떴다 — 그때마다 매니페스트를 고치고
+    링크를 다시 만들어야 했다. **여기서 걸러 주면 그 왕복이 사라진다.**
+    """
+    out = []
+    name = ((man.get("display_information") or {}).get("name") or "").strip()
+    if len(name) < 3:
+        out.append(f"앱 이름 「{name}」 이 너무 짧아요 (3글자 이상) — manifest.yaml 의 display_information.name")
+    handle = (((man.get("features") or {}).get("bot_user") or {}).get("display_name") or "").strip()
+    if handle and not re.fullmatch(r"[A-Za-z0-9._-]+", handle):
+        out.append(f"부르는 이름 「{handle}」 은 영문이어야 해요 — Slack 이 여기서 @아이디를 만드는데 "
+                   "한글은 못 바꿔요 (「display_name cannot be converted to a username」). "
+                   "manifest.yaml 의 features.bot_user.display_name\n"
+                   "     메시지에 보이는 이름은 한글로 둘 수 있어요 — `setup.py --bot-name 모아`")
+    return out
 
 
 def app_link():
@@ -25,7 +47,82 @@ def app_link():
         man = yaml.safe_load((CODE / "manifest.yaml").read_text(encoding="utf-8"))
     except Exception as e:
         return None, f"manifest.yaml 을 읽지 못했어요({e}) — api.slack.com/apps 에서 직접 붙여 넣어 주세요"
+    bad = manifest_problems(man)
+    if bad:
+        return None, "링크를 열어도 Slack 이 거절해요. 먼저 고쳐 주세요:\n  ⛔ " + "\n  ⛔ ".join(bad)
     return "https://api.slack.com/apps?new_app=1&manifest_json=" + urllib.parse.quote(json.dumps(man)), None
+
+
+def check(env_file):
+    """설치 전에 **막힐 것을 미리 잰다.** 막히는 곳마다 칠 명령을 그대로 찍어 준다.
+
+    여기 있는 것은 전부 **조용히 죽던 것들**이다 (2026-09-21~22 실측):
+      · `claude` 가 없거나 못 부르면 → Slack 에 붙고 카드도 생기는데 **생각만 안 하는** 봇이 된다
+      · 앱 토큰 스코프가 빠지면 → 설치는 깨끗이 끝나고 **나중에 「봇이 반응이 없다」** 로 나타난다
+    그래서 **`claude auth status` 가 아니라 `claude -p` 를 진짜 부른다** — 로그인은 됐는데
+    모델 이름·옵션에서 터지는 경우를 상태 확인만으로는 못 잡는다.
+    """
+    import shutil, subprocess
+    bad = []
+
+    def line(ok, what, detail="", fix=""):
+        print(f"   {'✅' if ok else '⛔'} {what}" + (f" — {detail}" if detail else ""))
+        if not ok:
+            bad.append(what)
+            if fix:
+                print(f"      → {fix}")
+
+    line(sys.version_info >= (3, 11), "파이썬 3.11+", ".".join(map(str, sys.version_info[:3])),
+         "brew install python@3.13")
+    for mod, pkg in (("aiohttp", "aiohttp"), ("yaml", "pyyaml")):
+        try:
+            __import__(mod)
+            line(True, f"{pkg}")
+        except ImportError:
+            line(False, f"{pkg}", "없음", f"pip3 install {pkg}")
+
+    claude = shutil.which("claude")
+    line(bool(claude), "claude 명령", claude or "없음",
+         "claude 로그인이 안 돼 있으면 봇의 AI 가 통째로 멈춰요 — docs.claude.com 에서 설치")
+    if claude:
+        try:
+            r = subprocess.run([claude, "-p", "--output-format", "json", "--tools", "",
+                                "--no-session-persistence"], input="1+1은?", capture_output=True,
+                               text=True, timeout=120)
+            d = json.loads(r.stdout or "{}")
+            line(not d.get("is_error") and bool(d.get("result")), "claude 실제 호출",
+                 (d.get("result") or r.stderr or "")[:60].replace("\n", " "),
+                 "claude 로 한 번 로그인해 주세요")
+        except Exception as e:
+            line(False, "claude 실제 호출", type(e).__name__, "claude 로 한 번 로그인해 주세요")
+
+    if env_file.exists():
+        env = read_env(env_file)
+        sl = Slack(env.get("SLACK_BOT_TOKEN", ""))
+        me = sl.call("auth.test") if env.get("SLACK_BOT_TOKEN") else {"error": "없음"}
+        line(bool(me.get("ok")), "봇 토큰", me.get("team") or me.get("error"),
+             "Install App → Bot User OAuth Token 을 다시 넣어 주세요")
+        # **앱 토큰은 지금껏 `xapp-` 로 시작하는지만 봤다.** 스코프가 빠져도 통과했고,
+        # 그러면 봇을 켤 때(bot.py 의 apps.connections.open)에야 터진다
+        d = Slack(env.get("SLACK_APP_TOKEN", "")).call("apps.connections.open") \
+            if env.get("SLACK_APP_TOKEN") else {"error": "없음"}
+        line(bool(d.get("ok")), "앱 토큰 (connections:write)", d.get("error") or "됨",
+             "Basic Information → App-Level Tokens 에서 connections:write 로 다시 만들어 주세요")
+    else:
+        print(f"   · 토큰 파일 없음 ({env_file}) — `--ask-tokens` 로 만들 수 있어요")
+
+    try:
+        import yaml
+        for p in manifest_problems(yaml.safe_load((CODE / "manifest.yaml").read_text(encoding="utf-8"))):
+            line(False, "매니페스트", p)
+    except Exception as e:
+        line(False, "manifest.yaml", str(e)[:60])
+
+    import subprocess as sp
+    gh = sp.run(["gh", "auth", "status"], capture_output=True, text=True) if shutil.which("gh") else None
+    print(f"   {'✅' if gh and not gh.returncode else '·'} gh (GitHub 쓸 때만)"
+          + ("" if gh and not gh.returncode else " — 없어도 돼요. 할 일 정본을 md 로만 써요"))
+    return bad
 
 
 def ask_tokens(path):
@@ -180,10 +277,17 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="Slack 에 아무것도 만들지 않고 찾기만 한다")
     ap.add_argument("--ask-tokens", action="store_true", help="토큰 두 개를 물어봐서 파일로 저장한다 (화면에 안 보임)")
     ap.add_argument("--app-link", action="store_true", help="앱 만들기 화면을 미리 채워 여는 링크만 출력하고 끝낸다")
+    ap.add_argument("--check", action="store_true", help="설치 전에 막힐 것을 미리 잰다 (파이썬·claude·토큰·매니페스트). Slack 에 아무것도 안 만든다)")
     a = ap.parse_args()
 
-    if not a.app_link and not a.data:
+    if not a.app_link and not a.check and not a.data:
         ap.error("--data 가 필요해요 (예: --data ~/teams/우리팀)")
+    if a.check:
+        print("설치 전 점검 — Slack 에는 아무것도 만들지 않아요")
+        bad = check(pathlib.Path(a.env_file).expanduser())
+        print("\n" + ("다 됐어요. 이제 설치해도 돼요." if not bad
+                       else f"{len(bad)}가지를 먼저 고쳐 주세요 — 위의 → 를 따라 하시면 돼요."))
+        return 0 if not bad else 1
     if a.app_link:
         url, err = app_link()
         print(err or f"이 링크를 열고 Create → Install 두 번만 누르면 돼요:\n{url}")
