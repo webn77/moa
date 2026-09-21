@@ -1,5 +1,5 @@
 """바탕 — 채널 ID · 용어(상태·우선순위) · 로그 · 작은 도우미. 다른 우리 모듈을 모른다 (#30 에서 bot.py 를 나눔)."""
-import re, logging, asyncio
+import json, re, logging, asyncio
 import config
 import core
 
@@ -18,6 +18,25 @@ ISSUE_NAME, REQUEST_NAME = config.CFG.get("issue_name", "프로젝트 방"), con
 # 없으면 예전처럼 맨 `#40`. Jira 처럼 사람이 정한다 — 레포 이름에서 뽑으면 읽기 어려운 약칭이 나온다.
 PROJECTS = config.projects()                 # 하나여도 목록이다 — 설정에 없으면 평평한 키로 하나 (#66)
 PREFIX = PROJECTS[0].get("key") or ""        # 프로젝트를 못 고를 때 쓰는 앞말 (프로젝트가 하나면 늘 이것)
+
+
+def reload_projects():
+    """`config.json` 을 다시 읽어 `PROJECTS` 를 **제자리에서** 갈아 끼운다 (2026-09-21).
+
+    DM 으로 프로젝트를 만들면 설정이 늘어나는데, 이 목록은 **봇이 뜰 때 한 번만** 만들어진다.
+    그래서 예전에는 만들어 놓고도 **다시 띄우기 전까지 봇이 그 프로젝트를 몰랐다** —
+    새 방에 쓴 글이 아무 데도 안 걸렸다.
+
+    **통째로 새로 대입하면 안 된다.** `from common import PROJECTS` 한 모듈들(`store` · `handlers`)이
+    **같은 리스트 객체**를 들고 있어서, 이름만 새 객체로 바꾸면 그쪽에는 안 보인다.
+    슬라이스 대입(`[:]`)이라야 들고 있는 모두에게 보인다.
+
+    `CHANNEL` · `PREFIX` 같은 글자 상수는 안 바꾼다 — 저건 **첫 프로젝트**의 값이고, 프로젝트를
+    더한다고 첫 번째가 달라지지는 않는다.
+    """
+    config.CFG = json.loads(config.PATH.read_text(encoding="utf-8")) if config.PATH.exists() else {}
+    PROJECTS[:] = config.projects()
+    return PROJECTS
 LABEL = {"todo": "대기", "doing": "진행 중", "blocked": "보류", "review": "확인 대기", "done": "완료", "cancelled": "취소"}
 # 우선순위 — Jira·Linear 처럼 P1~P4 + 색. 사람이 정하면 그대로, 아니면 점수로 (priority.md)
 PLEVEL = {1: "🔴 P1", 2: "🟠 P2", 3: "🟡 P3", 4: "⚪ P4"}

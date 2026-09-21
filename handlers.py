@@ -107,6 +107,10 @@ async def on_dm(s, e):
         return
     # ⏳ 반응은 빼고 「…하는 중」 하나만 쓴다 — 둘 다 뜨니 같은 말이 두 번이었다
     # (2026-09-21 사장님: 「굳이 2개 다 나올 필요가 있나」). 상태 줄이 **무엇을 하는 중인지**까지 말해 준다
+    # **프로젝트 만들기가 먼저다** — 묻는 중이면 그 답을 다른 갈래가 가로채면 안 된다.
+    # 「결제 개편」 이 프로젝트 이름인데 검색어로 받으면 대화가 끊긴다 (2026-09-21)
+    if await new_project(s, e, q):
+        return
     async with thinking(s, e, say("thinking"), say("thinking_read"), say("thinking_almost")):
         if "현황" in q:
             await show_digest(s, e["channel"], e["user"])
@@ -474,6 +478,7 @@ async def refresh_ctls(s):
 
 # 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다
 from ai import answer, coach, refine  # noqa: E402,F401
+from flows.project import maybe as new_project  # noqa: E402
 from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401

@@ -8,6 +8,7 @@ import sys
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from messages import say  # noqa: E402
 from flows.find import reply_for  # noqa: E402
 from store import STATE  # noqa: E402
 
@@ -82,7 +83,7 @@ class FindTest(unittest.TestCase):
         """못 찾았으면 무엇을 할 수 있는지 같이 보여 준다 — 「없어요」 만 하면 다음에 뭘 할지 모른다."""
         out = self.ask("없는말없는말")
         self.assertIn("못 찾았어요", out)
-        self.assertIn("PA 에게 말하면", out)
+        self.assertIn(say("guide"), out)
 
     def test_greeting_gets_a_greeting(self):
         """인사에는 인사로 — 검색어로 받으면 「‘하이’ 로 찾은 이슈 없어요」 가 나온다 (2026-09-20 실측)."""
@@ -230,20 +231,20 @@ class GuideOnceTest(unittest.TestCase):
         STATE["cards"] = self.old
 
     def test_first_time_gets_the_whole_guide(self):
-        self.assertIn("PA 에게 말하면 돼요", reply_for("없는말", A, TEAM, seen=[]))
+        self.assertIn(say("guide"), reply_for("없는말", A, TEAM, seen=[]))
 
     def test_second_time_gets_one_line(self):
         out = reply_for("없는말", A, TEAM, seen=[A])
-        self.assertNotIn("PA 에게 말하면 돼요", out)
+        self.assertNotIn(say("guide"), out)
         self.assertIn("도움말", out)
 
     def test_help_always_gets_the_whole_guide(self):
         """달라고 했으면 본 사람에게도 전부 준다 — 「도움말」 은 인사가 아니다."""
-        self.assertIn("PA 에게 말하면 돼요", reply_for("도움말", A, TEAM, seen=[A]))
+        self.assertIn(say("guide"), reply_for("도움말", A, TEAM, seen=[A]))
 
     def test_greeting_does_not_repeat_the_guide(self):
         """「안녕」 은 도움말 요청이 아니다 — 아는 사람에게 여섯 줄을 또 주지 않는다."""
-        self.assertNotIn("PA 에게 말하면 돼요", reply_for("안녕", A, TEAM, seen=[A]))
+        self.assertNotIn(say("guide"), reply_for("안녕", A, TEAM, seen=[A]))
 
     def test_asking_what_the_bot_does(self):
         """봇에게 뭘 할 수 있냐고 **어떻게 묻든** 무엇을 하는지는 말한다 (PA-75).
@@ -255,18 +256,19 @@ class GuideOnceTest(unittest.TestCase):
         for q in ("업무 어디까지 도와줄 수 있어?", "ㅇㅇ 업무 어디까지 도와줄 수 있어?",
                   "뭘 도와줄 수 있어?", "어디까지 할 수 있어?", "어떤 일 해줘?", "뭐 도와줄래?"):
             out = reply_for(q, A, TEAM, seen=[A])
-            self.assertIn("프로덕트 챙기는 일", out, q)
+            self.assertIn("프로젝트를 챙기는 일", out, q)
             self.assertNotIn("찾은 할 일", out, q)          # 검색어로 받지 않는다
 
-    def test_introduces_itself_as_product_not_issue(self):
-        """「저는 이슈를 챙겨요」 로 좁혀 말하면 사람이 이슈 밖의 것은 묻지 않게 된다.
+    def test_introduces_itself_as_project_not_issue(self):
+        """「저는 할 일을 챙겨요」 로 좁혀 말하면 사람이 그 밖의 것은 묻지 않게 된다.
 
-        2026-09-21 사장님 정의: **프로덕트 관리 봇이고 이슈는 그중 하나다.**
-        봇 이름도 「프로덕트 에이전트」 라 말이 맞아야 한다.
+        2026-09-21 사장님 정의: **프로젝트 관리 봇이고 할 일은 그중 하나다.**
+        그리고 **프로젝트 만들기가 시작점**이라는 것이 두 소개 모두에 있어야 한다 —
+        DM 을 처음 연 사람이 무엇부터 하면 되는지 모르면 빈 화면과 같다.
         """
         from messages import say
         for k in ("dont_get_it", "dm_hello"):
-            self.assertIn("프로덕트", say(k), k)
+            self.assertIn("프로젝트", say(k), k)
 
     def test_question_mark_is_not_a_search_word(self):
         """물음표로 끝나면 찾아 달라는 말이 아니다.
