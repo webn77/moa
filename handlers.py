@@ -69,8 +69,10 @@ async def say_hello(s, e):
         return
     said.append(e["user"])
     save()
+    # **안내문 전체를 붙이지 않는다** (2026-09-22 사장님 지적) — 읽을 것만 많고 무엇부터
+    # 할지는 없었다. 안내문은 **앱 홈**에 둔다(거기가 개인 자리다). 여기는 **다음 한 걸음**만
     await api(s, "chat.postMessage", body={"channel": e["channel"], "unfurl_links": False,
-              "text": say("dm_hello") + "\n\n" + say("guide"), **mood("부탁")})
+              "text": (say("dm_hello") + "\n\n" + nudge(e["user"])).strip(), **mood("부탁")})
     log(f"DM 인사 → {e.get('user')}")
 
 
@@ -110,6 +112,8 @@ async def on_dm(s, e):
     # **프로젝트 만들기가 먼저다** — 묻는 중이면 그 답을 다른 갈래가 가로채면 안 된다.
     # 「결제 개편」 이 프로젝트 이름인데 검색어로 받으면 대화가 끊긴다 (2026-09-21)
     if await new_project(s, e, q):
+        return
+    if await onboard_catch(s, e, q):          # 처음 오신 분의 한 걸음 — 1번(목표)만 여기서 받는다
         return
     async with thinking(s, e, say("thinking"), say("thinking_read"), say("thinking_almost")):
         if "현황" in q:
@@ -478,6 +482,7 @@ async def refresh_ctls(s):
 
 # 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다
 from ai import answer, coach, refine  # noqa: E402,F401
+from flows.onboard import catch as onboard_catch, nudge  # noqa: E402
 from flows.project import maybe as new_project  # noqa: E402
 from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401

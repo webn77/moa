@@ -171,3 +171,53 @@ class ReloadTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OnboardTest(unittest.TestCase):
+    """처음 오신 분의 걸음 — **데이터에서 계산한다.** 따로 세어 두면 사람이 Slack 에서
+    직접 한 일과 어긋나서, 이미 한 걸 또 하라고 조른다 (2026-09-22)."""
+
+    def setUp(self):
+        from flows import onboard
+        self.o = onboard
+        STATE.pop("onboard_done", None)
+
+    def tearDown(self):
+        STATE.pop("onboard_done", None)
+
+    def test_a_finished_team_is_not_nagged(self):
+        """예시 데이터는 목표·팀·할 일·담당이 다 있다 — 조르면 안 된다."""
+        self.assertIsNone(self.o.step(ME))
+        self.assertEqual(self.o.nudge(ME), "")
+
+    def test_every_step_message_renders(self):
+        """2·3번 걸음은 「<#…> 에서 하세요」 라고 방을 가리킨다 — 자리를 안 채우면 KeyError 로
+        인사 한 줄 때문에 DM 전체가 안 간다 (실제로 났다)."""
+        from messages import say
+        for n in (1, 2, 3, 4):
+            self.assertIn("️⃣", say(f"onboard_{n}", channel=self.o.room()))
+
+    def test_saying_done_stops_the_nagging(self):
+        for word in ("됐어요", "나중에 할게요", "건너뛸래요"):
+            STATE.pop("onboard_done", None)
+            self.assertTrue(self.o.skipped(word), word)
+        self.o.give_up(ME)
+        self.assertIsNone(self.o.step(ME))
+
+    def test_a_command_is_not_taken_as_a_goal(self):
+        """1번 걸음은 **아무 글이나** 목표로 받는다 — 울타리가 없으면 「현황」 이 목표가 된다."""
+        for q in ("현황 알려줘", "내 할 일", "도움말", "프로젝트 만들기", "정리"):
+            self.assertTrue(any(x in q for x in self.o.NOT_A_GOAL), q)
+
+    def test_a_goal_is_written_and_read_back(self):
+        """적은 목표를 다시 읽을 수 있어야 한다 — 못 읽으면 1번 걸음에서 영원히 못 나간다."""
+        import tempfile, pathlib, shutil
+        with tempfile.TemporaryDirectory() as d:
+            d = pathlib.Path(d)
+            shutil.copy(pathlib.Path(self.o.HERE) / "project.md", d / "project.md")
+            (d / "project.md").write_text("---\nkind: project\n---\n\n## 목표\n**(한 문장 — 무엇을 이루나)**\n",
+                                          encoding="utf-8")
+            with mock.patch.object(self.o, "HERE", d), mock.patch("docs.HERE", d):
+                self.assertFalse(self.o.goal_set())
+                self.assertTrue(self.o.set_goal("결제 실패를 하루 40건에서 20건으로 줄인다"))
+                self.assertTrue(self.o.goal_set())

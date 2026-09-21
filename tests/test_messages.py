@@ -66,6 +66,21 @@ class MessageRules(unittest.TestCase):
                               ("할 일를", "할 일을"), ("할 일와", "할 일과")):
                 self.assertNotIn(bad, v, f"{k}: 「{bad}」 → 「{good}」")
 
+    def test_no_forced_metaphors(self):
+        """억지 비유를 쓰지 않는다 (2026-09-22 사장님 지적: 「굴리다 라는 표현은 아닌 거 같아」).
+
+        **프로젝트는 구르지 않고, 일은 차려지지 않는다.** 밥상·수레에 쓰는 말을 일에 붙이면
+        한 번 멈칫하게 된다. 사장님이 이런 것을 잡으려고 `writeflow` 를 만들어 두셨는데,
+        그 규칙(`~/projects/writeflow/rules/words.md`)에도 같이 넣었다. 다만 writeflow 는
+        이 저장소 밖에 있어 시험에서 부를 수 없으므로, **낱말만 여기 옮겨 둔다.**
+
+        「정본」 도 뺐다 — 우리끼리 쓰는 문서 용어이고, 봇이 사람에게 할 말로는 어렵다.
+        """
+        for k, v in TEXTS.items():
+            for bad, good in (("굴리", "해 나가다"), ("차려", "준비가 끝나다 · 만들다"),
+                              ("정본", "기록 파일")):
+                self.assertNotIn(bad, v, f"{k}: 「{bad}」 → 「{good}」")
+
     def test_no_particle_after_date(self):
         """{due} 바로 뒤에 조사를 붙이지 않는다 — 9/21이에요 · 9/23예요 는 날짜마다 틀린다."""
         for k, v in TEXTS.items():

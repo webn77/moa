@@ -198,8 +198,22 @@ async def refresh_homes(s):
 
 
 async def publish_home(s, user):
-    """앱 홈 = 내 할 일. 나한테 맡겨진 것, 내가 요청한 것, 다가오는 회의만."""
+    """앱 홈 = 내 할 일. 나한테 맡겨진 것, 내가 요청한 것, 다가오는 회의만.
+
+    **아무것도 없으면 현황판을 보여 주지 않는다** (2026-09-22 사장님 지적). 예전에는 갓 깐 팀에도
+    「진행률 0% (0/0) · 담당 없음에서 하나 골라 보세요」 를 띄웠는데 — **고를 게 없었다.**
+    빈 현황판은 첫인상을 망친다. 그럴 때는 *어디서 시작하는지*만 말해 준다.
+    """
+    from flows.onboard import nudge
     cards = sorted(STATE["cards"].values(), key=lambda c: c["no"])
+    if not cards and (tip := nudge(user)):
+        await api(s, "views.publish", body={"user_id": user, "view": {"type": "home", "blocks": [
+            {"type": "section", "text": {"type": "mrkdwn", "text": say("home_empty")}},
+            {"type": "divider"},
+            {"type": "section", "text": {"type": "mrkdwn", "text": tip}},
+            {"type": "divider"},
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": say("guide")}]}]}})
+        return
     mine = [c for c in cards if c.get("assignee") == user and c["status"] not in ("done", "cancelled")]
     asked = [c for c in cards if c.get("by_id") == user and c["status"] != "cancelled"]
     meets = [m for m in STATE.get("meetings", {}).values() if m.get("stage", "planned") != "applied"]
