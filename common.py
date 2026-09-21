@@ -10,8 +10,11 @@ CHANNEL, CANVAS = config.need("issue_channel"), config.need("canvas")   # 프로
 # 채널 하나로 쓰는 팀도 있고, 프로젝트마다 따로 두지 않기도 한다. 없다고 봇이 안 뜨면 안 되므로
 # 프로젝트 방으로 떨어뜨린다 — 예전에는 need() 라 설정에 없으면 **봇이 아예 안 떴다.**
 REQUEST = config.CFG.get("request_channel") or CHANNEL
-BOT = config.CFG.get("bot_name", "프로덕트 에이전트 - PA")     # 메시지에 보이는 이름
-HANDLE = config.CFG.get("bot_handle") or "PA"                 # @ 로 부를 때 쓰는 이름 (앱 설정의 봇 이름과 같아야 한다)
+BOT = config.CFG.get("bot_name") or "모아"                    # 메시지에 보이는 이름 (한글 가능 — 봇이 매번 실어 보낸다)
+# @ 로 부를 때 쓰는 이름. **Slack 앱의 봇 아이디와 같아야 하고 영문이어야 한다** —
+# Slack 이 display_name 에서 아이디를 만드는데 한글은 변환을 못 한다 (2026-09-21 실측:
+# 「The display_name cannot be converted to a username: 모아」). 그래서 보이는 이름과 다를 수 있다.
+HANDLE = config.CFG.get("bot_handle") or config.CFG.get("bot_name") or "Moa"
 ISSUE_NAME, REQUEST_NAME = config.CFG.get("issue_name", "프로젝트 방"), config.CFG.get("request_name", "팀 대화방")
 # 번호 앞말 (#66) — `PA-40` 의 `PA`. **레포**(번호를 주는 단위)의 약칭이고 프로젝트가 아니다.
 # 프로젝트는 앞말이 아니라 카드의 칸이다 — 그래야 한 프로젝트가 레포 둘로 갈라질 수 있다 (research/benchmark.md).

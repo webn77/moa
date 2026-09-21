@@ -171,6 +171,8 @@ def main():
     ap.add_argument("--pm", help="PM 의 Slack 멤버 ID (U로 시작) — 채널 초대 · team.md 첫 줄")
     ap.add_argument("--talk", "--request", dest="talk", default="팀-대화", help="팀 대화방 이름 (사람과 AI가 이야기하는 곳, 프로젝트가 여럿이어도 하나)")
     ap.add_argument("--room", "--issues", dest="room", help="프로젝트 방 이름 (기본: 프로젝트-<프로젝트 이름>)")
+    ap.add_argument("--bot-name", help="메시지에 보이는 이름 (기본: Slack 앱의 봇 이름). "
+                                      "Slack 은 봇 아이디를 영문만 받지만 메시지 이름은 한글로 둘 수 있다")
     ap.add_argument("--github", help="GitHub 레포 owner/name (없으면 md 정본만)")
     ap.add_argument("--project-number", help="GitHub Projects 보드 번호 (없으면 보드 동기화 안 함)")
     ap.add_argument("--env-file", default="~/.config/moa.env", help="SLACK_BOT_TOKEN · SLACK_APP_TOKEN 이 든 파일")
@@ -205,8 +207,10 @@ def main():
         raise SystemExit(f"   봇 토큰이 맞지 않아요: {me.get('error')}")
     bot = sl.call("bots.info", bot=me["bot_id"]).get("bot") or {}
     prof = (sl.call("users.info", user=me["user_id"]).get("user") or {}).get("profile") or {}
-    bot_name = prof.get("display_name") or prof.get("real_name") or me["user"]     # 사람들이 @ 로 부르는 이름
-    print(f"   워크스페이스 {me['team']} ({me['team_id']}) · 봇 @{bot_name} · 앱 {bot.get('app_id', '?')}")
+    handle = prof.get("display_name") or prof.get("real_name") or me["user"]      # @ 로 부르는 이름 — Slack 이 정한다(영문)
+    bot_name = a.bot_name or handle                                               # 메시지에 보이는 이름 — 팀이 정한다(한글 가능)
+    print(f"   워크스페이스 {me['team']} ({me['team_id']}) · 부를 때 @{handle}"
+          + (f" · 보이는 이름 {bot_name}" if bot_name != handle else "") + f" · 앱 {bot.get('app_id', '?')}")
 
     print("② 채널")
     ids = {}
@@ -221,7 +225,7 @@ def main():
     canvas, how = find_or_create_canvas(sl, ids["issues"], a.dry_run) if ids["issues"] else (None, "채널이 없어 건너뜀")
     print(f"   #{a.room} 캔버스: {how}" + (f" ({canvas})" if canvas else ""))
 
-    cfg = {"workspace": me["team_id"], "app_id": bot.get("app_id", ""), "bot_name": bot_name,
+    cfg = {"workspace": me["team_id"], "app_id": bot.get("app_id", ""), "bot_name": bot_name, "bot_handle": handle,
            "request_channel": ids["request"], "request_name": a.talk,
            "issue_channel": ids["issues"], "issue_name": a.room, "canvas": canvas,
            "env_file": a.env_file}

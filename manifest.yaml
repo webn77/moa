@@ -8,7 +8,7 @@
 # 앱 이름·아이콘은 API 로 못 바꾼다 — 사람이 한 번 해야 한다. 메시지에 보이는 이름·얼굴은 봇이 매번 실어 보낸다.
 # 설치 순서 전체는 docs/install.md
 display_information:
-  name: 모아
+  name: 모아 프로젝트 비서
   description: 흩어진 대화를 모아 할 일로 — 담당·일정·회의록·지난 결정까지 챙겨요
   background_color: "#0A3A42"   # 짙은 청록 — 앱 이름이 흰 글씨로 얹히는 배경이라 어두워야 한다 (민트 #02c2d3 은 Slack 이 막는다)
 features:
@@ -37,7 +37,7 @@ features:
     messages_tab_enabled: true              # DM 으로도 말할 수 있게 (2026-09-20)
     messages_tab_read_only_enabled: false   # 빠뜨리면 Slack 이 읽기 전용으로 켠다 — 탭은 생기는데 글을 못 쓴다
   bot_user:
-    display_name: 모아
+    display_name: Moa
     always_online: true
   shortcuts:
     - name: 할 일로 만들기
@@ -47,7 +47,7 @@ features:
 oauth_config:
   scopes:
     bot:
-      - app_mentions:read      # @모아 정리 · 질문
+      - app_mentions:read      # @Moa 정리 · 질문 (봇 아이디는 영문만 — Slack 이 한글을 못 바꾼다)
       - canvases:read
       - canvases:write         # 채널 캔버스 갱신
       - channels:history       # 채널·스레드 읽기
