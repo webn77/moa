@@ -204,6 +204,22 @@ class OnboardTest(unittest.TestCase):
         self.o.give_up(ME)
         self.assertIsNone(self.o.step(ME))
 
+    def test_the_room_it_points_at_is_the_newest_project(self):
+        """3번 걸음이 「<#…> 에 쓰세요」 라고 가리키는 방은 **방금 만든 프로젝트**여야 한다.
+        setup 이 만든 첫 방을 가리키면 거기 쓴 글이 아무 데도 안 걸린다 (2026-09-22)."""
+        self.assertEqual(self.o.room(), common.PROJECTS[-1].get("channel"))
+        self.assertGreater(len(common.PROJECTS), 1)          # 예시는 프로젝트가 둘이다
+
+    def test_step_one_is_making_your_own_project(self):
+        """setup 이 만든 방 하나는 **자리만 잡은 것**이라 세지 않는다."""
+        saved = [dict(p) for p in common.PROJECTS]
+        try:
+            common.PROJECTS[:] = saved[:1]
+            self.assertFalse(self.o.own_project())
+            self.assertEqual(self.o.step(ME), 1)
+        finally:
+            common.PROJECTS[:] = saved
+
     def test_a_command_is_not_taken_as_a_goal(self):
         """1번 걸음은 **아무 글이나** 목표로 받는다 — 울타리가 없으면 「현황」 이 목표가 된다."""
         for q in ("현황 알려줘", "내 할 일", "도움말", "프로젝트 만들기", "정리"):

@@ -4,20 +4,25 @@
 **무엇부터 하면 되는지는 없었다.** 앱 홈도 마찬가지였다 — 아무것도 없는 사람에게
 「진행률 0% · 담당 없음에서 하나 골라 보세요」 를 보여 줬는데, **고를 게 없었다.**
 
-  1️⃣ 무엇을 이루려는지 한 줄
-  2️⃣ 같이 할 사람 부르기      ← 이게 핵심이다
+  1️⃣ 지금 하고 계신 프로젝트 올리기   ← 여기서 같이 할 사람까지 부른다
+  2️⃣ 무엇을 이루려는지 한 줄
   3️⃣ 첫 할 일 적기
   4️⃣ 누가 언제까지 · 현황판
 
-**2번이 핵심인 이유**: 모아가 가려는 곳은 「사람 한 명이 AI 와 일한다」 가 아니라
-**「팀이 AI 와 같이 일한다」** 이다 (사장님). 혼자 다 차리고 끝나면 방향과 어긋난다.
+**1번이 프로젝트인 이유** (2026-09-22 사장님): 지금 **하고 계신 일**부터 올려야 남의 이야기가
+되지 않는다. 그리고 프로젝트를 만들면서 **같이 할 사람까지 부른다** — 모아가 가려는 곳은
+「사람 한 명이 AI 와 일한다」 가 아니라 **「팀이 AI 와 함께 프로젝트를 만들어 간다」** 이다.
+혼자 다 만들고 끝나면 방향과 어긋난다.
+
+`setup.py` 가 만든 첫 방은 **자리만 잡아 둔 것**이다. 그래서 1번은 「프로젝트가 둘 이상인가」 로
+센다 — 사람이 DM 으로 자기 프로젝트를 하나라도 올렸다는 뜻이다.
 
 **어느 걸음인지는 데이터에서 계산한다** — 따로 세어 두지 않는다. 세어 두면 사람이
 Slack 에서 직접 한 일(사람을 초대하거나 카드를 만든 것)과 어긋나고, 그러면 이미 한 일을
 또 하라고 조른다. 계산이 한 박자 느릴 수는 있어도 **거짓말은 하지 않는다.**
 """
 from common import HERE, PROJECTS, log
-from docs import load_team, project_info
+from docs import project_info
 from messages import say
 from store import STATE, open_cards, save
 
@@ -34,18 +39,22 @@ def goal_set():
     return bool(goal) and not goal.startswith("(") and "목표 미정" not in goal
 
 
-def team_joined():
-    """PM 말고 한 사람이라도 더 있나 — setup 은 PM 한 줄만 써 둔다."""
-    return len(load_team()) > 1
+def own_project():
+    """사람이 **자기 프로젝트**를 하나라도 올렸나.
+
+    `setup.py` 는 늘 방 하나를 만들어 둔다 — 그건 자리만 잡은 것이라 세지 않는다.
+    둘째부터가 사람이 DM 으로 올린 것이다.
+    """
+    return len(PROJECTS) > 1
 
 
 def step(user=None):
     """지금 어느 걸음인가 (1~4). 다 끝났거나 건너뛰었으면 None."""
     if user and user in STATE.setdefault("onboard_done", []):
         return None
-    if not goal_set():
+    if not own_project():
         return 1
-    if not team_joined():
+    if not goal_set():
         return 2
     cards = open_cards()
     if not cards:
@@ -79,8 +88,12 @@ def nudge(user=None, head=True):
 
 
 def room():
-    """첫 프로젝트 방 — 안내에서 「여기에 쓰세요」 라고 가리킬 곳."""
-    return (PROJECTS[0].get("channel") or "") if PROJECTS else ""
+    """「여기에 쓰세요」 라고 가리킬 방 — **방금 만든 프로젝트**다.
+
+    setup 이 만든 첫 방을 가리키면 안 된다. 사람이 1번 걸음에서 자기 프로젝트를 올렸는데
+    **엉뚱한 방을 가리키면** 거기 쓴 글이 아무 데도 안 걸린다.
+    """
+    return (PROJECTS[-1].get("channel") or "") if PROJECTS else ""
 
 
 # 온보딩이 삼키면 안 되는 말 — 이미 뜻이 있는 것들. 1번 걸음은 **아무 글이나** 목표로 받으므로
@@ -110,8 +123,8 @@ async def catch(s, e, q):
         await say_to(s, ch, say("onboard_skip"))
         return True
     n = step(user)
-    if n != 1:
-        return False                      # 2~4번 걸음은 Slack 에서 직접 하는 일이라 여기서 안 받는다
+    if n != 2:
+        return False                      # 목표(2번)만 여기서 받는다 — 나머지는 Slack 에서 직접 하는 일이다
     word = q.strip()
     if len(word) < 4 or any(x in word for x in NOT_A_GOAL):
         return False
