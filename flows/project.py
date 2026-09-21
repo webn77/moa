@@ -92,9 +92,20 @@ def _asking(user):
     return (STATE.get("new_project") or {}).get(user)
 
 
+def _nameable(name):
+    """방 이름으로 쓸 글자가 두 자 이상 남나 — 이모지·기호만이면 방 이름이 통째로 비어
+    모든 프로젝트가 `#프로젝트` 하나로 뭉친다 (2026-09-22 예외 시험)."""
+    return len(re.sub(r"[^0-9A-Za-z가-힣]", "", name or "")) >= 2
+
+
 async def _take_title(s, ch, th, st, name):
     """이름을 받고 앞말을 물어본다 — 시작할 때 같이 말했든, 따로 답했든 같은 길."""
     from common import PROJECTS
+    if not _nameable(name):
+        await _say(s, ch, say("proj_name_bad", word=(name or "")[:20] or "빈 글자"), th)
+        st["step"] = "title"
+        save()
+        return True
     st["title"] = name
     st["key"] = _suggest_key(name, {p.get("key") for p in PROJECTS if p.get("key")})
     st["step"] = "key"
@@ -144,63 +155,165 @@ async def _create(s, e, st):
     config.PATH.write_text(json.dumps(cfg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     reload_projects()                      # 다시 띄우지 않아도 이 자리에서 알게 된다
     log(f"프로젝트 만듦 {st['key']} #{name} ({'새로' if made else '있던 방'}) ← {st['by']}")
-    return {"channel": ch, "name": name, "people": len(people), "made": made}, None
+    return {"channel": ch, "name": name, "people": len(people), "made": made,
+            "canvas": canvas, "canvas_err": cv.get("error")}, None
+
+
+# ─── LLM 으로 칸 채우기 (2026-09-22 사장님 결정) ──────────────────────────────
+# **단계를 없앤다.** 예전에는 이름 → 앞말 → 사람 을 차례로 물었다. 사람이 「충전성공,
+# 앞말 charge, 나 혼자」 라고 **한 문장에 다 말해도** 세 번을 물었고, 「충전성공 이게
+# 프로젝트 이름이야」 같은 말투마다 규칙을 더해야 했다 (2026-09-22 실측).
+#
+# 이제는 **대화 전체를 주고 빈 칸을 채우게** 한다. 남는 것은 「칸이 다 찼나」 하나다.
+# 한 문장에 다 말하면 한 번에 끝나고, 나눠 말하면 나눠서 채워진다.
+#
+# **맥락은 두 층이다** — 둘 다 줘야 한다:
+#   · 대화 맥락: 그 스레드에서 오간 말   → 「아까 그거로」 를 알아듣는다
+#   · 팀 맥락: team.md 명단 · 이미 쓰는 앞말 → 「민수랑」 을 U03G… 로 바꾼다
+# 명단을 안 주면 **사람 ID 를 지어낸다.** 그래서 「명단에 없으면 넣지 않는다」 고 못 박는다.
+FILL_SYS = (
+    "너는 Slack 에서 팀의 프로젝트를 여는 비서다. 오간 대화에서 세 가지를 찾아낸다: "
+    "프로젝트 이름 · 번호 앞말 · 같이 할 사람. "
+    "**대화에 없는 것은 지어내지 않는다** — 모르면 빈 값으로 둔다. "
+    "사람은 주어진 명단에서만 고른다. 명단에 없는 사람은 넣지 않는다. "
+    "반드시 JSON 한 개만 출력한다: "
+    '{"name": "", "key": "", "who": [], "alone": false, "ask": ""} '
+    "name 은 프로젝트 이름(한국어 가능, 40자 이내) — 설명은 빼고 **이름만**. "
+    "key 는 번호 앞말(영문 대문자 2~6글자). 사람이 안 정했으면 이름에서 만들어 제안한다. "
+    "who 는 멤버 ID 배열. 사람이 「혼자」 라고 했으면 alone 을 true 로. "
+    "ask 는 **아직 모르는 것 하나만** 묻는 짧은 한국어 문장 — 다 알면 빈 글자."
+)
+
+
+async def _fill(s, turns, taken):
+    """대화에서 칸을 채운다. AI 가 안 되면 None — 부르는 쪽이 옛 방식으로 떨어진다."""
+    from ai import ask_ai
+    from docs import load_team
+    team = load_team()
+    roster = "\n".join(f"- {t.get('name')} {uid}" for uid, t in team.items()) or "- (아직 없음)"
+    prompt = ("[오간 말]\n" + "\n".join(f"- {x}" for x in turns[-8:])[:2000]
+              + "\n\n[팀 명단 — 여기 있는 사람만 고른다]\n" + roster
+              + "\n\n[이미 쓰는 앞말 — 피한다]\n" + (", ".join(sorted(taken)) or "(없음)"))
+    try:
+        raw = await ask_ai(FILL_SYS, prompt)
+        d = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
+    except Exception as ex:
+        log(f"프로젝트 칸 채우기 실패: {type(ex).__name__}: {ex}")
+        return None
+    name = str(d.get("name") or "").strip()[:60]
+    key = re.sub(r"[^A-Za-z0-9]", "", str(d.get("key") or ""))[:6].upper()
+    who = [u for u in (d.get("who") or []) if isinstance(u, str) and u in team]
+    return {"name": name if _nameable(name) else "",
+            "key": key if KEY_OK.match(key or "") and key not in taken else "",
+            "who": who, "alone": bool(d.get("alone")),
+            "ask": str(d.get("ask") or "").strip()[:200]}
 
 
 async def maybe(s, e, q):
-    """DM 의 이 말이 프로젝트 만들기와 관련 있으면 처리하고 True. 아니면 False (다른 갈래로 간다)."""
+    """DM 의 이 말이 프로젝트 만들기와 관련 있으면 처리하고 True. 아니면 False.
+
+    **단계가 없다.** 오간 말을 모아 두고 AI 가 칸을 채운다 — 빈 칸이 있으면 그것만 묻고,
+    다 차면 **되읽어 확인**받은 뒤 만든다. AI 가 안 되면 옛 세 마디 방식으로 떨어진다.
+    """
     user, ch = e.get("user"), e.get("channel")
     th = e.get("thread_ts") or e.get("ts")
     st = _asking(user)
     if st is None:
         if not START.search(q):
             return False
-        st = {"step": "title", "by": user}
+        st = {"by": user, "turns": [], "step": "fill"}
         STATE.setdefault("new_project", {})[user] = st
-        # **이름을 같이 말했으면 또 묻지 않는다** — 「프로젝트 하나 만들어줘, 충전성공이야」
-        # 라고 했는데 「어떤 일인가요?」 가 오면 사람은 자기 말을 못 들은 줄 안다 (2026-09-22 실측)
-        name = _name_of(q)
-        if len(name) >= 2:
-            return await _take_title(s, ch, th, st, name)
-        save()
-        await _say(s, ch, say("proj_ask_name"), th)
-        return True
     if q.strip() in CANCEL:
         STATE["new_project"].pop(user, None); save()
         await _say(s, ch, say("proj_cancel"), th)
         return True
     from common import PROJECTS
     taken = {p.get("key") for p in PROJECTS if p.get("key")}
-    if st["step"] == "title":
-        return await _take_title(s, ch, th, st, _name_of(q) or q.strip()[:60])
-    if st["step"] == "key":
-        word = q.strip()
-        if word.lower() not in YES:
-            if not KEY_OK.match(word):
-                # 같은 질문만 되풀이하면 **답을 못 들은 것처럼** 보인다 (2026-09-22 실측)
-                await _say(s, ch, say("proj_key_bad", word=word[:20], k=st["key"]), th)
-                return True
-            if word.upper() in taken:
-                await _say(s, ch, say("proj_key_taken", k=word.upper()), th)
-                return True
-            st["key"] = word.upper()
-        st["step"] = "who"; save()
+    st.setdefault("turns", []).append(q.strip()[:300])
+
+    # ① 되읽어 준 것에 「네」 하면 만든다 — **되돌릴 수 없는 일 앞에는 늘 확인이 있다**
+    if st.get("step") == "confirm":
+        if q.strip().lower() in YES:
+            return await _build(s, ch, th, st, user)
+        st["step"] = "fill"                    # 「아니」 나 다른 말이면 다시 채운다
+
+    # ② 대화 전체에서 칸을 채운다
+    got = await _fill(s, st["turns"], taken)
+    if got is None:                            # AI 가 죽었으면 옛 방식으로
+        return await _old_way(s, e, q, st, th, taken)
+    st["title"] = got["name"] or st.get("title") or ""
+    st["key"] = got["key"] or st.get("key") or ""
+    if got["who"]:
+        # **쓰는 자리에서 한 번 더 거른다.** `_fill` 안에서도 거르지만, AI 가 준 값은
+        # 어디서 들어오든 못 믿는다 — 지어낸 ID 를 그대로 초대하면 **엉뚱한 사람이 방에 들어온다**
+        # (시험이 잡았다, 2026-09-22). 한 겹으로 막으면 그 겹이 빠질 때 통째로 뚫린다
+        from docs import load_team
+        known = set(load_team())
+        st["who"] = sorted(set((st.get("who") or []) + [u for u in got["who"] if u in known]))
+    if got["alone"]:
+        st["who"] = st.get("who") or []
+        st["who_done"] = True
+    if got["who"]:
+        st["who_done"] = True
+
+    # ③ 빈 칸이 있으면 **그것만** 묻는다
+    if not st["title"]:
+        await _say(s, ch, say("proj_ask_name"), th); save(); return True
+    if not st["key"]:
+        st["key"] = _suggest_key(st["title"], taken)
+    if not st.get("who_done"):
+        await _say(s, ch, say("proj_ask_who"), th); save(); return True
+
+    # ④ 되읽어 준다 — AI 가 채운 것을 그대로 쓰지 않는다
+    from docs import load_team
+    team = load_team()
+    who = ", ".join(team.get(u, {}).get("name", u) for u in st.get("who") or []) or "혼자"
+    st["step"] = "confirm"; save()
+    await _say(s, ch, say("proj_confirm", title=st["title"], k=st["key"], who=who), th)
+    return True
+
+
+async def _old_way(s, e, q, st, th, taken):
+    """AI 가 안 될 때 — 예전처럼 한 칸씩 묻는다. **없애지 않고 뒤로 미룬다.**"""
+    ch = e.get("channel")
+    step = st.get("old") or "title"
+    if step == "title":
+        name = _name_of(q)
+        if not _nameable(name):
+            await _say(s, ch, say("proj_ask_name"), th); st["old"] = "title"; save(); return True
+        st["title"] = name
+        st["key"] = _suggest_key(name, taken)
+        st["old"] = "key"; save()
+        await _say(s, ch, say("proj_ask_key", title=name, k=st["key"]), th)
+        return True
+    if step == "key":
+        w = q.strip()
+        if w.lower() not in YES:
+            if not KEY_OK.match(w):
+                await _say(s, ch, say("proj_key_bad", word=w[:20], k=st["key"]), th); save(); return True
+            if w.upper() in taken:
+                await _say(s, ch, say("proj_key_taken", k=w.upper()), th); save(); return True
+            st["key"] = w.upper()
+        st["old"] = "who"; save()
         await _say(s, ch, say("proj_ask_who"), th)
         return True
-    if st["step"] == "who":
-        st["who"] = [] if any(a in q for a in ALONE) else re.findall(r"<@(U[A-Z0-9]+)>", q)
-        save()
-        await _say(s, ch, say("proj_making"), th)
-        try:
-            got, err = await _create(s, e, st)
-        except Exception as ex:                       # 만들다 터져도 묻는 상태로 붙잡아 두지 않는다
-            got, err = None, f"{type(ex).__name__}"
-        STATE["new_project"].pop(user, None); save()
-        if not got:
-            await _say(s, ch, say("proj_fail", err=err), th)
-            return True
-        head = "" if got["made"] else say("proj_exists", name=got["name"]) + "\n"
-        await _say(s, ch, head + say("proj_done", title=st["title"], channel=got["channel"],
-                                     n=got["people"], k=st["key"]), th)
+    st["who"] = [] if any(a in q for a in ALONE) else re.findall(r"<@(U[A-Z0-9]+)>", q)
+    return await _build(s, ch, th, st, st["by"])
+
+
+async def _build(s, ch, th, st, user):
+    """정말로 만든다 — 여기까지 오면 확인을 받은 것이다."""
+    await _say(s, ch, say("proj_making"), th)
+    try:
+        got, err = await _create(s, {"user": user}, st)
+    except Exception as ex:
+        got, err = None, f"{type(ex).__name__}"
+    STATE["new_project"].pop(user, None); save()
+    if not got:
+        await _say(s, ch, say("proj_fail", err=err), th)
         return True
-    return False
+    head = "" if got["made"] else say("proj_exists", name=got["name"]) + "\n"
+    detail = say("proj_canvas_ok") if got["canvas"] else say("proj_canvas_no", err=got["canvas_err"] or "이유 모름")
+    await _say(s, ch, head + say("proj_done", title=st["title"], channel=got["channel"],
+                                 n=got["people"], k=st["key"], detail=detail), th)
+    return True

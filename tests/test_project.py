@@ -47,7 +47,15 @@ class Base(unittest.TestCase):
         self.saved_cfg = json.loads(config.PATH.read_text(encoding="utf-8")) if config.PATH.exists() else {}
         self.saved_projects = [dict(p) for p in common.PROJECTS]
         STATE.pop("new_project", None)
-        self.patches = [mock.patch.object(project, "api", self.fake.api),
+        # **진짜 AI 를 부르지 않는다** — `claude -p` 는 한 번에 몇 초씩 걸리고 답도 매번 다르다.
+        # 기본값은 「AI 가 안 됨」(None) 이라 옛 방식(한 칸씩 묻기)이 돌아간다.
+        # AI 갈래는 `self.ai(...)` 로 가짜 답을 넣어 따로 시험한다 (AiFillTest)
+        self.ai_says = None
+
+        async def fake_fill(s, turns, taken):
+            return self.ai_says
+        self.patches = [mock.patch.object(project, "_fill", fake_fill),
+                        mock.patch.object(project, "api", self.fake.api),
                         mock.patch.object(project, "save", lambda: None),
                         # `config.PATH` 통째로 가짜 — Path 인스턴스의 메서드는 갈아 끼울 수 없다.
                         # 진짜 config.json 을 시험이 덮어쓰면 그 팀의 설정이 날아간다
@@ -117,14 +125,14 @@ class ConversationTest(Base):
         before = len(self.fake.texts())
         self.assertTrue(self.say("이건 앞말이 아니라 문장이에요"))
         self.assertEqual(len(self.fake.texts()), before + 1)     # 다시 물었다
-        self.assertEqual(STATE["new_project"][ME]["step"], "key")
+        self.assertEqual(STATE["new_project"][ME]["old"], "key")   # AI 가 안 될 때의 단계
 
     def test_a_key_already_in_use_is_refused(self):
         taken = next(p["key"] for p in common.PROJECTS if p.get("key"))
         self.say("프로젝트 만들기"); self.say("결제 개편")
         self.say(taken)
         self.assertIn("이미 쓰고 있는", self.fake.texts()[-1])
-        self.assertEqual(STATE["new_project"][ME]["step"], "key")
+        self.assertEqual(STATE["new_project"][ME]["old"], "key")   # AI 가 안 될 때의 단계
 
 
 class NamingTest(Base):
@@ -323,4 +331,67 @@ class KeyRuleTest(Base):
         self.say("프로젝트 하나 만들어줘 충전성공이라는 프로젝트야!")
         self.assertIn("충전성공", self.fake.texts()[-1])
         self.assertIn("번호 앞말", self.fake.texts()[-1])
-        self.assertEqual(STATE["new_project"][ME]["step"], "key")
+        self.assertEqual(STATE["new_project"][ME]["old"], "key")   # AI 가 안 될 때의 단계
+
+
+class AiFillTest(Base):
+    """AI 가 칸을 채우는 갈래 (2026-09-22 사장님 결정: 「llm으로 하는 게 맞는 거 같은데」).
+
+    **단계가 없다.** 한 문장에 다 말하면 한 번에 끝나고, 나눠 말하면 나눠서 채워진다.
+    여기서 지키는 것 둘: **되돌릴 수 없는 일 앞에 확인** · **AI 가 죽으면 옛 방식으로**.
+    """
+
+    def ai(self, name="", key="", who=(), alone=False, ask=""):
+        self.ai_says = {"name": name, "key": key, "who": list(who), "alone": alone, "ask": ask}
+
+    def test_one_sentence_is_enough(self):
+        """「충전성공, 앞말 charge, 나 혼자」 — 세 번 묻지 않는다."""
+        self.ai(name="충전성공", key="CHARGE", alone=True)
+        self.say("프로젝트 만들어줘 충전성공, 앞말 charge, 나 혼자야")
+        last = self.fake.texts()[-1]
+        self.assertIn("이렇게 만들까요", last)
+        self.assertIn("충전성공", last)
+        self.assertIn("CHARGE", last)
+        self.assertNotIn("conversations.create", [m for m, _ in self.fake.sent])   # 아직 안 만든다
+
+    def test_nothing_is_made_before_you_say_yes(self):
+        """**되돌릴 수 없는 일 앞에는 늘 확인이 있다** — Slack 은 채널 삭제가 없다."""
+        self.ai(name="충전성공", key="CHARGE", alone=True)
+        self.say("프로젝트 만들어줘 충전성공 혼자")
+        self.assertNotIn("conversations.create", [m for m, _ in self.fake.sent])
+        self.say("네")
+        self.assertIn("conversations.create", [m for m, _ in self.fake.sent])
+        self.assertIn("✅", self.fake.texts()[-1])
+
+    def test_saying_something_else_goes_back_to_filling(self):
+        """확인 단계에서 「아니 앞말은 PAY 로」 라고 하면 다시 채운다 — 만들어 버리면 안 된다."""
+        self.ai(name="충전성공", key="CHARGE", alone=True)
+        self.say("프로젝트 만들어줘 충전성공 혼자")
+        self.ai(name="충전성공", key="PAY", alone=True)
+        self.say("아니 앞말은 PAY 로 해줘")
+        self.assertNotIn("conversations.create", [m for m, _ in self.fake.sent])
+        self.assertIn("PAY", self.fake.texts()[-1])
+
+    def test_a_made_up_person_is_dropped(self):
+        """AI 는 **명단에 없는 사람 ID 를 지어낼 수 있다.** 그대로 초대하면 엉뚱한 사람이 들어온다."""
+        self.ai(name="충전성공", key="CHARGE", who=["U0NOTREAL", ME])
+        self.say("프로젝트 만들어줘 충전성공 민수랑")
+        self.say("네")
+        body = next(b for m, b in self.fake.sent if m == "conversations.invite")
+        self.assertNotIn("U0NOTREAL", body["users"])
+
+    def test_a_missing_blank_is_asked_for(self):
+        """이름만 알아냈으면 **사람만** 묻는다 — 이미 아는 것을 다시 묻지 않는다."""
+        self.ai(name="충전성공", key="CHARGE")
+        self.say("프로젝트 만들어줘 충전성공")
+        self.assertIn("누구와 함께", self.fake.texts()[-1])
+
+    def test_when_the_ai_dies_the_old_way_takes_over(self):
+        """**안전망을 지우지 않고 뒤로 미룬다** — AI 가 죽어도 프로젝트는 만들 수 있어야 한다."""
+        self.ai_says = None                      # _fill 이 None = AI 실패
+        self.say("프로젝트 만들기")
+        self.assertIn("어떤 일인가요", self.fake.texts()[-1])
+        self.say("충전성공")
+        self.assertIn("번호 앞말", self.fake.texts()[-1])
+        self.say("charge"); self.say("혼자")
+        self.assertIn("✅", self.fake.texts()[-1])
