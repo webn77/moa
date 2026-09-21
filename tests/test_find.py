@@ -256,7 +256,7 @@ class GuideOnceTest(unittest.TestCase):
         for q in ("업무 어디까지 도와줄 수 있어?", "ㅇㅇ 업무 어디까지 도와줄 수 있어?",
                   "뭘 도와줄 수 있어?", "어디까지 할 수 있어?", "어떤 일 해줘?", "뭐 도와줄래?"):
             out = reply_for(q, A, TEAM, seen=[A])
-            self.assertIn("프로젝트를 챙기는 일", out, q)
+            self.assertIn("프로젝트 팀의 비서", out, q)     # 자기를 「할 일」 로 좁혀 말하지 않는다
             self.assertNotIn("찾은 할 일", out, q)          # 검색어로 받지 않는다
 
     def test_introduces_itself_as_project_not_issue(self):

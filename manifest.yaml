@@ -9,7 +9,7 @@
 # 설치 순서 전체는 docs/install.md
 display_information:
   name: 모아 프로젝트 비서
-  description: 흩어진 대화를 모아 할 일로 — 담당·일정·회의록·지난 결정까지 챙겨요
+  description: 프로젝트 팀의 비서 — 팀에 흩어진 대화를 할 일로, 담당·일정·회의록·지난 의사결정까지
   background_color: "#0A3A42"   # 짙은 청록 — 앱 이름이 흰 글씨로 얹히는 배경이라 어두워야 한다 (민트 #02c2d3 은 Slack 이 막는다)
 features:
   # Slack 의 「Agents & AI Apps」 — 이것 하나로 셋이 온다 (2026-09-21 사장님 결정):
@@ -22,7 +22,7 @@ features:
   # ⚠️ **되돌릴 수 없다** — agent_view 로 바꾸면 예전 방식으로 못 돌아간다 (Slack 문서).
   # 스레드로 대화가 묶이면 그 덩어리가 곧 기록 단위가 된다 — PA-73(팀의 기억)의 빈칸 절반이 여기서 메워진다.
   agent_view:
-    agent_description: 흩어진 대화를 모아 할 일로 — 담당과 일정, 회의록, 지난 결정 찾기까지 챙겨요
+    agent_description: 프로젝트 팀의 비서 — 팀에 흩어진 대화를 할 일로, 담당과 일정, 회의록, 지난 의사결정까지
     suggested_prompts:
       - title: 내 할 일
         message: 내 할 일
