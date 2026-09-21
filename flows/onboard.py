@@ -24,6 +24,7 @@ Slack 에서 직접 한 일(사람을 초대하거나 카드를 만든 것)과 �
 from common import HERE, PROJECTS, log
 from docs import project_info
 from messages import say
+from slack import api
 from store import STATE, open_cards, save
 
 
@@ -137,8 +138,11 @@ async def catch(s, e, q):
 
 
 async def say_to(s, ch, text, thread=None):
-    """**물어본 글 아래 스레드로** 답한다 (2026-09-22) — 맨 위에 답하면 짝이 흩어진다."""
-    from slack import api
+    """**물어본 글 아래 스레드로** 답한다 (2026-09-22) — 맨 위에 답하면 짝이 흩어진다.
+
+    `api` 는 **맨 위에서** 불러온다. 함수 안에서 불러오면 시험이 갈아 끼울 수 없어서
+    이 갈래를 아예 못 시험한다 (2026-09-22 시뮬레이션 중에 드러났다).
+    """
     body = {"channel": ch, "text": text, "unfurl_links": False}
     if thread:
         body["thread_ts"] = thread
