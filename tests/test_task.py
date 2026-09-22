@@ -41,10 +41,10 @@ class Base(unittest.TestCase):
         self.made = []
         STATE.pop("new_task", None)
 
-        async def fake_add(s, title, user, project=None, assignee=None, due=None, ask=True):
+        async def fake_add(s, title, user, project=None, assignee=None, due=None, ask=True, score=True):
             """카드 만들기는 이미 다른 시험이 본다 — 여기서는 **무엇을 넘겼는지**만 본다."""
-            c = {"no": 99, "title": title, "card_ts": "8.8", "project": project,
-                 "assignee": assignee, "due": due, "ask": ask}
+            c = {"no": 90 + len(self.made), "title": title, "card_ts": f"8.{len(self.made)}",
+                 "project": project, "assignee": assignee, "due": due, "ask": ask, "score": score}
             self.made.append(c)
             return c
         self.patches = [mock.patch.object(task, "api", self.fake.api),
@@ -84,11 +84,11 @@ class StartTest(Base):
         """
         self.say("두 번째 프로젝트에 할일 등록 하려고!")
         self.assertIn("무슨 일인가요", self.last())
-        self.assertNotIn("title", STATE["new_task"][ME])
+        self.assertNotIn("titles", STATE["new_task"][ME])
 
     def test_a_title_said_clearly_up_front_is_kept(self):
         self.say("할 일 등록 제목은 충전 실패 알림이 두 번 와요")
-        self.assertEqual(STATE["new_task"][ME]["title"], "충전 실패 알림이 두 번 와요")
+        self.assertEqual(STATE["new_task"][ME]["titles"], ["충전 실패 알림이 두 번 와요"])
 
 
 class ThreeQuestionsTest(Base):
@@ -171,7 +171,7 @@ class NotStuckTest(Base):
         self.say("현황")
         self.assertIn("잠깐 미뤄", self.last())
         self.assertIn("할 일 등록", self.last())
-        self.assertNotIn("title", STATE["new_task"][ME])
+        self.assertNotIn("titles", STATE["new_task"][ME])
 
     def test_every_re_ask_says_where_you_are_and_how_to_get_out(self):
         for setup, bad in (
@@ -247,8 +247,115 @@ class BuildTest(Base):
         before = dict(STATE["new_task"][ME])
         self.say("아니 그게 아니고요")
         self.assertIn("어느 걸 고칠까요", self.last())
-        self.assertEqual(STATE["new_task"][ME]["title"], before["title"])
+        self.assertEqual(STATE["new_task"][ME]["titles"], before["titles"])
         self.assertEqual(self.made, [])
+
+
+class ManyTest(Base):
+    """**여러 개를 한 번에** (2026-09-22 사장님: 「여러 할일을 한번에 등록하는 경우도 있자나」).
+
+    새 명령을 만들지 않는다 — 1️⃣ 칸에 여러 줄을 붙이면 여러 개로 본다.
+    담당·언제까지는 **전부에 한 번**만 묻는다 (사장님이 정함) — 개당 물으면 세 개에 아홉 번이다.
+    """
+
+    def test_splits_on_lines_bullets_and_numbers(self):
+        got, dropped = task._titles_of("충전 실패 알림\n- 상태가 안 바뀜\n2. 로그가 안 남음")
+        self.assertEqual(got, ["충전 실패 알림", "상태가 안 바뀜", "로그가 안 남음"])
+        self.assertEqual(dropped, 0)
+
+    def test_a_comma_is_not_a_separator(self):
+        """「A, B를 고쳐요」 는 **한 일**이다 — 쉼표로 쪼개면 반쪽 할 일이 생긴다."""
+        got, _ = task._titles_of("알림과 로그, 둘 다 고쳐요")
+        self.assertEqual(got, ["알림과 로그, 둘 다 고쳐요"])
+
+    def test_empty_lines_are_not_counted_but_junk_lines_are_reported(self):
+        got, dropped = task._titles_of("알림이 두 번 와요\n\n🎉\n로그가 안 남아요")
+        self.assertEqual(got, ["알림이 두 번 와요", "로그가 안 남아요"])
+        self.assertEqual(dropped, 1)              # 빈 줄은 안 세고, 이모지 줄만 센다
+
+    def test_it_says_why_a_line_was_dropped(self):
+        """「글자가 없는 줄」 이라고 했는데 「둘」 은 글자가 있다 — **거짓말을 하면 안 된다**."""
+        self.say("두 번째 프로젝트에 할일 등록")
+        self.say("알림 고치기\n둘\n로그 남기기")
+        self.assertIn("두 자 안 되는", self.last())
+
+    def test_the_questions_do_not_multiply(self):
+        """개수와 무관하게 묻는 횟수가 같다 — 그게 이 방식의 이유다."""
+        self.say("두 번째 프로젝트에 할일 등록")
+        self.say("알림 고치기\n상태 고치기\n로그 남기기")
+        self.assertIn("3개로 봤어요", self.last())
+        self.say("제가")
+        self.say("이번 주")
+        self.assertIn("3개를 올릴까요", self.last())
+        self.say("네")
+        self.assertEqual([c["title"] for c in self.made], ["알림 고치기", "상태 고치기", "로그 남기기"])
+        self.assertEqual({c["assignee"] for c in self.made}, {ME})
+
+    def test_only_the_last_one_scores(self):
+        """점수는 열린 것 전부를 같이 본다 — 카드마다 부르면 세 개에 AI 를 세 번 쓴다."""
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림 고치기\n상태 고치기\n로그 남기기")
+        self.say("나중에"); self.say("나중에"); self.say("네")
+        self.assertEqual([c["score"] for c in self.made], [False, False, True])
+
+    def test_it_stops_at_ten(self):
+        """**상한이 있다** (사장님이 정함) — 회의록을 통째로 붙이면 카드 40개가 생긴다."""
+        self.say("두 번째 프로젝트에 할일 등록")
+        self.say("\n".join(f"할 일 {i}" for i in range(1, 13)))
+        self.assertEqual(len(STATE["new_task"][ME]["titles"]), task.MAX)
+        self.assertIn("나머지 2개", self.last())
+        self.say("나중에"); self.say("나중에"); self.say("네")
+        self.assertEqual(len(self.made), task.MAX)
+
+    def test_it_only_reports_what_actually_landed(self):
+        """번호를 받다 막히면 **거기까지만** 올라간다 — 안 한 일을 했다고 말하지 않는다."""
+        calls = []
+
+        async def flaky(s, title, user, project=None, assignee=None, due=None, ask=True, score=True):
+            calls.append(title)
+            if len(calls) > 2:
+                return None                    # 세 번째에서 번호를 못 받았다
+            c = {"no": 90 + len(calls), "title": title, "card_ts": f"7.{len(calls)}"}
+            self.made.append(c)
+            return c
+        with mock.patch("flows.intake.add_issue", flaky):
+            self.say("두 번째 프로젝트에 할일 등록"); self.say("알림 고치기\n상태 고치기\n로그 남기기")
+            self.say("나중에"); self.say("나중에"); self.say("네")
+        self.assertIn("3개 가운데 2개만", self.last())
+        self.assertEqual(len(self.made), 2)
+
+
+class YesTest(Base):
+    """**「네」 하나만 딱 쓰지 않는다** (2026-09-22 사장님 실측: 「네! 그러자고」 로 등록이 안 됐다).
+
+    목록과 똑같아야 통과였다 — 「네」 는 되고 「네! 그러자고」 는 고치자는 말로 떨어져서,
+    답을 했는데 되묻는 봇이 됐다. 이 저장소가 같은 모양으로 세 번 넘어졌다.
+    """
+
+    def test_a_yes_with_words_after_it_still_means_yes(self):
+        for word in ("네", "네! 그러자고", "ㅇㅇ", "오케이 진행", "좋아요~", "그대로 올려주세요", "네네"):
+            STATE.pop("new_task", None)
+            self.made.clear()
+            self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요")
+            self.say("나중에"); self.say("나중에")
+            self.say(word)
+            self.assertEqual(len(self.made), 1, f"「{word}」 로 안 올라갔다")
+
+    def test_words_that_only_look_like_yes_do_not_pass(self):
+        for word in ("그래서 뭐?", "아니 그게 아니고", "제가", "음?"):
+            STATE.pop("new_task", None)
+            self.made.clear()
+            self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요")
+            self.say("나중에"); self.say("나중에")
+            self.say(word)
+            self.assertEqual(self.made, [], f"「{word}」 로 올라가 버렸다")
+
+    def test_a_fix_in_the_same_breath_wins(self):
+        """「네 근데 담당은 나중에」 — **고치자는 말을 먼저 본다.** 옛 값으로 올리면 안 된다."""
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요")
+        self.say("제가"); self.say("9/30")
+        self.say("네 근데 담당은 나중에")
+        self.assertEqual(self.made, [], "고치자는 말인데 올려 버렸다")
+        self.assertIsNone(STATE["new_task"][ME]["who"])
 
 
 class AiBudgetTest(Base):

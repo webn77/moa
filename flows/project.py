@@ -39,7 +39,7 @@ import re
 from common import log, reload_projects
 # 「네」·「취소」·「나중에」 같은 대꾸와 막을 낱말은 **틀에서 가져온다** — 등록 흐름이 둘이
 # 되었으니 (프로젝트·할 일) 이 낱말이 두 곳에서 갈라지면 안 된다 (2026-09-22)
-from flows.ask import CANCEL, COMMANDS, HEAD, LATER, YES
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save
@@ -320,7 +320,7 @@ async def maybe(s, e, q, force=False):
     # ② 번호 앞말 — 「네」 면 제안한 것, 아니면 말에서 골라낸다
     if step == "key":
         w = q.strip()
-        if w.lower() not in YES:
+        if not _yes(q):
             got = _key_of(q)
             if not got:
                 # **이름을 고치려는 말이면 이름으로 돌아간다** — 「아니 X가 이름이야」 를 앞말로 받으면
@@ -352,9 +352,8 @@ async def maybe(s, e, q, force=False):
             st["goal"] = w[:120]
         return await _show(s, ch, th, st)
 
-    # ④ 확인 — 「네」 면 만들고, 고치자는 말이면 **알아들은 것만** 고쳐서 다시 보여 준다
-    if q.strip().lower() in YES:
-        return await _build(s, ch, th, st, user)
+    # ④ 확인 — **고치자는 말을 먼저 본다.** 「그래 앞말은 PAY 로」 처럼 맞장구와 고칠 것이
+    # 한 문장에 올 수 있다 (2026-09-22). 대꾸를 먼저 보면 옛 값 그대로 만들어 버린다
     what, val = _fix_of(q)
     if what == "key" and val in taken:
         return await _again(s, ch, th, st, say("proj_key_taken", k=val))
@@ -364,6 +363,8 @@ async def maybe(s, e, q, force=False):
         st["title"] = val
     elif what == "goal":
         st["goal"] = val
+    elif _yes(q):
+        return await _build(s, ch, th, st, user)
     else:
         return await _again(s, ch, th, st, say("proj_fix_how"))
     return await _show(s, ch, th, st)

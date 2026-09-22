@@ -9,7 +9,7 @@ from slack import Step, api, mood, name_of  # noqa: E402,F401
 from store import STATE, chan, project_for, add_log, decision_snap, ref, save  # noqa: E402,F401
 
 
-async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=True):
+async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=True, score=True):
     """요청 메시지 없이 할 일 카드만 만든다 — DM 등록·관리자·봇이 직접 올릴 때.
 
     `project` 를 주면 그 프로젝트로 (#70). 안 주면 첫 프로젝트 — 프로젝트가 하나면 늘 그것이다.
@@ -20,10 +20,12 @@ async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=T
     만든 카드를 돌려준다 (못 만들었으면 None).
     """
     room = next((p.get("channel") for p in PROJECTS if p.get("key") == project), CHANNEL) if project else CHANNEL
-    return await new_card(s, {"text": title, "user": user}, room, assignee=assignee, due=due, ask=ask)
+    return await new_card(s, {"text": title, "user": user}, room, assignee=assignee, due=due,
+                          ask=ask, score=score)
 
 
-async def new_card(s, m, origin_channel=None, spec=None, number=None, assignee=None, due=None, ask=True):
+async def new_card(s, m, origin_channel=None, spec=None, number=None, assignee=None, due=None,
+                   ask=True, score=True):
     """요청을 이슈 카드로 만든다. 카드는 언제나 프로젝트 방에, 링크는 요청이 온 자리에.
     spec 을 주면 정의를 붙인 채로 만든다 — 그러면 봇이 다시 묻지 않는다 (초안 → 버튼 경로, #54).
     만든 카드를 돌려준다.
@@ -70,7 +72,10 @@ async def new_card(s, m, origin_channel=None, spec=None, number=None, assignee=N
     try:                                   # 담당 없음을 남기지 않는다 — 만들자마자 추천·순서까지
         if not assignee:                   # **물어서 받은 답을 두고 다시 추천하지 않는다**
             await recommend(s, [c])
-        await prioritize(s)
+        if score:
+            # 여러 개를 한 번에 올릴 때는 **마지막 하나에서만** 점수를 매긴다 (flows/task.py) —
+            # 카드마다 부르면 세 개에 AI 를 세 번 쓴다. 점수는 어차피 열린 것 전부를 같이 본다
+            await prioritize(s)
         await api(s, "chat.update", body={"channel": chan(c), "ts": c["card_ts"],
                   "text": f"🎫 #{c['no']} {c['title']}", "blocks": card_blocks(c)})
         await note_decisions(s, snap, skip={c["no"]})     # 새 카드 때문에 다른 카드가 밀렸으면 그 카드에 남긴다

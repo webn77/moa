@@ -30,7 +30,7 @@ import datetime
 import re
 
 from common import PROJECTS, log
-from flows.ask import CANCEL, COMMANDS, HEAD, LATER, YES
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save
@@ -73,6 +73,31 @@ def _where(st):
     step = st.get("step") or "title"
     n = steps.index(step) + 1 if step in steps else len(steps)
     return n, len(steps), STEP_WHAT.get(step, "확인")
+
+
+MAX = 10                     # 한 번에 올릴 상한 (사장님이 정함) — 회의록을 통째로 붙이면 40개가 생긴다
+# **줄바꿈·글머리표·번호만 쪼갠다.** 쉼표는 안 쓴다 — 「A, B를 고쳐요」 는 한 일이다
+LINES = re.compile(r"[\n\r]+")
+BULLET = re.compile(r"^\s*(?:[-•*·–—]|\d{1,2}\s*[.)])\s*")
+
+
+def _titles_of(text):
+    """여러 줄이면 여러 개로 본다 — (제목 목록, 버린 줄 수).
+
+    **새 명령을 만들지 않는다** (2026-09-22 사장님: 「여러 할일을 한번에 등록하는 경우도
+    있자나」). 1️⃣ 칸에 그냥 여러 줄을 붙이면 된다. 질문 수는 개수와 무관하게 같다 —
+    「누가·언제까지」 는 **전부에 한 번** 묻는다 (사장님이 정함).
+    """
+    out, dropped = [], 0
+    for line in LINES.split(text or ""):
+        one = BULLET.sub("", line).strip()[:60]
+        if not one:
+            continue                      # 빈 줄은 센 것에도 안 넣는다 — 줄 사이를 띄운 것일 뿐이다
+        if _titleable(one):
+            out.append(one)
+        else:
+            dropped += 1                  # 이모지만 있는 줄 같은 것 — 몇 개 뺐는지 밝힌다
+    return out, dropped
 
 
 def _titleable(text):
@@ -224,10 +249,32 @@ async def _ask(s, ch, th, st, step, head=""):
     return True
 
 
+def _titles(st):
+    return st.get("titles") or []
+
+
+def _numbered(st):
+    return "\n".join(f"  {i + 1}. {x}" for i, x in enumerate(_titles(st)))
+
+
+def _read_back(st):
+    """제목을 되읽어 주는 줄 — 하나면 그 한 줄, 여럿이면 번호를 붙인 목록."""
+    got = _titles(st)
+    if len(got) == 1:
+        return say("task_title_ok", title=got[0])
+    head = say("task_titles_ok", n=len(got), list=_numbered(st))
+    notes = []
+    if st.get("over"):
+        notes.append(f"{MAX}개까지만 올려요 — 나머지 {st['over']}개는 다시 부탁드려요")
+    if st.get("dropped"):
+        notes.append(f"글자가 두 자 안 되는 줄 {st['dropped']}개는 뺐어요")
+    return head + ("\n" + say("task_titles_note", note=" · ".join(notes)) if notes else "")
+
+
 async def _after_title(s, ch, th, st):
     """제목을 **한 번** 되읽어 준다 — 못 들은 줄 알면 같은 말을 또 하신다."""
     return await _ask(s, ch, th, st, "who" if st.get("pkey_known") else "project",
-                      head=say("task_title_ok", title=st["title"]) + "\n\n")
+                      head=_read_back(st) + "\n\n")
 
 
 async def _show(s, ch, th, st):
@@ -237,9 +284,14 @@ async def _show(s, ch, th, st):
     save()
     who = st.get("who")
     name = _short(next((p.get("name") for p in PROJECTS if p.get("key") == st.get("pkey")), "")) or "프로젝트"
-    await _say(s, ch, say("task_confirm", title=st["title"], name=name,
-                          who=(load_team().get(who, {}).get("name") or f"<@{who}>") if who else "아직 없어요",
-                          due=_due_text(st.get("due"))), th)
+    whom = (load_team().get(who, {}).get("name") or f"<@{who}>") if who else "아직 없어요"
+    got = _titles(st)
+    if len(got) == 1:
+        text = say("task_confirm", title=got[0], name=name, who=whom, due=_due_text(st.get("due")))
+    else:
+        text = say("task_confirm_many", n=len(got), list=_numbered(st), name=name,
+                   who=whom, due=_due_text(st.get("due")))
+    await _say(s, ch, text, th)
     return True
 
 
@@ -265,7 +317,7 @@ async def maybe(s, e, q, force=False):
     if opened:
         name = _title_of(q)                 # 「제목은 X」 처럼 또렷이 말했을 때만 줍는다
         if _titleable(name):
-            st["title"] = name
+            st["titles"] = [name]
             return await _after_title(s, ch, th, st)
         await _say(s, ch, say("task_ask_title", step=_keycap(1)), th)
         return True
@@ -280,10 +332,12 @@ async def maybe(s, e, q, force=False):
 
     # ① 무슨 일인가 — 여기서는 **적으신 그대로** 받는다. 제목은 사람이 읽을 한 줄이다
     if step == "title":
-        title = q.strip()[:60]
-        if not _titleable(title):
-            return await _again(s, ch, th, st, say("task_title_bad", word=title[:20] or "빈 글자"))
-        st["title"] = title
+        got, dropped = _titles_of(q)
+        if not got:
+            return await _again(s, ch, th, st,
+                                say("task_title_bad", word=q.strip()[:20] or "빈 글자"))
+        st["titles"], st["dropped"] = got[:MAX], dropped
+        st["over"] = max(0, len(got) - MAX)
         return await _after_title(s, ch, th, st)
 
     # ② 어느 프로젝트 — 번호로도 이름으로도 받는다
@@ -315,45 +369,68 @@ async def maybe(s, e, q, force=False):
         st["due"] = due
         return await _show(s, ch, th, st)
 
-    # ⑤ 확인 — 「네」 면 올리고, 고치자는 말이면 **알아들은 것만** 고쳐서 다시 보여 준다
-    if q.strip().lower() in YES:
-        return await _build(s, ch, th, st, user)
+    # ⑤ 확인 — **고치자는 말을 먼저 본다.** 「네 근데 담당은 @홍길동」 처럼 맞장구와 고칠 것이
+    # 한 문장에 올 수 있다. 대꾸를 먼저 보면 옛 값 그대로 올려 버린다 (2026-09-22)
     s2 = _HEAD.sub("", q.strip())
     m = TITLE_IN.search(s2)
     if m and _titleable(m.group(1)):
-        st["title"] = m.group(1).strip(" ,.!~\"'「」")[:60]
+        st["titles"] = [m.group(1).strip(" ,.!~\"'「」")[:60]]
     elif WHO_IN.search(s2) and _who_of(WHO_IN.search(s2).group(1), st["by"]) is not False:
         st["who"] = _who_of(WHO_IN.search(s2).group(1), st["by"])
     elif DUE_WORD.search(s2) and _due_of(DUE_WORD.search(s2).group(1)) is not False:
         st["due"] = _due_of(DUE_WORD.search(s2).group(1))
     elif _pick_project(s2) is not None and len(PROJECTS) > 1:
         st["pkey"] = _pick_project(s2).get("key") or ""
+    elif _yes(q):
+        return await _build(s, ch, th, st, user)
     else:
         return await _again(s, ch, th, st, say("task_fix_how"))
     return await _show(s, ch, th, st)
 
 
 async def _build(s, ch, th, st, user):
-    """정말로 올린다 — 여기까지 오면 확인을 받은 것이다."""
-    from flows.intake import add_issue
-    from flows.status import redraw
-    await _say(s, ch, say("task_making"), th)
-    try:
-        c = await add_issue(s, st["title"], user, project=st.get("pkey"),
-                            assignee=st.get("who"), due=st.get("due"), ask=False)
-    except Exception as ex:
-        c = None
-        log(f"할 일 올리기 실패: {type(ex).__name__}: {ex}")
-    STATE["new_task"].pop(user, None); save()
-    if not c:
-        await _say(s, ch, say("task_fail", err="번호를 못 받았어요"), th)
-        return True
-    from store import chan, ref
-    link = (await api(s, "chat.getPermalink", channel=chan(c), message_ts=c["card_ts"])).get("permalink", "")
+    """정말로 올린다 — 여기까지 오면 확인을 받은 것이다.
+
+    **번호는 하나씩 받는다** (GitHub). 중간에 막히면 거기까지만 올라가므로
+    **올라간 것만** 알린다 — 안 한 일을 했다고 말하지 않는다 (이 저장소의 약속).
+    """
     from docs import load_team
+    from flows.intake import add_issue
+    from store import chan, ref
+    await _say(s, ch, say("task_making"), th)
+    got, made, err = _titles(st), [], None
+    for i, title in enumerate(got):
+        try:
+            c = await add_issue(s, title, user, project=st.get("pkey"),
+                                assignee=st.get("who"), due=st.get("due"), ask=False,
+                                score=(i == len(got) - 1))
+        except Exception as ex:
+            c, err = None, f"{type(ex).__name__}"
+            log(f"할 일 올리기 실패: {type(ex).__name__}: {ex}")
+        if not c:
+            err = err or "번호를 못 받았어요"
+            break
+        made.append(c)
+    STATE["new_task"].pop(user, None); save()
+    if not made:
+        await _say(s, ch, say("task_fail", err=err or "번호를 못 받았어요"), th)
+        return True
     who = st.get("who")
-    await _say(s, ch, say("task_done", link=link, ref=ref(c["no"]), channel=chan(c),
-                          who=(load_team().get(who, {}).get("name") or f"<@{who}>") if who else "아직 없어요",
-                          due=_due_text(st.get("due"))), th)
-    log(f"할 일 올림 {ref(c['no'])} ← {user}")
+    whom = (load_team().get(who, {}).get("name") or f"<@{who}>") if who else "아직 없어요"
+    room = chan(made[0])
+    lines = []
+    for c in made:
+        link = (await api(s, "chat.getPermalink", channel=chan(c),
+                          message_ts=c["card_ts"])).get("permalink", "")
+        lines.append(f"  • <{link}|{ref(c['no'])}>" if link else f"  • {ref(c['no'])}")
+    if len(made) < len(got):                 # 하다가 막혔다 — 올라간 것만 적는다
+        text = say("task_done_some", n=len(got), done=len(made), err=err, list="\n".join(lines))
+    elif len(made) == 1:
+        text = say("task_done", link=lines[0].split("|")[0].lstrip(" •<"), ref=ref(made[0]["no"]),
+                   channel=room, who=whom, due=_due_text(st.get("due")))
+    else:
+        text = say("task_done_many", n=len(made), list="\n".join(lines), channel=room,
+                   who=whom, due=_due_text(st.get("due")))
+    await _say(s, ch, text, th)
+    log(f"할 일 올림 {[c['no'] for c in made]} ← {user}")
     return True
