@@ -204,17 +204,17 @@ class SpacingTest(unittest.TestCase):
 
     def test_my_work_any_spacing(self):
         for q in ("내 할일", "내할일", "내 할 일", "내  할  일", "내 할일 뭐야", "제 할일", "내 업무"):
-            self.assertIn("내가 맡은 일", self.r(q), q)
+            self.assertIn("내 계획", self.r(q), q)
 
     def test_natural_sentences_find_my_work(self):
         """「내가 할일 찾아줘」 처럼 말해도 된다 — 낱말을 외우게 하지 않는다."""
         for q in ("내가 할일 찾아줘", "나 뭐해야 돼", "내가 맡은 일 보여줘"):
-            self.assertIn("내가 맡은 일", self.r(q), q)
+            self.assertIn("내 계획", self.r(q), q)
 
     def test_does_not_over_match(self):
         """넓히다가 남의 것까지 내 것으로 끌어오면 안 된다."""
         self.assertIn("열려 있는 할 일", self.r("목록"))
-        self.assertNotIn("내가 맡은 일", self.r("캔버스"))
+        self.assertNotIn("내 계획", self.r("캔버스"))
 
 
 class GuideOnceTest(unittest.TestCase):

@@ -76,6 +76,31 @@ def _list(title, cards, team, tail=None):
     return f"*{title}* {len(cards)}건\n{rows}{more}\n\n_{tail or '번호를 쓰면 그 자리에서 펼쳐져요 — 예: #' + str(cards[0]['no'])}_"
 
 
+def _my_plan(cards, team):
+    """「내 할 일」 은 목록이 아니라 **계획**이다 (2026-09-22 사장님: 「내가 언제 뭘 하면
+    되는지를 계획할 수 있게」). 언제 할지로 묶어서 보여 준다.
+
+    날짜는 `core.plan` 이 미리 채워 둔 것을 **읽기만** 한다 — 여기서 다시 짜면 DM 과 앱 홈이
+    서로 다른 계획을 말하게 된다. 날짜를 옮기는 건 앱 홈에서 한다 (거기가 내 자리다).
+    """
+    from core import plevel
+    from views.home import plan_when
+    if not cards:
+        return "*📋 내 계획*\n맡으신 일이 없어요."
+    rows, seen = [], None
+    ranked = sorted(cards, key=lambda c: (plan_when(c)[0], c.get("start") or "9999",
+                                          plevel(c), c.get("rank", 99)))
+    for c in ranked[:15]:
+        name = plan_when(c)[1]
+        if name != seen:
+            seen = name
+            rows.append(f"*{name}*")
+        rows.append(_line(c, team))
+    more = f"\n…외 {len(ranked) - 15}건" if len(ranked) > 15 else ""
+    return (f"*📋 내 계획* {len(cards)}건\n" + "\n".join(rows) + more
+            + "\n\n_언제 할지는 앱 홈에서 날짜를 골라 옮기실 수 있어요_")
+
+
 def _order(cards):
     from core import plevel
     return sorted(cards, key=lambda c: ({"doing": 0, "blocked": 1, "review": 2}.get(c["status"], 3),
@@ -114,7 +139,7 @@ def reply_for(q, user, team, seen=()):
     if _has(q, NOBODY):
         return _list("🙋 아무도 안 맡은 일", _order([c for c in open_cards() if not c.get("assignee")]), team)
     if _has(q, MINE):                    # 내 것을 먼저 본다 — 「내 목록」 은 목록이 아니라 내 것
-        return _list("📋 내가 맡은 일", _order([c for c in open_cards() if c.get("assignee") == user]), team)
+        return _my_plan([c for c in open_cards() if c.get("assignee") == user], team)
     if _has(q, ALL):
         return _list("📋 열려 있는 할 일", _order(open_cards()), team,
                      "좁혀 보시려면 `@PA 내 할 일` · `@PA 홍길동` · `@PA 담당 없는 일` · `@PA 캔버스`")
@@ -146,6 +171,8 @@ async def find(s, e, q):
     # **그 사람도 본 것으로 센다.** 안 그러면 채널 사용자는 영영 매번 전체 안내를 본다 (#71)
     seen = STATE.setdefault("greeted", [])
     user = e.get("user")
+    from flows.status import plan as make_plan
+    make_plan()          # 「내 할 일」 이 계획이 됐다 — 물어보기 전에 날짜가 채워져 있어야 한다
     text = reply_for(q, user, load_team(), seen)
     if user and user not in seen and say("guide") in text:
         seen.append(user)

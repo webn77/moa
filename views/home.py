@@ -197,6 +197,58 @@ async def refresh_homes(s):
         await publish_home(s, uid)
 
 
+def plan_when(c, today=None):
+    """이 일이 **언제 칸**에 들어가나 — (순서, 이름). 지난 날짜는 「오늘」 에 얹는다:
+    못 한 일은 오늘 할 일이다. 매달 다른 말을 만들지 않는다 — 넷이면 충분하다.
+
+    오늘 날짜를 안 주면 **여기서** 읽는다. 이 모듈의 `datetime` 은 골든이 고정하므로,
+    `datetime` 을 안 쓰는 쪽(`flows/find.py`)에서도 그냥 부르면 날짜가 고정된다.
+    """
+    today = today or datetime.date.today()
+    try:
+        d = datetime.date.fromisoformat(c.get("start") or "")
+    except ValueError:
+        return 4, "언제 할지 미정"
+    if d <= today:
+        return 0, "오늘"
+    if d == today + datetime.timedelta(days=1):
+        return 1, "내일"
+    if d <= today + datetime.timedelta(days=(4 - today.weekday()) % 7):
+        return 2, "이번 주"
+    return 3, "그다음"
+
+
+def plan_blocks(mine, line, today=None, cap=12):
+    """내 계획 — 날짜 칸마다 한 줄씩, 줄마다 날짜 고르개 (2026-09-22 사장님 지시).
+
+    **묻지 않는다.** `core.plan` 이 미리 채워 둔 `start` 를 그대로 보여 주고, 사람은 옮기기만
+    한다 — 빈 계획표를 내밀면 채우는 일이 하나 더 느는 것이다 (「많은 걸 요청 하지 말자고」).
+
+    고르개는 `block_id` 로 카드를 찾는다 — 카드 ⚙️ 와 같은 길이라 핸들러가 하나로 끝난다.
+    """
+    today = today or datetime.date.today()
+    rows = sorted(mine, key=lambda c: (plan_when(c, today)[0], c.get("start") or "9999",
+                                       plevel(c), c.get("rank", 99)))
+    if not rows:
+        return [{"type": "section", "text": {"type": "mrkdwn", "text": say("home_today_none")}}]
+    out, seen = [], None
+    for c in rows[:cap]:
+        _, name = plan_when(c, today)
+        if name != seen:
+            seen = name
+            out.append({"type": "context", "elements": [{"type": "mrkdwn", "text": f"*{name}*"}]})
+        pick = {"type": "datepicker", "action_id": "set_start",
+                "placeholder": {"type": "plain_text", "text": "언제 할까요"}}
+        if c.get("start"):
+            pick["initial_date"] = c["start"]
+        out.append({"type": "section", "block_id": f"card:{c.get('card_ts') or c['no']}",
+                    "text": {"type": "mrkdwn", "text": line(c)[:2900]}, "accessory": pick})
+    if len(rows) > cap:
+        out.append({"type": "context", "elements": [
+            {"type": "mrkdwn", "text": f"_…외 {len(rows) - cap}건. 「목록」 이라고 쓰시면 전부 보여요_"}]})
+    return out
+
+
 async def publish_home(s, user):
     """앱 홈 = 내 할 일. 나한테 맡겨진 것, 내가 요청한 것, 다가오는 회의만.
 
@@ -205,6 +257,10 @@ async def publish_home(s, user):
     빈 현황판은 첫인상을 망친다. 그럴 때는 *어디서 시작하는지*만 말해 준다.
     """
     from flows.onboard import nudge
+    from flows.status import plan as make_plan
+    # **계획은 열 때마다 다시 짠다** — 날짜가 지나면 어제 짠 계획은 이미 틀리다.
+    # 사람이 옮긴 날(`start_src="human"`)은 그대로 두므로 여러 번 불러도 안전하다
+    make_plan()
     cards = sorted(STATE["cards"].values(), key=lambda c: c["no"])
     if not cards and nudge(user):
         # **네 걸음을 여기 또 적지 않는다** — 그건 DM 몫이다 (2026-09-22). 여기서는
@@ -248,29 +304,26 @@ async def publish_home(s, user):
                  "options": [{"text": {"type": "plain_text", "text": v[:75], "emoji": True}, "value": k}
                              for k, v in MORE.items()]})
     to_review = [c for c in cards if c["status"] == "review" and c.get("review_by") == user]
-    now = [c for c in mine if c["status"] in ("doing", "blocked")]
-    nxt = [c for c in mine if c["status"] == "todo"]
 
-    # ① 오늘 — 열자마자 할 일이 정해져야 한다. 목록을 늘어놓는 화면이 아니다
-    blocks = [head("오늘")]
+    # ① 내 계획 — **언제 뭘 하면 되나** (2026-09-22 사장님: 「todo리스트 자동생성 하고
+    # 수정도 가능하게 해줘서 내가 언제 뭘 하면 되는지를 계획할 수 있게」).
+    #
+    # 날짜는 `core.plan` 이 **묻지 않고** 채워 둔다 — 사람은 이미 있는 계획을 옮기기만 한다.
+    # 줄마다 날짜 고르개를 달아 그 자리에서 옮긴다. 한 번 옮기면 AI 가 다시 안 민다.
+    blocks = [head("내 계획")]
     if to_review:
         for c in to_review:
             blocks += review_blocks(c, f"🔍 *확인해 주실 일*  {line(c)}")
-    today = [f"▶️ {line(c)}" for c in now[:2]] + [f"⏭️ {line(c)}" for c in nxt[:1]]
-    blocks.append(box("", today) if today else sec(say("home_today_none")))
+    blocks += plan_blocks(mine, line)
 
     # ② 프로젝트 — 우리 어디쯤인가. **하나일 때만** 그린다 — 목표·로드맵은 데이터 폴더당 하나라
     # 프로젝트가 둘이면 어느 것을 그려도 거짓말이 된다. 여럿일 때의 모양은 #70 에서 (#66)
     if len(PROJECTS) == 1:
         blocks.append(project_line(box))
 
-    # ③ 내 일 — 한 칸에 모아서. 남은 것만 (오늘 칸에 이미 나온 것은 뺀다)
-    rest = [c for c in mine if c not in now[:2] + nxt[:1]]
-    if rest:
-        blocks.append(box(f"내가 맡은 일 {len(mine)}건 중 나머지",
-                          [line(c) for c in rest[:6]]
-                          + ([f"_…외 {len(rest) - 6}건_"] if len(rest) > 6 else [])))
-    elif not mine:
+    # ③ 「내가 맡은 일 나머지」 칸은 **뺐다** (2026-09-22) — 계획이 이미 내 일을 전부
+    # 날짜에 놓아 보여 준다. 남겨 두면 같은 이슈가 한 화면에 두 번 나온다
+    if not mine:
         blocks.append(sec(say("home_none")))
     pickable = sorted([c for c in cards if not c.get("assignee") and c.get("suggested") == user
                        and c["status"] not in ("done", "cancelled")], key=lambda c: (plevel(c), c.get("rank", 99)))[:3]

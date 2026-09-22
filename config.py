@@ -7,9 +7,18 @@
 「모아」 는 이 봇의 이름이다 (2026-09-21 사장님이 정함). 예전 이름 `sandbox` 는 「모래놀이터 =
 마음껏 부숴도 되는 시험판」 이라는 개발자 말인데, 이제 시험판이 아니고 받는 사람이 알아들을 수도 없다.
 """
-import json, os, pathlib
+import json, os, pathlib, sys
 
 CODE = pathlib.Path(__file__).resolve().parent
+# **시험이 진짜 데이터를 덮어쓰지 못하게 막는다** (2026-09-22 실측: 71건이 5건으로 줄었다).
+# `MOA_DATA` 가 비면 데이터 폴더가 곧 코드 폴더라, 시험 중에 `store.save()` 가 한 번만 돌아도
+# 만든 사람의 `cards.json` 이 시험 데이터로 바뀐다. 그날 살아난 건 돌던 봇의 기억 덕이었다.
+#
+# 시험은 `tests/__init__.py` 가 `MOA_DATA` 를 베낀 예시로 박아 준다 — 그게 안 불렸다는 뜻은
+# **`-t .` 없이 돌렸다**는 것이다. 주석으로 적어 둬 봐야 다음 사람이 또 밟는다. 여기서 멈춘다.
+if not os.environ.get("MOA_DATA") and ("unittest" in sys.modules or "pytest" in sys.modules):
+    raise SystemExit("시험은 `python3 -m unittest discover -s tests -t .` 로 돌려 주세요 — "
+                     "`-t .` 를 빼면 데이터 폴더가 코드 폴더가 되어 진짜 cards.json 을 덮어씁니다")
 DATA = pathlib.Path(os.environ.get("MOA_DATA") or CODE).expanduser().resolve()
 PATH = DATA / "config.json"
 CFG = json.loads(PATH.read_text(encoding="utf-8")) if PATH.exists() else {}

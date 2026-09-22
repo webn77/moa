@@ -23002,21 +23002,119 @@
   [
    {
     "text": {
-     "text": "오늘",
+     "text": "내 계획",
      "type": "plain_text"
     },
     "type": "header"
    },
    {
+    "elements": [
+     {
+      "text": "*오늘*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-21",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794346.297319",
     "text": {
-     "text": "> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"
    },
    {
+    "elements": [
+     {
+      "text": "*내일*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-22",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794371.164169",
     "text": {
-     "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준 정하기>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 두 번째 프로젝트\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "elements": [
+     {
+      "text": "*이번 주*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-23",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789749251.503309",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준 정하기>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 두 번째 프로젝트",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-24",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789749261.680049",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-25",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794427.895239",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"
@@ -23175,21 +23273,119 @@
   [
    {
     "text": {
-     "text": "오늘",
+     "text": "내 계획",
      "type": "plain_text"
     },
     "type": "header"
    },
    {
+    "elements": [
+     {
+      "text": "*오늘*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-21",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794199.942679",
     "text": {
-     "text": "> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트\n> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"
    },
    {
+    "elements": [
+     {
+      "text": "*내일*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-22",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789749231.241109",
     "text": {
-     "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-22",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794288.360539",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "elements": [
+     {
+      "text": "*이번 주*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-23",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789792132.701589",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-24",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789788787.665609",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"
@@ -23339,21 +23535,119 @@
   [
    {
     "text": {
-     "text": "오늘",
+     "text": "내 계획",
      "type": "plain_text"
     },
     "type": "header"
    },
    {
+    "elements": [
+     {
+      "text": "*오늘*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-21",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794199.942679",
     "text": {
-     "text": "> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트\n> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"
    },
    {
+    "elements": [
+     {
+      "text": "*내일*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-22",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789749231.241109",
     "text": {
-     "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-22",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794288.360539",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "elements": [
+     {
+      "text": "*이번 주*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-23",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789792132.701589",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-24",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789788787.665609",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"
@@ -23503,21 +23797,119 @@
   [
    {
     "text": {
-     "text": "오늘",
+     "text": "내 계획",
      "type": "plain_text"
     },
     "type": "header"
    },
    {
+    "elements": [
+     {
+      "text": "*오늘*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-21",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794346.297319",
     "text": {
-     "text": "> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"
    },
    {
+    "elements": [
+     {
+      "text": "*내일*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-22",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794371.164169",
     "text": {
-     "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준 정하기>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 두 번째 프로젝트\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "elements": [
+     {
+      "text": "*이번 주*",
+      "type": "mrkdwn"
+     }
+    ],
+    "type": "context"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-23",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789749251.503309",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준 정하기>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 두 번째 프로젝트",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-24",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789749261.680049",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+     "type": "mrkdwn"
+    },
+    "type": "section"
+   },
+   {
+    "accessory": {
+     "action_id": "set_start",
+     "initial_date": "2026-09-25",
+     "placeholder": {
+      "text": "언제 할까요",
+      "type": "plain_text"
+     },
+     "type": "datepicker"
+    },
+    "block_id": "card:1789794427.895239",
+    "text": {
+     "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
      "type": "mrkdwn"
     },
     "type": "section"

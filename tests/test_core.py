@@ -7,6 +7,7 @@
 배정 계산은 2026-09-19 하루에 여러 번 깨졌다 (사람 배정 유실, 전부 배정, 내려놓기 즉시 재배정, 과부하 증가).
 그 자리를 테스트로 고정한다.
 """
+import datetime
 import os
 import sys
 import unittest
@@ -337,6 +338,82 @@ class ReadableTest(unittest.TestCase):
 
     def test_empty(self):
         self.assertEqual(self.r(None), "")
+
+
+class PlanTest(unittest.TestCase):
+    """계획 (2026-09-22 사장님: 「내가 언제 뭘 하면 되는지를 계획할 수 있게」).
+
+    `due` 는 **언제까지**, `start` 는 **언제 손을 대나**다. 2026-09-21 은 월요일이라
+    이어지는 날이 화·수·목·금이고, 주말을 건너뛰는지도 여기서 드러난다.
+    """
+    MON = datetime.date(2026, 9, 21)
+
+    def plan(self, cards, per_day=1.0, hours=None):
+        d = {str(c["no"]): c for c in cards}
+        core.plan(d, {A: per_day, B: per_day}, today=self.MON, hours_fn=hours or (lambda c: 1.0))
+        return {c["no"]: c.get("start") for c in cards}
+
+    def mine(self, no, **kw):
+        return card(no, assignee=A, **kw)
+
+    def test_every_open_card_of_mine_gets_a_day(self):
+        """**묻지 않는다** — 열어 보면 이미 날짜가 붙어 있어야 한다."""
+        got = self.plan([self.mine(1), self.mine(2), self.mine(3)])
+        self.assertEqual(list(got.values()), ["2026-09-21", "2026-09-22", "2026-09-23"])
+
+    def test_it_skips_the_weekend(self):
+        got = self.plan([self.mine(i) for i in range(1, 8)])
+        self.assertNotIn("2026-09-26", got.values())      # 토
+        self.assertNotIn("2026-09-27", got.values())      # 일
+        self.assertEqual(got[6], "2026-09-28")            # 여섯째는 월요일로
+
+    def test_a_day_holds_as_much_as_the_person_has(self):
+        """하루 2시간이면 1시간짜리 둘이 같은 날에 들어간다."""
+        got = self.plan([self.mine(1), self.mine(2), self.mine(3)], per_day=2.0)
+        self.assertEqual([got[1], got[2], got[3]], ["2026-09-21", "2026-09-21", "2026-09-22"])
+
+    def test_a_job_bigger_than_a_day_still_gets_a_day(self):
+        """하루치보다 큰 일이 놓을 자리를 못 찾고 영영 밀리면 안 된다."""
+        got = self.plan([self.mine(1)], per_day=1.0, hours=lambda c: 9.0)
+        self.assertEqual(got[1], "2026-09-21")
+
+    def test_a_day_the_person_moved_is_left_alone(self):
+        """사람이 정한 값은 AI 가 덮어쓰지 않는다 — `due_src`·`assign_src` 와 같은 약속."""
+        fixed = self.mine(1, start="2026-10-01", start_src="human")
+        got = self.plan([fixed, self.mine(2)])
+        self.assertEqual(got[1], "2026-10-01")
+        self.assertEqual(got[2], "2026-09-21")
+
+    def test_a_missed_deadline_comes_first(self):
+        """목표일이 지났는데 계획이 목요일이면 사람은 그걸 계획으로 안 읽는다 (2026-09-22 실측)."""
+        got = self.plan([self.mine(1, status="doing"), self.mine(2, due="2026-09-18")])
+        self.assertEqual(got[2], "2026-09-21")           # 지난 것이 오늘
+        self.assertEqual(got[1], "2026-09-22")           # 진행 중이라도 그 뒤
+
+    def test_what_must_finish_first_is_planned_first(self):
+        """#1 이 #2 를 기다리면 #2 가 먼저다 — 아니면 계획이 거짓말이 된다."""
+        got = self.plan([self.mine(1, after=[2]), self.mine(2)])
+        self.assertLess(got[2], got[1])
+
+    def test_a_cycle_does_not_hang(self):
+        got = self.plan([self.mine(1, after=[2]), self.mine(2, after=[1])])
+        self.assertEqual(len([x for x in got.values() if x]), 2)
+
+    def test_finished_and_unassigned_work_has_no_plan(self):
+        cards = [self.mine(1, status="done", start="2026-09-21", start_src="ai"),
+                 card(2, assignee=None, start="2026-09-21", start_src="ai")]
+        got = self.plan(cards)
+        self.assertEqual([got[1], got[2]], [None, None])
+
+    def test_the_buckets_read_like_a_person_talks(self):
+        from views.home import plan_when
+        w = lambda iso: plan_when({"start": iso}, self.MON)[1]
+        self.assertEqual(w("2026-09-18"), "오늘")        # 지난 날짜도 오늘 할 일이다
+        self.assertEqual(w("2026-09-21"), "오늘")
+        self.assertEqual(w("2026-09-22"), "내일")
+        self.assertEqual(w("2026-09-25"), "이번 주")     # 같은 주 금요일
+        self.assertEqual(w("2026-09-28"), "그다음")
+        self.assertEqual(w(None), "언제 할지 미정")
 
 
 class CardButtonsTest(unittest.TestCase):

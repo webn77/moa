@@ -2683,21 +2683,6 @@
         "type": "input"
        },
        {
-        "block_id": "not_doing",
-        "element": {
-         "action_id": "v",
-         "initial_value": "n",
-         "multiline": true,
-         "type": "plain_text_input"
-        },
-        "label": {
-         "text": "하지 않는 것",
-         "type": "plain_text"
-        },
-        "optional": true,
-        "type": "input"
-       },
-       {
         "block_id": "done_criteria",
         "element": {
          "action_id": "v",
@@ -2717,42 +2702,13 @@
         "type": "input"
        },
        {
-        "block_id": "after",
-        "element": {
-         "action_id": "v",
-         "initial_value": "#11",
-         "multiline": false,
-         "type": "plain_text_input"
-        },
-        "hint": {
-         "text": "이슈 번호를 띄어쓰기로. 예: #52 #57 · 비우면 기다리는 것 없음",
-         "type": "plain_text"
-        },
-        "label": {
-         "text": "먼저 끝나야 할 일",
-         "type": "plain_text"
-        },
-        "optional": true,
-        "type": "input"
-       },
-       {
-        "block_id": "reason",
-        "element": {
-         "action_id": "v",
-         "initial_value": "",
-         "multiline": false,
-         "type": "plain_text_input"
-        },
-        "hint": {
-         "text": "한 줄이면 돼요. 비워 두면 스레드에서 한 번 여쭤볼게요",
-         "type": "plain_text"
-        },
-        "label": {
-         "text": "바꾼 이유",
-         "type": "plain_text"
-        },
-        "optional": true,
-        "type": "input"
+        "elements": [
+         {
+          "text": "순서(먼저 끝나야 할 일)는 「순서」 라고 쓰시면 한 화면에서 고칠 수 있어요",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
        }
       ],
       "callback_id": "edit_content_submit",
@@ -3024,7 +2980,7 @@
    {
     "body": {
      "channel": "C0EXAMPLEPRJ",
-     "text": "📝 9/21 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −b +c · 김하나 — <@U0EXAMPLEPM> 님, 이유를 한 줄 남겨 주시면 적어 둘게요 🙂",
+     "text": "📝 9/21 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 완료 조건 −b +c · 김하나 — <@U0EXAMPLEPM> 님, 이유를 한 줄 남겨 주시면 적어 둘게요 🙂",
      "thread_ts": "1789749254.624039"
     },
     "method": "chat.postMessage"
@@ -3937,7 +3893,7 @@
       "blocks": [
        {
         "text": {
-         "text": "오늘",
+         "text": "내 계획",
          "type": "plain_text"
         },
         "type": "header"
@@ -5070,6 +5026,8 @@
     "why": "봇이 맥에서 nohup 으로만 돌아 재부팅·로그아웃하면 꺼진다. PoC 중 꺼지면 지표가 끊긴다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "봇을 재부팅해도 계속 돌게 하기"
   },
@@ -5116,6 +5074,8 @@
     "why": "AI가 레포 읽기·PR·명령 실행까지 가려면 어디까지 맡길지 기준이 먼저 있어야 한다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)"
   },
@@ -5154,14 +5114,13 @@
       "왜",
       "바뀌는 것",
       "기대와 확인",
-      "하지 않는 것",
       "완료 조건"
      ],
      "icon": "📝",
      "kind": "spec",
      "reason": null,
      "ts": "1.5",
-     "what": "제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −b +c",
+     "what": "제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 완료 조건 −b +c",
      "who": "김하나"
     }
    ],
@@ -5177,11 +5136,13 @@
      "c"
     ],
     "expect": "",
-    "not_doing": "",
+    "not_doing": "n",
     "title": "권한 정리",
     "why": "새 왜"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "권한 정리 2"
   },
@@ -5223,6 +5184,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "doing",
    "title": "봇이 브랜치와 PR까지 올리게 하기 (머지는 사람)"
   },
@@ -5250,6 +5213,8 @@
     "why": "Slack 메시지를 명령으로 받으면 누구든 봇에게 위험한 일을 시킬 수 있다"
    },
    "stage": "개발·도그푸딩",
+   "start": "2026-09-23",
+   "start_src": "ai",
    "status": "todo",
    "title": "Slack 메시지를 명령으로 받을 때의 안전 규칙 정하기"
   },
@@ -5267,6 +5232,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "PoC",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "팀원 초대와 접근 범위 정하기 (Slack·GitHub·레포)"
   },
@@ -5284,6 +5251,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "구독으로 봇을 계속 돌릴지, API·Team 플랜으로 옮길지 정하기"
   },
@@ -5311,6 +5280,8 @@
     "why": "PM이 매일 누가 뭘 하는지 챙긴다. 라인 사례: 매일 Slack 보고로 사람은 판단에 집중하게 됐다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "아침 알림 — 사람마다 오늘 할 일·막힘·마감을 DM 으로"
   },
@@ -5328,6 +5299,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "사람별 '지금 맡은 것'을 캔버스에 보여주기"
   },
@@ -5345,6 +5318,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "이상 감지 — 담당 미정·멈춤·완료 조건 없이 닫힘"
   },
@@ -5362,6 +5337,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "카드를 2줄로 줄이고 상세는 팝업으로만 보기 (채널 소음 줄이기)"
   },
@@ -5379,6 +5356,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "채널 나누기 — 요청·대화 채널과 이슈 카드 채널 분리"
   },
@@ -5396,6 +5375,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "결정을 남기기 — 스레드에서 정한 것을 decisions/ 에 기록 (버린 안과 이유까지)"
   },
@@ -5423,6 +5404,8 @@
     "why": "결정과 변경이 스레드에 묻힌다. 삼성전자 사례: 사람이 기억해서 하는 기록은 멈춘다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "이슈 md에 히스토리 쌓기 — 상태·담당 변경과 주요 대화를 시간순으로"
   },
@@ -5440,6 +5423,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "PoC",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "인수인계 요약 — 처음 보는 사람이 5줄로 따라잡게 (@봇 인계)"
   },
@@ -5473,6 +5458,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "PoC",
+   "start": "2026-09-24",
+   "start_src": "ai",
    "status": "todo",
    "title": "인수인계 시험 — 다른 계정으로 스레드 안 읽고 이슈만 보고 이어받아 보기"
   },
@@ -5490,6 +5477,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "cancelled",
    "title": "알림 설정 화면에서 저장 버튼이 두 번 눌려요"
   },
@@ -5507,6 +5496,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "cancelled",
    "title": "알림 설정 화면 안내 문구가 짤려요"
   },
@@ -5524,6 +5515,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "cancelled",
    "title": "알림 설정 화면에서 저장 버튼이 두 번 눌려요"
   },
@@ -5573,6 +5566,8 @@
     "why": "bot.py 가 2,600줄 한 파일 — 고칠 때마다 다른 곳이 깨질까 봐 느려지고, 같은 일을 여러 길로 해서 쓰는 사람도 헷갈린다. 재시작 중 GitHub 연결이 끊긴 사고(9/20)도 있었다"
    },
    "stage": "개발·도그푸딩",
+   "start": "2026-09-23",
+   "start_src": "ai",
    "status": "todo",
    "title": "bot.py 나누기 + 동기화·재시작 안전 (설계: docs/architecture.md)"
   },
@@ -5601,6 +5596,8 @@
     "why": "요청이 한 줄로 와서 되묻느라 시간이 들고, 완료 조건을 갖춘 이슈가 4%뿐이다"
    },
    "stage": "개발·도그푸딩",
+   "start": "2026-09-22",
+   "start_src": "ai",
    "status": "doing",
    "title": "질문으로 구체화 — 요청이 들어오면 봇이 빠진 것만 스레드에서 물어보고 정리까지"
   },
@@ -5618,6 +5615,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "프로젝트 시작 도우미 — 목표 한 줄이면 AI가 목표 틀(개선·할 일·기능·성공 기준·단계) 초안을 만들어 "
   },
@@ -5635,6 +5634,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "뒤로 보냈어요 알림 + 되돌리기 — AI가 일을 뒤로 밀면 본인에게 알리고 한 번에 되돌리게"
   },
@@ -5652,6 +5653,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "마감 후속 알림 — 시작일·완료일을 정하고, 마감 전에 담당자에게 한 번 묻기 (Chaser 방식)"
   },
@@ -5678,6 +5681,8 @@
     "why": "배정 계산(place)이 두 번 깨졌는데 테스트가 없어 고칠 때마다 봇을 돌려 봐야 안다"
    },
    "stage": "개발·도그푸딩",
+   "start": "2026-09-21",
+   "start_src": "ai",
    "status": "doing",
    "title": "core.py 분리 + 배정 계산 테스트 5개 — 고칠 때 깨지지 않게"
   },
@@ -5705,6 +5710,8 @@
     "why": "2배를 말하려면 기준값이 있어야 한다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "2배 지표 준비 — 리드타임 기준값 확정 + PM 조율 시간 매주 한 줄 묻기"
   },
@@ -5722,6 +5729,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "캔버스 바뀐 칸만 고치기 — 전체 교체로 생기는 위 여백·안 바뀌어 보이는 문제"
   },
@@ -5770,6 +5779,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": "2026-09-24",
+   "start_src": "ai",
    "status": "todo",
    "title": "시험용 메시지 정리 — 가상 팀원이 올린 원본 메시지 목록 뽑아 정리"
   },
@@ -5787,6 +5798,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "벤치마킹 보강 — Tickr·Chaser 체험, 두레이 확인"
   },
@@ -5816,6 +5829,8 @@
     "why": "결제 실패 알림이 고객에게 두 번 발송되어 결제가 두 번 된 것으로 오해한 문의가 오늘만 4건 들어왔습니다. 개발 민수는 재시도 로직이 실패 알림까지 다시 보내는 것으로 보고 있으나 원인은 확정되지 않았습니다."
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "결제 실패 알림 중복 발송 방지"
   },
@@ -5833,6 +5848,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": "2026-09-21",
+   "start_src": "ai",
    "status": "todo",
    "title": "team.md 확인 — 주당 가능 시간, 디자인 대행 확정"
   },
@@ -5860,6 +5877,8 @@
     "why": "PoC 는 사람이 있어야 지표를 잴 수 있다"
    },
    "stage": "PoC",
+   "start": "2026-09-22",
+   "start_src": "ai",
    "status": "todo",
    "title": "PoC 참가자 1~3명 정하고 첫날 안내하기"
   },
@@ -5877,6 +5896,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "판단",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "10/02 판단 회의 — 지표를 보고 계속·방향 수정·중단, 파일럿 여부 결정"
   },
@@ -5904,6 +5925,8 @@
     "why": "만드는 과정과 판단을 공개해 두면 PoC·파일럿 참가자를 모으고 경력 근거가 된다"
    },
    "stage": "개발·도그푸딩",
+   "start": "2026-09-25",
+   "start_src": "ai",
    "status": "todo",
    "title": "연재 — 요즘IT 매주 1편 (docs/writing-plan.md)"
   },
@@ -5931,6 +5954,8 @@
     "why": "요청은 #팀-대화 로만 오지 않는다. 개인 메일·DM 으로 온 요청이 팀에 안 들어가면 흘러간다"
    },
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "개인 요청 입구 — 메일·Slack DM 으로 온 요청을 골라 팀 이슈로"
   },
@@ -5959,6 +5984,8 @@
     "why": "Slack 에는 일정 관리가 없다. 회의·마감이 캘린더에 없으면 사람마다 따로 챙긴다"
    },
    "stage": "PoC",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "팀 일정 — Google Calendar 연결: /meeting 이 일정을 만들고, 마감·회의를 캘린더와 캔버스에"
   },
@@ -5986,6 +6013,8 @@
     "why": "상태를 바꾸려면 사람이 ⋯ 메뉴나 이모지를 눌러야 한다. 말로는 끝났다고 해 놓고 카드는 그대로 남는다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "AI 상태 제안 — 스레드에서 「끝났어요·막혔어요·시작할게요」 를 알아듣고 상태 변경을 제안"
   },
@@ -6012,6 +6041,8 @@
     "why": "고객이 로그인 화면에서 비밀번호를 틀려도 아무 안내가 없어 로그인 버튼만 계속 누르다가 CS로 문의한다."
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "cancelled",
    "title": "로그인 실패 시 비밀번호 오류 안내 문구 표시"
   },
@@ -6049,6 +6080,8 @@
     "why": "봇 문구가 코드 곳곳에 흩어져 말투·용어가 자꾸 어긋난다 (명령형·이모지 과다·조사 어색). 다른 Slack 에 옮길 때도 문구를 고치기 어렵다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "Slack 문구 템플릿 — 봇이 내보내는 말을 한 곳에 모아 말투·용어 통일 (다른 Slack·언어에도 쉽게"
   },
@@ -6135,6 +6168,8 @@
     "why": "시작·완료 때 아무 안내가 없어 요청자와 기다리던 사람이 따로 물어봐야 한다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "시작·완료 안내 — 👀 시작하면 목표일·완료 조건을 안내하고, ✅ 끝나면 요청자·기다리던 일에 알리고 다음 "
   },
@@ -6205,6 +6240,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": "2026-09-29",
+   "start_src": "human",
    "status": "todo",
    "title": "AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)"
   },
@@ -6314,6 +6351,8 @@
     "why": "채널·캔버스·워크스페이스·GitHub ID 가 코드에 박혀 있고 앱 설정은 손으로 만들어서, 회사 맥북·다른 팀 Slack 에 그대로 옮길 수 없다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "다른 Slack 에 설치 — 설정 파일로 ID 빼기 · 앱 매니페스트 · 설치 스크립트(LaunchAgent"
   },
@@ -6342,6 +6381,8 @@
     "why": "요청이 들어오는 대로 번호 붙은 이슈가 되면 백로그가 너무 많아진다 — 할지 말지 사람이 정하지 않은 일이 섞인다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "분류함(트리아지) — 요청 방의 새 일은 사람이 정해야 백로그가 된다"
   },
@@ -6371,6 +6412,8 @@
     "why": "누가 언제까지 무엇을 하는지 안 보이고, 할 일을 적는 곳이 없어 진척을 모른다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "제가 할게요 + 할 일 목록 — 누가 언제까지 무엇을 · 체크리스트로 일한다"
   },
@@ -6398,6 +6441,8 @@
     "why": "백로그 중에 지금 하는 일 · 이번 주 예정인 일이 잘 안 보인다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "이번 주 보기 — 요청 방 캔버스 「📅 이번 주」"
   },
@@ -6425,6 +6470,8 @@
     "why": "이슈가 많아지면 찾기 어렵고, 요청 방에서 이야기하려면 샌드박스로 가야 한다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "#번호 불러오기 · /이슈 검색 — 요청 방에서 이슈를 쉽게 찾아 이야기한다"
   },
@@ -6453,6 +6500,8 @@
     "why": "외부 LLM · 도구에서 만든 결과가 어디에 남았는지 모르고, 완료를 누가 확인했는지 흩어진다"
    },
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "산출물 저장 + 완료 요청 — 외부 LLM 결과도 Slack 에 붙이면 기록된다"
   },
@@ -6470,6 +6519,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "PoC",
+   "start": null,
+   "start_src": null,
    "status": "cancelled",
    "title": "@봇 찾아줘 — 이슈·회의록 검색"
   },
@@ -6487,6 +6538,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "정리할 때 비슷한 이슈·결정을 자동으로 연결하기"
   },
@@ -6504,6 +6557,8 @@
    "review_msg": null,
    "spec": null,
    "stage": null,
+   "start": null,
+   "start_src": null,
    "status": "todo",
    "title": "요청을 AI가 이슈 후보로 골라 제안하기"
   },
@@ -6521,6 +6576,8 @@
    "review_msg": null,
    "spec": null,
    "stage": "개발·도그푸딩",
+   "start": null,
+   "start_src": null,
    "status": "done",
    "title": "회의록도 팝업으로 보기"
   }
@@ -6551,7 +6608,7 @@
        },
        {
         "text": {
-         "text": "🗓️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 회의 M9에서 다룸 · 주간 점검\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 목표일 없음→9/24 · 일정 위험 추천 적용·김하나 (<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게…> 목표일을 9/24로 미뤘어요)\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 시작 · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −b +c · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 완료 — 계획대로 (목표일 9/23, 2일 일찍) · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 없음→박두리, 목표일 없음→9/22 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n⛔ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 보류 · 박두리\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 — 계획대로 (목표일 9/21) · 박두리\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 조건 3/3 · 박두리\n↩️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 더 필요 — 다시 진행 중 · 요청자 (엑셀도)\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 조건 1/3 · 박두리\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 시작 · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 목표일 9/25→9/30 · 김하나 (고객 일정 때문)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 우선순위 P4→P2 · 김하나\n🗺️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 이렇게 할게요 · 박두리 (먼저 재현부터 해 볼게요)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 박두리→없음, 목표일 9/21→없음 · AI 자동 조정 (지금·다음 자리가 차서 백로그 · 배정이 풀려 제안 날짜도 뺌)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험> — 담당 없음→김하나, 목표일 없음→9/24 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 담당 없음→박두리 · 박두리\n",
+         "text": "🗓️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 회의 M9에서 다룸 · 주간 점검\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 목표일 없음→9/24 · 일정 위험 추천 적용·김하나 (<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게…> 목표일을 9/24로 미뤘어요)\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 시작 · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 완료 조건 −b +c · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 완료 — 계획대로 (목표일 9/23, 2일 일찍) · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 없음→박두리, 목표일 없음→9/22 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n⛔ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 보류 · 박두리\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 — 계획대로 (목표일 9/21) · 박두리\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 조건 3/3 · 박두리\n↩️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 더 필요 — 다시 진행 중 · 요청자 (엑셀도)\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 조건 1/3 · 박두리\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 시작 · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 목표일 9/25→9/30 · 김하나 (고객 일정 때문)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 우선순위 P4→P2 · 김하나\n🗺️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 이렇게 할게요 · 박두리 (먼저 재현부터 해 볼게요)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 박두리→없음, 목표일 9/21→없음 · AI 자동 조정 (지금·다음 자리가 차서 백로그 · 배정이 풀려 제안 날짜도 뺌)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험> — 담당 없음→김하나, 목표일 없음→9/24 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 담당 없음→박두리 · 박두리\n",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -7917,7 +7974,7 @@
        },
        {
         "text": {
-         "text": "*왜*\n새 왜\n\n*바뀌는 것*\n-\n\n*기대와 확인*\n-\n\n*하지 않는 것*\n-",
+         "text": "*왜*\n새 왜\n\n*바뀌는 것*\n-\n\n*기대와 확인*\n-\n\n*하지 않는 것*\nn",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -7965,7 +8022,7 @@
        },
        {
         "text": {
-         "text": "9/21  📝 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −b +c · 김하나\n9/21  📝 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n9/19  🎫 만듦 · 백로그",
+         "text": "9/21  📝 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 완료 조건 −b +c · 김하나\n9/21  📝 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 완료 조건 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n9/19  🎫 만듦 · 백로그",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -7998,6 +8055,217 @@
      }
     },
     "method": "views.open"
+   }
+  ],
+  "trail": []
+ },
+ "📅 계획 날짜 옮기기 #5": {
+  "sent": [
+   {
+    "body": {
+     "blocks": [
+      {
+       "text": {
+        "text": "🟠 *PA-5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)*",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "elements": [
+        {
+         "text": "🕒 대기 · P2 · 담당 박두리 · 📅 9/30  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "action_id": "edit_content",
+         "text": {
+          "text": "📝 설명 쓰기",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749213.663579"
+        },
+        {
+         "action_id": "show_md",
+         "text": {
+          "text": "📄 상세",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749213.663579"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "text": {
+        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태, 다르면 고쳐 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "card:1789749213.663579",
+       "elements": [
+        {
+         "action_id": "set_assignee",
+         "initial_user": "U0EXAMPLEDEV",
+         "placeholder": {
+          "text": "누가 맡을까요?",
+          "type": "plain_text"
+         },
+         "type": "users_select"
+        },
+        {
+         "action_id": "set_prio",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🟠 P2 높음",
+           "type": "plain_text"
+          },
+          "value": "2"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔴 P1 긴급",
+            "type": "plain_text"
+           },
+           "value": "1"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟠 P2 높음",
+            "type": "plain_text"
+           },
+           "value": "2"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟡 P3 보통",
+            "type": "plain_text"
+           },
+           "value": "3"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⚪ P4 낮음",
+            "type": "plain_text"
+           },
+           "value": "4"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_due",
+         "initial_date": "2026-09-30",
+         "placeholder": {
+          "text": "목표일",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        {
+         "action_id": "set_status",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🕒 대기",
+           "type": "plain_text"
+          },
+          "value": "todo"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🕒 대기",
+            "type": "plain_text"
+           },
+           "value": "todo"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "👀 진행 중",
+            "type": "plain_text"
+           },
+           "value": "doing"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⛔ 보류",
+            "type": "plain_text"
+           },
+           "value": "blocked"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔍 확인 대기",
+            "type": "plain_text"
+           },
+           "value": "review"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "✅ 완료",
+            "type": "plain_text"
+           },
+           "value": "done"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "❌ 취소",
+            "type": "plain_text"
+           },
+           "value": "cancelled"
+          }
+         ],
+         "type": "static_select"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "elements": [
+        {
+         "text": "사람이 정한 값이에요",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "*완료 조건* 아직 없어요 — 스레드에 한두 줄 알려 주시면 정리해 둘게요",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      }
+     ],
+     "channel": "C0EXAMPLEPRJ",
+     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
+     "ts": "1789749213.663579"
+    },
+    "method": "chat.update"
    }
   ],
   "trail": []
@@ -8068,21 +8336,128 @@
       "blocks": [
        {
         "text": {
-         "text": "오늘",
+         "text": "내 계획",
          "type": "plain_text"
         },
         "type": "header"
        },
        {
+        "elements": [
+         {
+          "text": "*오늘*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-21",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794199.942679",
         "text": {
-         "text": "> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트\n> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
        },
        {
+        "elements": [
+         {
+          "text": "*내일*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-22",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789792132.701589",
         "text": {
-         "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하게 하기>  ·  🕒 대기 · 📅 9/30  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*이번 주*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-23",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789788787.665609",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-24",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794288.360539",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*그다음*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-29",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789749213.663579",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하게 하기>  ·  🕒 대기 · 📅 9/30  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -8241,21 +8616,119 @@
       "blocks": [
        {
         "text": {
-         "text": "오늘",
+         "text": "내 계획",
          "type": "plain_text"
         },
         "type": "header"
        },
        {
+        "elements": [
+         {
+          "text": "*오늘*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-21",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794346.297319",
         "text": {
-         "text": "> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
        },
        {
+        "elements": [
+         {
+          "text": "*내일*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-22",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794371.164169",
         "text": {
-         "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*이번 주*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-23",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789749261.680049",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-24",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789775750.062099",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-25",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794427.895239",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -8423,21 +8896,119 @@
       "blocks": [
        {
         "text": {
-         "text": "오늘",
+         "text": "내 계획",
          "type": "plain_text"
         },
         "type": "header"
        },
        {
+        "elements": [
+         {
+          "text": "*오늘*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-21",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794346.297319",
         "text": {
-         "text": "> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
        },
        {
+        "elements": [
+         {
+          "text": "*내일*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-22",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794371.164169",
         "text": {
-         "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*이번 주*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-23",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789749261.680049",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-24",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789775750.062099",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-25",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794427.895239",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -8667,21 +9238,128 @@
       "blocks": [
        {
         "text": {
-         "text": "오늘",
+         "text": "내 계획",
          "type": "plain_text"
         },
         "type": "header"
        },
        {
+        "elements": [
+         {
+          "text": "*오늘*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-21",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794199.942679",
         "text": {
-         "text": "> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트\n> ▶️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679|PA-35 core.py 분리 + 배정 계산 테스트 5개>  ·  👀 진행 중 0/2 · 📅 9/21 💡  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
        },
        {
+        "elements": [
+         {
+          "text": "*내일*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-22",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789792132.701589",
         "text": {
-         "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하게 하기>  ·  🕒 대기 · 📅 9/30  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589|XX-31 질문으로 구체화>  ·  👀 진행 중 0/4 · 📅 9/28 💡  ·  📁 두 번째 프로젝트",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*이번 주*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-23",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789788787.665609",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609|PA-30 bot.py 나누기 + 동기화·재시작 안전>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-24",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794288.360539",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*그다음*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-29",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789749213.663579",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하게 하기>  ·  🕒 대기 · 📅 9/30  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -8840,21 +9518,119 @@
       "blocks": [
        {
         "text": {
-         "text": "오늘",
+         "text": "내 계획",
          "type": "plain_text"
         },
         "type": "header"
        },
        {
+        "elements": [
+         {
+          "text": "*오늘*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-21",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794346.297319",
         "text": {
-         "text": "> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
        },
        {
+        "elements": [
+         {
+          "text": "*내일*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-22",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794371.164169",
         "text": {
-         "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*이번 주*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-23",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789749261.680049",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-24",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789775750.062099",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-25",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794427.895239",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -9022,21 +9798,119 @@
       "blocks": [
        {
         "text": {
-         "text": "오늘",
+         "text": "내 계획",
          "type": "plain_text"
         },
         "type": "header"
        },
        {
+        "elements": [
+         {
+          "text": "*오늘*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-21",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794346.297319",
         "text": {
-         "text": "> ⏭️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"
        },
        {
+        "elements": [
+         {
+          "text": "*내일*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-22",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794371.164169",
         "text": {
-         "text": "*내가 맡은 일 5건 중 나머지*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319|PA-40 team.md 확인>  ·  🕒 대기 · 📅 9/21 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169|XX-41 PoC 참가자 1~3명 정하고 첫날 안내하기>  ·  🕒 대기 · 📅 9/22 💡  ·  📁 두 번째 프로젝트",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "elements": [
+         {
+          "text": "*이번 주*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-23",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789749261.680049",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049|PA-14 Slack 메시지를 명령으로 받을 때의 안전 규칙 정하…>  ·  🕒 대기 · 📅 9/23 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-24",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789775750.062099",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험>  ·  🕒 대기 · 📅 9/24 💡  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
+        "accessory": {
+         "action_id": "set_start",
+         "initial_date": "2026-09-25",
+         "placeholder": {
+          "text": "언제 할까요",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        "block_id": "card:1789794427.895239",
+        "text": {
+         "text": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239|PA-43 연재>  ·  🕒 대기 · 📅 9/25  ·  📁 프로젝트-예시",
          "type": "mrkdwn"
         },
         "type": "section"

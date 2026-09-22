@@ -158,6 +158,89 @@ def place(cards, team, stage_names, queue=2, next_min=2.0, capcut=None, due_fn=N
             release(c, "backlog", "지금·다음 자리가 차서 백로그")
 
 
+# ── 계획 — 「내가 언제 뭘 하면 되나」 (2026-09-22 사장님 지시) ──
+#
+# `due` 와 다른 것이다. **`due` 는 언제까지, `start` 는 언제 손을 대나**다.
+# 목표일만 있으면 「이번 주에 여섯 개가 금요일」 이 되고, 그건 계획이 아니라 벽이다.
+#
+# 사장님: 「todo리스트 자동생성 하고 수정도 가능하게 해줘서 내가 언제 뭘 하면 되는지를 계획할 수 있게」
+# 그래서 **묻지 않는다.** 언제나 자동으로 채워 두고, 사람은 이미 있는 계획을 옮기기만 한다
+# (「사용자에게 많은 걸 요청 하지 말자고」).
+def _workday(d):
+    import datetime                             # 이 파일은 부를 때 불러온다 (아래 `due_urgency` 와 같다)
+    while d.weekday() >= 5:                     # 토·일은 건너뛴다
+        d += datetime.timedelta(days=1)
+    return d
+
+
+def plan_order(mine, finished=(), today=None):
+    """계획에 놓을 순서 — **늦은 것** → 진행 중 → 우선순위 → 목표일 → 순위.
+    **선행은 앞으로 당긴다.**
+
+    목표일이 지났거나 오늘인 것이 맨 앞이다. 안 그러면 「9/21 이 목표일인데 계획은 9/24」
+    같은 줄이 나온다 — 사람은 그걸 계획으로 안 읽는다 (2026-09-22 실측).
+
+    내 목록 안에 선행이 있으면 그것을 먼저 놓는다 — 아니면 「#57 을 오늘, 그게 기다리는
+    #52 를 목요일」 같은 계획이 나온다. 고리가 있어도 멈춘다 (`seen` · 깊이 제한).
+    """
+    rank = {"doing": 0, "blocked": 1}
+    end = today.isoformat() if today else None
+    late = lambda c: 0 if end and (c.get("due") or "9999-99-99") <= end else 1
+    todo = sorted(mine, key=lambda c: (late(c), rank.get(c["status"], 2), plevel(c),
+                                       c.get("due") or "9999-99-99", c.get("rank", 99)))
+    here, out, seen = {c["no"]: c for c in todo}, [], set()
+
+    def add(c, depth=0):
+        if c["no"] in seen or depth > 10:
+            return
+        seen.add(c["no"])
+        for a in c.get("after") or []:
+            if a in here and a not in finished:
+                add(here[a], depth + 1)
+        out.append(c)
+    for c in todo:
+        add(c)
+    return out
+
+
+def plan(cards, per_day, today=None, hours_fn=None):
+    """열린 내 일을 **날짜에 놓는다** — `start` 를 채운다. 제자리에서 고친다.
+
+    per_day   {uid: 하루에 쓸 수 있는 시간}  (team.md 「가용 시간」 ÷ 5)
+    hours_fn  card → 걸릴 시간 (없으면 하나에 한 시간으로 본다)
+
+    **사람이 옮긴 날(`start_src="human"`)은 건드리지 않는다** — 이 저장소의 다른 칸과 같은
+    약속이다 (`due_src` · `assign_src`). 사람이 잡아 둔 날도 그날의 자리를 먼저 차지한다.
+    하루보다 큰 일도 **시작하는 날**만 잡는다 — 언제 끝나는지는 `due` 가 말한다.
+    """
+    import datetime
+    today = today or datetime.date.today()
+    hours_fn = hours_fn or (lambda c: 1.0)
+    finished = {c["no"] for c in cards.values() if c["status"] in ("done", "cancelled")}
+    open_ = [c for c in cards.values()
+             if c["status"] not in ("done", "cancelled") and c.get("assignee")]
+    for c in cards.values():                     # 끝난 일에 계획이 남아 있으면 지운다
+        if c["status"] in ("done", "cancelled") or not c.get("assignee"):
+            c.pop("start", None), c.pop("start_src", None)
+    for uid in sorted({c["assignee"] for c in open_}):
+        mine = [c for c in open_ if c["assignee"] == uid]
+        cap = max(per_day.get(uid) or 1.0, 0.5)
+        fixed = [c for c in mine if c.get("start_src") == "human" and c.get("start")]
+        used = {}
+        for c in fixed:
+            used[c["start"]] = used.get(c["start"], 0) + min(hours_fn(c), cap)
+        d = _workday(today)
+        for c in plan_order([c for c in mine if c not in fixed], finished, today):
+            need = min(max(hours_fn(c), 0.1), cap)
+            # 자리가 모자라면 다음 일하는 날로. **빈 날은 아무리 큰 일이라도 받는다** —
+            # 안 그러면 하루치보다 큰 일이 영영 놓일 자리를 못 찾는다
+            while used.get(d.isoformat(), 0) and used.get(d.isoformat(), 0) + need > cap:
+                d = _workday(d + datetime.timedelta(days=1))
+            c["start"], c["start_src"] = d.isoformat(), "ai"
+            used[d.isoformat()] = used.get(d.isoformat(), 0) + need
+    return open_
+
+
 # ── 선행 (#68) — 「무엇이 끝나야 이 일을 시작하나」 ──
 def _by_no(cards):
     return {c.get("no"): c for c in (cards.values() if isinstance(cards, dict) else cards)}

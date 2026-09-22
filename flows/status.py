@@ -3,7 +3,7 @@ import asyncio, re, time, datetime
 import core
 from messages import MSG, say
 from common import CHANNEL, DECISION, LABEL, NEXT_MIN, PLEVEL, PNAME, QUEUE, REQUEST, REVIEW_ON, SPEC_KEYS, log, plevel, short  # noqa: E402,F401
-from docs import load_features, load_stages, load_team, suggest_due  # noqa: E402,F401
+from docs import load_features, load_hours, load_stages, load_team, need_hours, suggest_due  # noqa: E402,F401
 from slack import api, mood, person  # noqa: E402,F401
 from store import STATE, add_log, ann_snap, chan, decision_snap, log_line, open_cards, plan_result, progress, ref, save, tag  # noqa: E402,F401
 
@@ -223,6 +223,16 @@ async def save_take(s, payload):
         save()
 
 
+# 창에서 **사람이 고치는** 칸 (2026-09-22 사장님: 「너무 칸이 많어 쓰기 싫어지게 생기긴 했어」).
+# 여덟 칸이었다 — 제목·왜·바뀌는 것·기대와 확인·하지 않는 것·완료 조건·먼저 끝나야 할 일·바꾼 이유.
+# 다섯으로 줄였다. 뺀 셋은 **없앤 게 아니라 제 자리로 보냈다**:
+#   · 하지 않는 것 — AI 가 채우고 📄 상세가 보여 준다. `core.py` 의 「정의가 있나」 판정도
+#     원래 이걸 안 센다 (거기 SPEC_KEYS 는 왜·바뀌는 것·기대와 확인 셋뿐이다)
+#   · 먼저 끝나야 할 일 — 「순서」 한 화면이 이 일만 한다 (#68)
+#   · 바꾼 이유 — 칸이 아니라 물음이다. 안 적으면 스레드에서 한 번 여쭙는다 (그대로 돈다)
+FORM_KEYS = [(k, label) for k, label in SPEC_KEYS if k != "not_doing"]
+
+
 async def open_content_editor(s, trigger, c, push=False):
     """사람이 제목·이슈 정의를 직접 고친다. 비워 두면 그 칸은 없는 것으로."""
     sp = c.get("spec") or {}
@@ -235,13 +245,10 @@ async def open_content_editor(s, trigger, c, push=False):
             "title": {"type": "plain_text", "text": f"#{c['no']} 내용 수정"},
             "submit": {"type": "plain_text", "text": "저장"}, "close": {"type": "plain_text", "text": "닫기"},
             "blocks": [field("title", "제목", c["title"], False)]
-            + [field(k, label, sp.get(k)) for k, label in SPEC_KEYS]
+            + [field(k, label, sp.get(k)) for k, label in FORM_KEYS]
             + [field("done_criteria", "완료 조건", "\n".join(sp.get("done_criteria") or []), hint="한 줄에 하나씩"),
-               # 선행은 여기서 받는다 — 새 창을 띄우면 창이 3층이 된다 (상세도 이미 창이다).
-               # 비우면 「기다리는 게 없다」 는 뜻이고, 고치면 after_src=human 이 붙어 AI 가 못 지운다 (#68)
-               field("after", "먼저 끝나야 할 일", " ".join(f"#{x}" for x in (c.get("after") or [])), False,
-                     hint="이슈 번호를 띄어쓰기로. 예: #52 #57 · 비우면 기다리는 것 없음"),
-               field("reason", "바꾼 이유", "", False, hint="한 줄이면 돼요. 비워 두면 스레드에서 한 번 여쭤볼게요")]}
+               {"type": "context", "elements": [{"type": "mrkdwn",
+                "text": "순서(먼저 끝나야 할 일)는 「순서」 라고 쓰시면 한 화면에서 고칠 수 있어요"}]}]}
     await api(s, "views.push" if push else "views.open", body={"trigger_id": trigger, "view": view})
 
 
@@ -254,17 +261,23 @@ async def save_content(s, payload):
     old_title, old_spec = c["title"], dict(c.get("spec") or {})
     c["title"] = vals.get("title", c["title"]).strip()[:80] or c["title"]
     sp = dict(c.get("spec") or {})
-    for k, _ in SPEC_KEYS:
-        sp[k] = vals.get(k, "").strip()
-    sp["done_criteria"] = [x.strip("-☐ ").strip() for x in vals.get("done_criteria", "").splitlines() if x.strip()]
+    # **창에 없던 칸은 건드리지 않는다.** 예전에는 SPEC_KEYS 를 통째로 돌면서 `vals.get(k, "")`
+    # 를 넣었다 — 창에서 뺀 「하지 않는 것」 이 저장할 때마다 조용히 지워졌을 것이다
+    for k, _ in FORM_KEYS:
+        if k in vals:
+            sp[k] = vals[k].strip()
+    if "done_criteria" in vals:
+        sp["done_criteria"] = [x.strip("-☐ ").strip() for x in vals["done_criteria"].splitlines() if x.strip()]
     c["spec"] = sp if any(sp.values()) else None
     c["spec_src"], c["coach"] = "human", "done"
     c.pop("spec_draft", None)
     # 선행 — **바뀌었을 때만** 사람 것으로 잠근다. 제목만 고치고 저장한 사람까지 잠그면
-    # 「앞선 일 찾기」 가 그 이슈를 영영 못 채운다
-    want = core.clean_after(re.findall(r"\d{1,4}", vals.get("after", "")), c["no"], STATE["cards"])
-    if want != (c.get("after") or []):
-        c["after"], c["after_src"] = want, "human"
+    # 「앞선 일 찾기」 가 그 이슈를 영영 못 채운다. 창에서는 뺐고(「순서」 한 화면이 한다)
+    # 옛 창에서 온 제출은 그대로 받는다
+    if "after" in vals:
+        want = core.clean_after(re.findall(r"\d{1,4}", vals["after"]), c["no"], STATE["cards"])
+        if want != (c.get("after") or []):
+            c["after"], c["after_src"] = want, "human"
     await record_change(s, c, payload.get("user", {}).get("id"), old_title, old_spec, vals.get("reason", "").strip())
     await redraw(s, c)
     log(f"내용 수정 #{c['no']}")
@@ -394,9 +407,26 @@ def balance():
 
 
 def place():
-    """배정 계산은 core.place — 여기서는 상태와 설정만 넘긴다. 규칙은 priority.md."""
+    """배정 계산은 core.place — 여기서는 상태와 설정만 넘긴다. 규칙은 priority.md.
+
+    배정 다음에 **계획**(`start`)을 같이 짠다 — 누가 맡느냐가 정해져야 언제 할지가 정해진다.
+    배정이 바뀔 때마다 다시 짜이므로 계획은 늘 지금 상태다 (2026-09-22 사장님 지시).
+    """
     core.place(STATE["cards"], load_team(), {x["name"] for x in load_stages()}, QUEUE, NEXT_MIN,
                STATE.get("capcut"), suggest_due)
+    plan()
+
+
+def plan():
+    """하루에 쓸 수 있는 시간은 team.md 「가용 시간」 ÷ 5 (주 5일). 없으면 하루 1시간으로 본다.
+
+    **오늘 날짜는 여기서 넘긴다.** `core` 는 `datetime` 을 함수 안에서 부르는데, 골든의
+    날짜 고정은 **모듈에 붙은** `datetime` 만 바꾼다 — 안 넘기면 골든이 날마다 달라진다.
+    """
+    team, hours = load_team(), load_hours()
+    core.plan(STATE["cards"],
+              {u: (hours.get(t.get("name")) or 5) / 5 for u, t in team.items()},
+              today=datetime.date.today(), hours_fn=need_hours)
 
 
 async def apply_change(s, c, kind, val, user, how=None, why=None):
@@ -417,6 +447,9 @@ async def apply_change(s, c, kind, val, user, how=None, why=None):
         c["plevel"], c["plevel_src"], c["prio_reason"] = int(val), "human", "사람이 정함"
     elif kind == "set_due":
         c["due"], c["due_src"] = val, "human"
+    elif kind == "set_start":
+        # **언제 할지**를 사람이 옮긴다 (앱 홈의 계획). 한 번 옮기면 AI 가 다시 안 민다
+        c["start"], c["start_src"] = val, "human"
     elif kind == "set_stage":
         c["stage"] = val if val in {x["name"] for x in load_stages()} else None
     elif kind == "set_feature":

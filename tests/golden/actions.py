@@ -92,6 +92,10 @@ def main():
                                        "how": {"v": {"value": "먼저 재현부터 해 볼게요"}}}, DEV)),
         ("⚙️ 우선순위 #5", lambda: act("set_prio", PM, block_id=f"card:{ts(5)}", selected_option={"value": "2"})),
         ("⚙️ 목표일 #5", lambda: act("set_due", PM, block_id=f"card:{ts(5)}", selected_date="2026-09-30")),
+        # 앱 홈의 계획에서 **언제 할지**를 옮긴다 (2026-09-22). 목표일(언제까지)과 다른 값이다 —
+        # 한 번 옮기면 `start_src=human` 이 붙어 AI 가 다시 밀지 않는다. #5 는 끝까지 열려 있다
+        # (#6 으로 했다가 뒤에서 취소돼 계획이 지워지는 바람에 아무것도 안 보던 시험이 됐다)
+        ("📅 계획 날짜 옮기기 #5", lambda: act("set_start", PM, block_id=f"card:{ts(5)}", selected_date="2026-09-29")),
         ("이유 답글 #5", lambda: bot.on_event(None, {"type": "message", "channel": bot.CHANNEL, "thread_ts": ts(5),
                                                     "user": PM, "text": "고객 일정 때문"}, "UBOT")),
         ("⚙️ 담당 #6", lambda: act("set_assignee", PM, block_id=f"card:{ts(6)}", selected_user=DEV)),
@@ -109,13 +113,15 @@ def main():
         ("✅ PM #11 (바로 완료)", lambda: react("white_check_mark", 11, PM)),
         ("정리안 👍 #12", lambda: act("spec_ok", PM, value=ts(12))),
         ("✏️ 내용 수정 창 #12", lambda: act("edit_content", PM, value=ts(12))),
+        # **창이 다섯 칸으로 줄었다** (2026-09-22) — Slack 이 실제로 보내는 모양이 이것이다.
+        # 「하지 않는 것」·「먼저 끝나야 할 일」·「바꾼 이유」 는 이제 안 온다
         ("✏️ 저장 #12", lambda: submit("edit_content_submit", ts(12), {"title": {"v": {"value": "권한 정리 2"}}, "why": {"v": {"value": "새 왜"}},
                                                                        "change": {"v": {"value": ""}}, "expect": {"v": {"value": ""}},
-                                                                       "not_doing": {"v": {"value": ""}}, "done_criteria": {"v": {"value": "a\nc"}},
-                                                                       "after": {"v": {"value": ""}},
-                                                                       "reason": {"v": {"value": ""}}})),
+                                                                       "done_criteria": {"v": {"value": "a\nc"}}})),
         # 선행을 사람이 넣는다 (#68) — after_src=human 이 붙어야 AI 가 못 지운다.
-        # #12 는 원래 after=[11] 이라 여기서 #14 로 바꾸는 것이 「사람이 고쳤다」 의 실제 모습이다
+        # #12 는 원래 after=[11] 이라 여기서 #14 로 바꾸는 것이 「사람이 고쳤다」 의 실제 모습이다.
+        # **옛 창(여덟 칸)에서 온 제출**도 그대로 받는지 같이 본다 — 사람이 창을 열어 둔 채
+        # 봇이 새로 켜질 수 있다
         ("✏️ 선행 넣기 #12", lambda: submit("edit_content_submit", ts(12), {"title": {"v": {"value": "권한 정리 2"}},
                                                                        "why": {"v": {"value": "새 왜"}}, "change": {"v": {"value": ""}},
                                                                        "expect": {"v": {"value": ""}}, "not_doing": {"v": {"value": ""}},
@@ -149,7 +155,8 @@ def main():
             out[name] = {"sent": list(sent), "trail": list(trail)}
     asyncio.run(run())
     keep = ("status", "assignee", "assign_src", "plevel", "plevel_src", "due", "due_src", "stage", "checked", "spec", "title",
-            "review_by", "review_msg", "edits", "finished")
+            "review_by", "review_msg", "edits", "finished",
+            "start", "start_src")        # 계획 — 「언제 할지」 도 얼려 둔다 (2026-09-22)
     out["최종 상태"] = {f"#{c['no']}": {k: c.get(k) for k in keep} for c in sorted(C.values(), key=lambda c: c["no"])}
     print(json.dumps(out, ensure_ascii=False, indent=1, sort_keys=True, default=str))
 

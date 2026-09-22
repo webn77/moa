@@ -359,11 +359,15 @@ def _card(a, from_block=False):
     return STATE["cards"].get((a.get("block_id") or "").partition(":")[2] if from_block else a.get("value"))
 
 
-async def act_set(s, p, a):                    # ⚙️ 설정의 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능
+async def act_set(s, p, a):                    # ⚙️ 설정의 담당 · 우선순위 · 목표일 · 상태, 홈의 계획 날짜
     c = _card(a, True)
     if c:
         val = (a.get("selected_option") or {}).get("value") or a.get("selected_date") or a.get("selected_user")
         await apply_change(s, c, a["action_id"], val, _user(p))
+        # 앱 홈에서 고쳤으면 **그 화면을 다시 그린다** — 홈 탭은 스스로 새로고침하지 않는다.
+        # 계획에서 날짜를 옮기면 그 줄이 「내일」 칸으로 가 있어야 옮긴 것이 보인다
+        if p.get("view", {}).get("type") == "home":
+            await publish_home(s, _user(p))
 
 
 async def act_risk_fix(s, p, a):
@@ -474,7 +478,8 @@ async def act_canvas_now(s, p, a):          # 앱 홈 「🔄 작업판 새로�
 ACTIONS = {
     # set_stage · set_feature 는 카드에서 뺐지만 **지우면 안 된다** — 회의록 적용 단추가
     # 이것을 쏘고(`flows/meeting.py` MFIELD), 아직 안 다시 그려진 옛 카드에도 드롭다운이 남아 있다
-    **{k: act_set for k in ("set_status", "set_prio", "set_due", "set_assignee", "set_stage", "set_feature")},
+    **{k: act_set for k in ("set_status", "set_prio", "set_due", "set_assignee", "set_stage", "set_feature",
+                            "set_start")},
     "risk_fix": act_risk_fix, "spec_ok": act_spec_ok, "edit_content": act_edit_content, "edit_card": act_edit_card,
     "pull_card": act_pull, "accept_assign": act_pull,       # accept_assign — 예전 카드에 남은 버튼
     "check_dc": act_check, "close_done": act_close_done, "review_ok": act_review_ok, "review_back": act_review_back,
