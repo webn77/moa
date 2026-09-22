@@ -119,6 +119,323 @@
         }
        ],
        "type": "actions"
+      },
+      {
+       "text": {
+        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "card:1789775750.062099",
+       "elements": [
+        {
+         "action_id": "set_assignee",
+         "initial_user": "U0EXAMPLEPM",
+         "placeholder": {
+          "text": "누가 맡을까요?",
+          "type": "plain_text"
+         },
+         "type": "users_select"
+        },
+        {
+         "action_id": "set_prio",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🟠 P2 높음",
+           "type": "plain_text"
+          },
+          "value": "2"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔴 P1 긴급",
+            "type": "plain_text"
+           },
+           "value": "1"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟠 P2 높음",
+            "type": "plain_text"
+           },
+           "value": "2"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟡 P3 보통",
+            "type": "plain_text"
+           },
+           "value": "3"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⚪ P4 낮음",
+            "type": "plain_text"
+           },
+           "value": "4"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_due",
+         "initial_date": "2026-09-24",
+         "placeholder": {
+          "text": "목표일",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        {
+         "action_id": "set_status",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🕒 대기",
+           "type": "plain_text"
+          },
+          "value": "todo"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🕒 대기",
+            "type": "plain_text"
+           },
+           "value": "todo"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "👀 진행 중",
+            "type": "plain_text"
+           },
+           "value": "doing"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⛔ 보류",
+            "type": "plain_text"
+           },
+           "value": "blocked"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔍 확인 대기",
+            "type": "plain_text"
+           },
+           "value": "review"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "✅ 완료",
+            "type": "plain_text"
+           },
+           "value": "done"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "❌ 취소",
+            "type": "plain_text"
+           },
+           "value": "cancelled"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_stage",
+         "initial_option": {
+          "text": {
+           "text": "PoC",
+           "type": "plain_text"
+          },
+          "value": "PoC"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "기획",
+            "type": "plain_text"
+           },
+           "value": "기획"
+          },
+          {
+           "text": {
+            "text": "프로토타입",
+            "type": "plain_text"
+           },
+           "value": "프로토타입"
+          },
+          {
+           "text": {
+            "text": "개발·도그푸딩",
+            "type": "plain_text"
+           },
+           "value": "개발·도그푸딩"
+          },
+          {
+           "text": {
+            "text": "PoC",
+            "type": "plain_text"
+           },
+           "value": "PoC"
+          },
+          {
+           "text": {
+            "text": "판단",
+            "type": "plain_text"
+           },
+           "value": "판단"
+          },
+          {
+           "text": {
+            "text": "파일럿",
+            "type": "plain_text"
+           },
+           "value": "파일럿"
+          },
+          {
+           "text": {
+            "text": "나중 (단계 밖)",
+            "type": "plain_text"
+           },
+           "value": "나중 (단계 밖)"
+          }
+         ],
+         "placeholder": {
+          "text": "로드맵 단계",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_feature",
+         "initial_option": {
+          "text": {
+           "text": "인수인계",
+           "type": "plain_text"
+          },
+          "value": "인수인계"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
+         "placeholder": {
+          "text": "기능",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "elements": [
+        {
+         "text": "담당 김하나 (AI 추천 — 인수인계 사용성 검증) · 우선순위 🟠 P2 (AI — 먼저 끝나야 할 일이 있어요) · 목표일은 예상 시간으로 계산한 제안",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "*완료 조건* 아직 없어요 — 스레드에 한두 줄 알려 주시면 정리해 둘게요",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -168,6 +485,321 @@
         }
        ],
        "type": "actions"
+      },
+      {
+       "text": {
+        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "card:1789794288.360539",
+       "elements": [
+        {
+         "action_id": "set_assignee",
+         "placeholder": {
+          "text": "누가 맡을까요?",
+          "type": "plain_text"
+         },
+         "type": "users_select"
+        },
+        {
+         "action_id": "set_prio",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🟠 P2 높음",
+           "type": "plain_text"
+          },
+          "value": "2"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔴 P1 긴급",
+            "type": "plain_text"
+           },
+           "value": "1"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟠 P2 높음",
+            "type": "plain_text"
+           },
+           "value": "2"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟡 P3 보통",
+            "type": "plain_text"
+           },
+           "value": "3"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⚪ P4 낮음",
+            "type": "plain_text"
+           },
+           "value": "4"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_due",
+         "placeholder": {
+          "text": "목표일",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        {
+         "action_id": "set_status",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🕒 대기",
+           "type": "plain_text"
+          },
+          "value": "todo"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🕒 대기",
+            "type": "plain_text"
+           },
+           "value": "todo"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "👀 진행 중",
+            "type": "plain_text"
+           },
+           "value": "doing"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⛔ 보류",
+            "type": "plain_text"
+           },
+           "value": "blocked"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔍 확인 대기",
+            "type": "plain_text"
+           },
+           "value": "review"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "✅ 완료",
+            "type": "plain_text"
+           },
+           "value": "done"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "❌ 취소",
+            "type": "plain_text"
+           },
+           "value": "cancelled"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_stage",
+         "initial_option": {
+          "text": {
+           "text": "개발·도그푸딩",
+           "type": "plain_text"
+          },
+          "value": "개발·도그푸딩"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "기획",
+            "type": "plain_text"
+           },
+           "value": "기획"
+          },
+          {
+           "text": {
+            "text": "프로토타입",
+            "type": "plain_text"
+           },
+           "value": "프로토타입"
+          },
+          {
+           "text": {
+            "text": "개발·도그푸딩",
+            "type": "plain_text"
+           },
+           "value": "개발·도그푸딩"
+          },
+          {
+           "text": {
+            "text": "PoC",
+            "type": "plain_text"
+           },
+           "value": "PoC"
+          },
+          {
+           "text": {
+            "text": "판단",
+            "type": "plain_text"
+           },
+           "value": "판단"
+          },
+          {
+           "text": {
+            "text": "파일럿",
+            "type": "plain_text"
+           },
+           "value": "파일럿"
+          },
+          {
+           "text": {
+            "text": "나중 (단계 밖)",
+            "type": "plain_text"
+           },
+           "value": "나중 (단계 밖)"
+          }
+         ],
+         "placeholder": {
+          "text": "로드맵 단계",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_feature",
+         "initial_option": {
+          "text": {
+           "text": "보기 (캔버스·홈·카드)",
+           "type": "plain_text"
+          },
+          "value": "보기 (캔버스·홈·카드)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
+         "placeholder": {
+          "text": "기능",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "elements": [
+        {
+         "text": "추천 담당 박두리 — 자리가 나면 자동으로 가요 · 우선순위 🟠 P2 (AI — 지금·다음 자리가 차서 백로그)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "*완료 조건* 아직 없어요 — 스레드에 한두 줄 알려 주시면 정리해 둘게요",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -205,6 +837,354 @@
          },
          "type": "button",
          "value": "1789794427.895239"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "text": {
+        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "card:1789794427.895239",
+       "elements": [
+        {
+         "action_id": "set_assignee",
+         "initial_user": "U0EXAMPLEPM",
+         "placeholder": {
+          "text": "누가 맡을까요?",
+          "type": "plain_text"
+         },
+         "type": "users_select"
+        },
+        {
+         "action_id": "set_prio",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🟠 P2 높음",
+           "type": "plain_text"
+          },
+          "value": "2"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔴 P1 긴급",
+            "type": "plain_text"
+           },
+           "value": "1"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟠 P2 높음",
+            "type": "plain_text"
+           },
+           "value": "2"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟡 P3 보통",
+            "type": "plain_text"
+           },
+           "value": "3"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⚪ P4 낮음",
+            "type": "plain_text"
+           },
+           "value": "4"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_due",
+         "initial_date": "2026-09-25",
+         "placeholder": {
+          "text": "목표일",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        {
+         "action_id": "set_status",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🕒 대기",
+           "type": "plain_text"
+          },
+          "value": "todo"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🕒 대기",
+            "type": "plain_text"
+           },
+           "value": "todo"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "👀 진행 중",
+            "type": "plain_text"
+           },
+           "value": "doing"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⛔ 보류",
+            "type": "plain_text"
+           },
+           "value": "blocked"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔍 확인 대기",
+            "type": "plain_text"
+           },
+           "value": "review"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "✅ 완료",
+            "type": "plain_text"
+           },
+           "value": "done"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "❌ 취소",
+            "type": "plain_text"
+           },
+           "value": "cancelled"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_stage",
+         "initial_option": {
+          "text": {
+           "text": "개발·도그푸딩",
+           "type": "plain_text"
+          },
+          "value": "개발·도그푸딩"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "기획",
+            "type": "plain_text"
+           },
+           "value": "기획"
+          },
+          {
+           "text": {
+            "text": "프로토타입",
+            "type": "plain_text"
+           },
+           "value": "프로토타입"
+          },
+          {
+           "text": {
+            "text": "개발·도그푸딩",
+            "type": "plain_text"
+           },
+           "value": "개발·도그푸딩"
+          },
+          {
+           "text": {
+            "text": "PoC",
+            "type": "plain_text"
+           },
+           "value": "PoC"
+          },
+          {
+           "text": {
+            "text": "판단",
+            "type": "plain_text"
+           },
+           "value": "판단"
+          },
+          {
+           "text": {
+            "text": "파일럿",
+            "type": "plain_text"
+           },
+           "value": "파일럿"
+          },
+          {
+           "text": {
+            "text": "나중 (단계 밖)",
+            "type": "plain_text"
+           },
+           "value": "나중 (단계 밖)"
+          }
+         ],
+         "placeholder": {
+          "text": "로드맵 단계",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_feature",
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
+         "placeholder": {
+          "text": "기능",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "elements": [
+        {
+         "text": "사람이 정한 값이에요",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "text": {
+        "text": "*░░░░░░░░░░ 완료 조건 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "dc:1789794427.895239",
+       "elements": [
+        {
+         "action_id": "check_dc",
+         "options": [
+          {
+           "text": {
+            "text": "요즘IT 작가·기고 문의",
+            "type": "mrkdwn"
+           },
+           "value": "0"
+          },
+          {
+           "text": {
+            "text": "1주차 글 제출",
+            "type": "mrkdwn"
+           },
+           "value": "1"
+          },
+          {
+           "text": {
+            "text": "매주 금요일 발행 기록",
+            "type": "mrkdwn"
+           },
+           "value": "2"
+          }
+         ],
+         "type": "checkboxes"
         }
        ],
        "type": "actions"
@@ -248,17 +1228,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
-     "ts": "1789749213.663579"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -571,10 +1541,17 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #5 설정",
-     "ts": "1789796625.629319"
+     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
+     "ts": "1789749213.663579"
     },
     "method": "chat.update"
+   },
+   {
+    "body": {
+     "channel": "C0EXAMPLEPRJ",
+     "ts": "1789796625.629319"
+    },
+    "method": "chat.delete"
    },
    {
     "body": {
@@ -760,17 +1737,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
-     "ts": "1789749213.663579"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -1083,8 +2050,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #5 설정",
-     "ts": "1789796625.629319"
+     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
+     "ts": "1789749213.663579"
     },
     "method": "chat.update"
    },
@@ -1133,17 +2100,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
-     "ts": "1789749213.663579"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -1456,8 +2413,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #5 설정",
-     "ts": "1789796625.629319"
+     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
+     "ts": "1789749213.663579"
     },
     "method": "chat.update"
    },
@@ -1516,17 +2473,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0XXSECOND",
-     "text": "🎫 #11 AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)",
-     "ts": "1789749251.503309"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -1877,10 +2824,17 @@
       }
      ],
      "channel": "C0XXSECOND",
-     "text": "⚙️ #11 설정",
-     "ts": "1789796628.438139"
+     "text": "🎫 #11 AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)",
+     "ts": "1789749251.503309"
     },
     "method": "chat.update"
+   },
+   {
+    "body": {
+     "channel": "C0XXSECOND",
+     "ts": "1789796628.438139"
+    },
+    "method": "chat.delete"
    },
    {
     "body": {
@@ -1930,106 +2884,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
-     "ts": "1789749213.663579"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
-      {
-       "text": {
-        "text": "🟠 *PA-38 시험용 메시지 정리 — 가상 팀원이 올린 원본 메시지 목록 뽑아 정리*",
-        "type": "mrkdwn"
-       },
-       "type": "section"
       },
-      {
-       "elements": [
-        {
-         "text": "🕒 대기 · P2 · 담당 박두리 (AI 추천 — 확정 전) · 📅 9/22 💡  ·  🧩 보기 (캔버스·홈·카드)",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
-      },
-      {
-       "elements": [
-        {
-         "action_id": "pull_card",
-         "text": {
-          "text": "✋ 내가 할게요",
-          "type": "plain_text"
-         },
-         "type": "button",
-         "value": "1789794288.360539"
-        },
-        {
-         "action_id": "show_md",
-         "text": {
-          "text": "📄 상세",
-          "type": "plain_text"
-         },
-         "type": "button",
-         "value": "1789794288.360539"
-        }
-       ],
-       "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #38 시험용 메시지 정리 — 가상 팀원이 올린 원본 메시지 목록 뽑아 정리",
-     "ts": "1789794288.360539"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
-      {
-       "text": {
-        "text": "🔴 *~XX-11 AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)~*",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "elements": [
-        {
-         "text": "✅ 완료 · 박두리  ·  🧩 기반 (운영·권한·안전)",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
-      },
-      {
-       "elements": [
-        {
-         "action_id": "show_md",
-         "text": {
-          "text": "📄 상세",
-          "type": "plain_text"
-         },
-         "type": "button",
-         "value": "1789749251.503309"
-        }
-       ],
-       "type": "actions"
-      }
-     ],
-     "channel": "C0XXSECOND",
-     "text": "🎫 #11 AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)",
-     "ts": "1789749251.503309"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -2038,7 +2893,7 @@
        "type": "section"
       },
       {
-       "block_id": "card:1789749251.503309",
+       "block_id": "card:1789749213.663579",
        "elements": [
         {
          "action_id": "set_assignee",
@@ -2054,10 +2909,10 @@
          "initial_option": {
           "text": {
            "emoji": true,
-           "text": "🔴 P1 긴급",
+           "text": "🟠 P2 높음",
            "type": "plain_text"
           },
-          "value": "1"
+          "value": "2"
          },
          "options": [
           {
@@ -2097,7 +2952,7 @@
         },
         {
          "action_id": "set_due",
-         "initial_date": "2026-09-23",
+         "initial_date": "2026-09-30",
          "placeholder": {
           "text": "목표일",
           "type": "plain_text"
@@ -2109,10 +2964,10 @@
          "initial_option": {
           "text": {
            "emoji": true,
-           "text": "✅ 완료",
+           "text": "🕒 대기",
            "type": "plain_text"
           },
-          "value": "done"
+          "value": "todo"
          },
          "options": [
           {
@@ -2168,13 +3023,6 @@
         },
         {
          "action_id": "set_stage",
-         "initial_option": {
-          "text": {
-           "text": "개발·도그푸딩",
-           "type": "plain_text"
-          },
-          "value": "개발·도그푸딩"
-         },
          "options": [
           {
            "text": {
@@ -2332,56 +3180,431 @@
       {
        "elements": [
         {
-         "text": "목표일은 예상 시간으로 계산한 제안",
+         "text": "사람이 정한 값이에요",
          "type": "mrkdwn"
         }
        ],
        "type": "context"
       },
       {
+       "elements": [
+        {
+         "text": "*완료 조건* 아직 없어요 — 스레드에 한두 줄 알려 주시면 정리해 둘게요",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      }
+     ],
+     "channel": "C0EXAMPLEPRJ",
+     "text": "🎫 #5 AI가 레포와 회의록을 읽고 답하게 하기 (읽기 권한 2단계)",
+     "ts": "1789749213.663579"
+    },
+    "method": "chat.update"
+   },
+   {
+    "body": {
+     "blocks": [
+      {
        "text": {
-        "text": "*░░░░░░░░░░ 완료 조건 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
+        "text": "🟠 *PA-38 시험용 메시지 정리 — 가상 팀원이 올린 원본 메시지 목록 뽑아 정리*",
         "type": "mrkdwn"
        },
        "type": "section"
       },
       {
-       "block_id": "dc:1789749251.503309",
        "elements": [
         {
-         "action_id": "check_dc",
+         "text": "🕒 대기 · P2 · 담당 박두리 (AI 추천 — 확정 전) · 📅 9/22 💡  ·  🧩 보기 (캔버스·홈·카드)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "action_id": "pull_card",
+         "text": {
+          "text": "✋ 내가 할게요",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789794288.360539"
+        },
+        {
+         "action_id": "show_md",
+         "text": {
+          "text": "📄 상세",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789794288.360539"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "text": {
+        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "card:1789794288.360539",
+       "elements": [
+        {
+         "action_id": "set_assignee",
+         "initial_user": "U0EXAMPLEDEV",
+         "placeholder": {
+          "text": "누가 맡을까요?",
+          "type": "plain_text"
+         },
+         "type": "users_select"
+        },
+        {
+         "action_id": "set_prio",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🟠 P2 높음",
+           "type": "plain_text"
+          },
+          "value": "2"
+         },
          "options": [
           {
            "text": {
-            "text": "권한 단계 표 문서화",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "단계마다 허용·금지 예시 3개",
-            "type": "mrkdwn"
+            "emoji": true,
+            "text": "🔴 P1 긴급",
+            "type": "plain_text"
            },
            "value": "1"
           },
           {
            "text": {
-            "text": "PM 승인",
-            "type": "mrkdwn"
+            "emoji": true,
+            "text": "🟠 P2 높음",
+            "type": "plain_text"
            },
            "value": "2"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟡 P3 보통",
+            "type": "plain_text"
+           },
+           "value": "3"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⚪ P4 낮음",
+            "type": "plain_text"
+           },
+           "value": "4"
           }
          ],
-         "type": "checkboxes"
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_due",
+         "initial_date": "2026-09-22",
+         "placeholder": {
+          "text": "목표일",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        {
+         "action_id": "set_status",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🕒 대기",
+           "type": "plain_text"
+          },
+          "value": "todo"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🕒 대기",
+            "type": "plain_text"
+           },
+           "value": "todo"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "👀 진행 중",
+            "type": "plain_text"
+           },
+           "value": "doing"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⛔ 보류",
+            "type": "plain_text"
+           },
+           "value": "blocked"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔍 확인 대기",
+            "type": "plain_text"
+           },
+           "value": "review"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "✅ 완료",
+            "type": "plain_text"
+           },
+           "value": "done"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "❌ 취소",
+            "type": "plain_text"
+           },
+           "value": "cancelled"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_stage",
+         "initial_option": {
+          "text": {
+           "text": "개발·도그푸딩",
+           "type": "plain_text"
+          },
+          "value": "개발·도그푸딩"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "기획",
+            "type": "plain_text"
+           },
+           "value": "기획"
+          },
+          {
+           "text": {
+            "text": "프로토타입",
+            "type": "plain_text"
+           },
+           "value": "프로토타입"
+          },
+          {
+           "text": {
+            "text": "개발·도그푸딩",
+            "type": "plain_text"
+           },
+           "value": "개발·도그푸딩"
+          },
+          {
+           "text": {
+            "text": "PoC",
+            "type": "plain_text"
+           },
+           "value": "PoC"
+          },
+          {
+           "text": {
+            "text": "판단",
+            "type": "plain_text"
+           },
+           "value": "판단"
+          },
+          {
+           "text": {
+            "text": "파일럿",
+            "type": "plain_text"
+           },
+           "value": "파일럿"
+          },
+          {
+           "text": {
+            "text": "나중 (단계 밖)",
+            "type": "plain_text"
+           },
+           "value": "나중 (단계 밖)"
+          }
+         ],
+         "placeholder": {
+          "text": "로드맵 단계",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_feature",
+         "initial_option": {
+          "text": {
+           "text": "보기 (캔버스·홈·카드)",
+           "type": "plain_text"
+          },
+          "value": "보기 (캔버스·홈·카드)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
+         "placeholder": {
+          "text": "기능",
+          "type": "plain_text"
+         },
+         "type": "static_select"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "elements": [
+        {
+         "text": "담당 박두리 (AI 추천 — Slack 메시지 추출은 개발 영역) · 우선순위 🟠 P2 (AI — 점수 기준) · 목표일은 예상 시간으로 계산한 제안",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "*완료 조건* 아직 없어요 — 스레드에 한두 줄 알려 주시면 정리해 둘게요",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      }
+     ],
+     "channel": "C0EXAMPLEPRJ",
+     "text": "🎫 #38 시험용 메시지 정리 — 가상 팀원이 올린 원본 메시지 목록 뽑아 정리",
+     "ts": "1789794288.360539"
+    },
+    "method": "chat.update"
+   },
+   {
+    "body": {
+     "blocks": [
+      {
+       "text": {
+        "text": "🔴 *~XX-11 AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)~*",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "elements": [
+        {
+         "text": "✅ 완료 · 박두리  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "action_id": "show_md",
+         "text": {
+          "text": "📄 상세",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749251.503309"
         }
        ],
        "type": "actions"
       }
      ],
      "channel": "C0XXSECOND",
-     "text": "⚙️ #11 설정",
-     "ts": "1789796628.438139"
+     "text": "🎫 #11 AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)",
+     "ts": "1789749251.503309"
     },
     "method": "chat.update"
    },
@@ -2451,17 +3674,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
-     "ts": "1789749231.241109"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -2821,8 +4034,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
+     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
+     "ts": "1789749231.241109"
     },
     "method": "chat.update"
    },
@@ -2880,380 +4093,6 @@
      "thread_ts": "1789749231.241109"
     },
     "method": "chat.postMessage"
-   },
-   {
-    "body": {
-     "blocks": [
-      {
-       "text": {
-        "text": "🔍 *확인 대기* — <@UREQUESTER> 님이 팀 대화방에서 확인해 주시면 완료돼요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "text": {
-        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "card:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "set_assignee",
-         "initial_user": "U0EXAMPLEDEV",
-         "placeholder": {
-          "text": "누가 맡을까요?",
-          "type": "plain_text"
-         },
-         "type": "users_select"
-        },
-        {
-         "action_id": "set_prio",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "🔴 P1 긴급",
-           "type": "plain_text"
-          },
-          "value": "1"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔴 P1 긴급",
-            "type": "plain_text"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟠 P2 높음",
-            "type": "plain_text"
-           },
-           "value": "2"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟡 P3 보통",
-            "type": "plain_text"
-           },
-           "value": "3"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⚪ P4 낮음",
-            "type": "plain_text"
-           },
-           "value": "4"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_due",
-         "initial_date": "2026-09-21",
-         "placeholder": {
-          "text": "목표일",
-          "type": "plain_text"
-         },
-         "type": "datepicker"
-        },
-        {
-         "action_id": "set_status",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "🔍 확인 대기",
-           "type": "plain_text"
-          },
-          "value": "review"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🕒 대기",
-            "type": "plain_text"
-           },
-           "value": "todo"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "👀 진행 중",
-            "type": "plain_text"
-           },
-           "value": "doing"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⛔ 보류",
-            "type": "plain_text"
-           },
-           "value": "blocked"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔍 확인 대기",
-            "type": "plain_text"
-           },
-           "value": "review"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "✅ 완료",
-            "type": "plain_text"
-           },
-           "value": "done"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "❌ 취소",
-            "type": "plain_text"
-           },
-           "value": "cancelled"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_stage",
-         "initial_option": {
-          "text": {
-           "text": "개발·도그푸딩",
-           "type": "plain_text"
-          },
-          "value": "개발·도그푸딩"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "기획",
-            "type": "plain_text"
-           },
-           "value": "기획"
-          },
-          {
-           "text": {
-            "text": "프로토타입",
-            "type": "plain_text"
-           },
-           "value": "프로토타입"
-          },
-          {
-           "text": {
-            "text": "개발·도그푸딩",
-            "type": "plain_text"
-           },
-           "value": "개발·도그푸딩"
-          },
-          {
-           "text": {
-            "text": "PoC",
-            "type": "plain_text"
-           },
-           "value": "PoC"
-          },
-          {
-           "text": {
-            "text": "판단",
-            "type": "plain_text"
-           },
-           "value": "판단"
-          },
-          {
-           "text": {
-            "text": "파일럿",
-            "type": "plain_text"
-           },
-           "value": "파일럿"
-          },
-          {
-           "text": {
-            "text": "나중 (단계 밖)",
-            "type": "plain_text"
-           },
-           "value": "나중 (단계 밖)"
-          }
-         ],
-         "placeholder": {
-          "text": "로드맵 단계",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_feature",
-         "initial_option": {
-          "text": {
-           "text": "기반 (운영·권한·안전)",
-           "type": "plain_text"
-          },
-          "value": "기반 (운영·권한·안전)"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "요청 입구",
-            "type": "plain_text"
-           },
-           "value": "요청 입구"
-          },
-          {
-           "text": {
-            "text": "질문으로 구체화",
-            "type": "plain_text"
-           },
-           "value": "질문으로 구체화"
-          },
-          {
-           "text": {
-            "text": "할 일 정리·보완",
-            "type": "plain_text"
-           },
-           "value": "할 일 정리·보완"
-          },
-          {
-           "text": {
-            "text": "담당 추천",
-            "type": "plain_text"
-           },
-           "value": "담당 추천"
-          },
-          {
-           "text": {
-            "text": "우선순위·과부하 조절",
-            "type": "plain_text"
-           },
-           "value": "우선순위·과부하 조절"
-          },
-          {
-           "text": {
-            "text": "알림·후속",
-            "type": "plain_text"
-           },
-           "value": "알림·후속"
-          },
-          {
-           "text": {
-            "text": "회의 운영",
-            "type": "plain_text"
-           },
-           "value": "회의 운영"
-          },
-          {
-           "text": {
-            "text": "동기화·기록",
-            "type": "plain_text"
-           },
-           "value": "동기화·기록"
-          },
-          {
-           "text": {
-            "text": "인수인계",
-            "type": "plain_text"
-           },
-           "value": "인수인계"
-          },
-          {
-           "text": {
-            "text": "보기 (캔버스·홈·카드)",
-            "type": "plain_text"
-           },
-           "value": "보기 (캔버스·홈·카드)"
-          },
-          {
-           "text": {
-            "text": "기반 (운영·권한·안전)",
-            "type": "plain_text"
-           },
-           "value": "기반 (운영·권한·안전)"
-          }
-         ],
-         "placeholder": {
-          "text": "기능",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        }
-       ],
-       "type": "actions"
-      },
-      {
-       "elements": [
-        {
-         "text": "목표일은 예상 시간으로 계산한 제안",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
-      },
-      {
-       "text": {
-        "text": "*▓▓▓░░░░░░░ 완료 조건 1/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "dc:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "check_dc",
-         "initial_options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          }
-         ],
-         "options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "봇 프로세스는 늘 1개",
-            "type": "mrkdwn"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "text": "꺼지면 로그에 남는다",
-            "type": "mrkdwn"
-           },
-           "value": "2"
-          }
-         ],
-         "type": "checkboxes"
-        }
-       ],
-       "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
-    },
-    "method": "chat.update"
    }
   ],
   "trail": []
@@ -3463,17 +4302,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #12 권한 정리 2",
-     "ts": "1789749254.624039"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -3815,8 +4644,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #12 설정",
-     "ts": "1789796629.183459"
+     "text": "🎫 #12 권한 정리 2",
+     "ts": "1789749254.624039"
     },
     "method": "chat.update"
    }
@@ -3874,17 +4703,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #12 권한 정리 2",
-     "ts": "1789749254.624039"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -4226,8 +5045,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #12 설정",
-     "ts": "1789796629.183459"
+     "text": "🎫 #12 권한 정리 2",
+     "ts": "1789749254.624039"
     },
     "method": "chat.update"
    }
@@ -4276,17 +5095,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
-     "ts": "1789749231.241109"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -4660,8 +5469,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
+     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
+     "ts": "1789749231.241109"
     },
     "method": "chat.update"
    },
@@ -4715,394 +5524,6 @@
      "thread_ts": "1789749231.241109"
     },
     "method": "chat.postMessage"
-   },
-   {
-    "body": {
-     "blocks": [
-      {
-       "text": {
-        "text": "🔍 *확인 대기* — <@UREQUESTER> 님이 팀 대화방에서 확인해 주시면 완료돼요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "text": {
-        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "card:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "set_assignee",
-         "initial_user": "U0EXAMPLEDEV",
-         "placeholder": {
-          "text": "누가 맡을까요?",
-          "type": "plain_text"
-         },
-         "type": "users_select"
-        },
-        {
-         "action_id": "set_prio",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "🔴 P1 긴급",
-           "type": "plain_text"
-          },
-          "value": "1"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔴 P1 긴급",
-            "type": "plain_text"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟠 P2 높음",
-            "type": "plain_text"
-           },
-           "value": "2"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟡 P3 보통",
-            "type": "plain_text"
-           },
-           "value": "3"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⚪ P4 낮음",
-            "type": "plain_text"
-           },
-           "value": "4"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_due",
-         "initial_date": "2026-09-21",
-         "placeholder": {
-          "text": "목표일",
-          "type": "plain_text"
-         },
-         "type": "datepicker"
-        },
-        {
-         "action_id": "set_status",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "🔍 확인 대기",
-           "type": "plain_text"
-          },
-          "value": "review"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🕒 대기",
-            "type": "plain_text"
-           },
-           "value": "todo"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "👀 진행 중",
-            "type": "plain_text"
-           },
-           "value": "doing"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⛔ 보류",
-            "type": "plain_text"
-           },
-           "value": "blocked"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔍 확인 대기",
-            "type": "plain_text"
-           },
-           "value": "review"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "✅ 완료",
-            "type": "plain_text"
-           },
-           "value": "done"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "❌ 취소",
-            "type": "plain_text"
-           },
-           "value": "cancelled"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_stage",
-         "initial_option": {
-          "text": {
-           "text": "개발·도그푸딩",
-           "type": "plain_text"
-          },
-          "value": "개발·도그푸딩"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "기획",
-            "type": "plain_text"
-           },
-           "value": "기획"
-          },
-          {
-           "text": {
-            "text": "프로토타입",
-            "type": "plain_text"
-           },
-           "value": "프로토타입"
-          },
-          {
-           "text": {
-            "text": "개발·도그푸딩",
-            "type": "plain_text"
-           },
-           "value": "개발·도그푸딩"
-          },
-          {
-           "text": {
-            "text": "PoC",
-            "type": "plain_text"
-           },
-           "value": "PoC"
-          },
-          {
-           "text": {
-            "text": "판단",
-            "type": "plain_text"
-           },
-           "value": "판단"
-          },
-          {
-           "text": {
-            "text": "파일럿",
-            "type": "plain_text"
-           },
-           "value": "파일럿"
-          },
-          {
-           "text": {
-            "text": "나중 (단계 밖)",
-            "type": "plain_text"
-           },
-           "value": "나중 (단계 밖)"
-          }
-         ],
-         "placeholder": {
-          "text": "로드맵 단계",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_feature",
-         "initial_option": {
-          "text": {
-           "text": "기반 (운영·권한·안전)",
-           "type": "plain_text"
-          },
-          "value": "기반 (운영·권한·안전)"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "요청 입구",
-            "type": "plain_text"
-           },
-           "value": "요청 입구"
-          },
-          {
-           "text": {
-            "text": "질문으로 구체화",
-            "type": "plain_text"
-           },
-           "value": "질문으로 구체화"
-          },
-          {
-           "text": {
-            "text": "할 일 정리·보완",
-            "type": "plain_text"
-           },
-           "value": "할 일 정리·보완"
-          },
-          {
-           "text": {
-            "text": "담당 추천",
-            "type": "plain_text"
-           },
-           "value": "담당 추천"
-          },
-          {
-           "text": {
-            "text": "우선순위·과부하 조절",
-            "type": "plain_text"
-           },
-           "value": "우선순위·과부하 조절"
-          },
-          {
-           "text": {
-            "text": "알림·후속",
-            "type": "plain_text"
-           },
-           "value": "알림·후속"
-          },
-          {
-           "text": {
-            "text": "회의 운영",
-            "type": "plain_text"
-           },
-           "value": "회의 운영"
-          },
-          {
-           "text": {
-            "text": "동기화·기록",
-            "type": "plain_text"
-           },
-           "value": "동기화·기록"
-          },
-          {
-           "text": {
-            "text": "인수인계",
-            "type": "plain_text"
-           },
-           "value": "인수인계"
-          },
-          {
-           "text": {
-            "text": "보기 (캔버스·홈·카드)",
-            "type": "plain_text"
-           },
-           "value": "보기 (캔버스·홈·카드)"
-          },
-          {
-           "text": {
-            "text": "기반 (운영·권한·안전)",
-            "type": "plain_text"
-           },
-           "value": "기반 (운영·권한·안전)"
-          }
-         ],
-         "placeholder": {
-          "text": "기능",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        }
-       ],
-       "type": "actions"
-      },
-      {
-       "elements": [
-        {
-         "text": "목표일은 예상 시간으로 계산한 제안",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
-      },
-      {
-       "text": {
-        "text": "*▓▓▓▓▓▓▓▓▓▓ 완료 조건 3/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "dc:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "check_dc",
-         "initial_options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "봇 프로세스는 늘 1개",
-            "type": "mrkdwn"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "text": "꺼지면 로그에 남는다",
-            "type": "mrkdwn"
-           },
-           "value": "2"
-          }
-         ],
-         "options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "봇 프로세스는 늘 1개",
-            "type": "mrkdwn"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "text": "꺼지면 로그에 남는다",
-            "type": "mrkdwn"
-           },
-           "value": "2"
-          }
-         ],
-         "type": "checkboxes"
-        }
-       ],
-       "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
-    },
-    "method": "chat.update"
    }
   ],
   "trail": []
@@ -5141,17 +5562,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
-     "ts": "1789749231.241109"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -5511,8 +5922,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
+     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
+     "ts": "1789749231.241109"
     },
     "method": "chat.update"
    },
@@ -5539,7 +5950,7 @@
      ],
      "channel": "UREQUESTER",
      "text": "↩️ 요청자 님이 더 필요하다고 했어요 — 엑셀도",
-     "ts": "3.5"
+     "ts": "2.5"
     },
     "method": "chat.update"
    }
@@ -5827,387 +6238,6 @@
    },
    {
     "body": {
-     "blocks": [
-      {
-       "text": {
-        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "card:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "set_assignee",
-         "initial_user": "U0EXAMPLEDEV",
-         "placeholder": {
-          "text": "누가 맡을까요?",
-          "type": "plain_text"
-         },
-         "type": "users_select"
-        },
-        {
-         "action_id": "set_prio",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "🔴 P1 긴급",
-           "type": "plain_text"
-          },
-          "value": "1"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔴 P1 긴급",
-            "type": "plain_text"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟠 P2 높음",
-            "type": "plain_text"
-           },
-           "value": "2"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟡 P3 보통",
-            "type": "plain_text"
-           },
-           "value": "3"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⚪ P4 낮음",
-            "type": "plain_text"
-           },
-           "value": "4"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_due",
-         "initial_date": "2026-09-21",
-         "placeholder": {
-          "text": "목표일",
-          "type": "plain_text"
-         },
-         "type": "datepicker"
-        },
-        {
-         "action_id": "set_status",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "✅ 완료",
-           "type": "plain_text"
-          },
-          "value": "done"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🕒 대기",
-            "type": "plain_text"
-           },
-           "value": "todo"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "👀 진행 중",
-            "type": "plain_text"
-           },
-           "value": "doing"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⛔ 보류",
-            "type": "plain_text"
-           },
-           "value": "blocked"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔍 확인 대기",
-            "type": "plain_text"
-           },
-           "value": "review"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "✅ 완료",
-            "type": "plain_text"
-           },
-           "value": "done"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "❌ 취소",
-            "type": "plain_text"
-           },
-           "value": "cancelled"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_stage",
-         "initial_option": {
-          "text": {
-           "text": "개발·도그푸딩",
-           "type": "plain_text"
-          },
-          "value": "개발·도그푸딩"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "기획",
-            "type": "plain_text"
-           },
-           "value": "기획"
-          },
-          {
-           "text": {
-            "text": "프로토타입",
-            "type": "plain_text"
-           },
-           "value": "프로토타입"
-          },
-          {
-           "text": {
-            "text": "개발·도그푸딩",
-            "type": "plain_text"
-           },
-           "value": "개발·도그푸딩"
-          },
-          {
-           "text": {
-            "text": "PoC",
-            "type": "plain_text"
-           },
-           "value": "PoC"
-          },
-          {
-           "text": {
-            "text": "판단",
-            "type": "plain_text"
-           },
-           "value": "판단"
-          },
-          {
-           "text": {
-            "text": "파일럿",
-            "type": "plain_text"
-           },
-           "value": "파일럿"
-          },
-          {
-           "text": {
-            "text": "나중 (단계 밖)",
-            "type": "plain_text"
-           },
-           "value": "나중 (단계 밖)"
-          }
-         ],
-         "placeholder": {
-          "text": "로드맵 단계",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_feature",
-         "initial_option": {
-          "text": {
-           "text": "기반 (운영·권한·안전)",
-           "type": "plain_text"
-          },
-          "value": "기반 (운영·권한·안전)"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "요청 입구",
-            "type": "plain_text"
-           },
-           "value": "요청 입구"
-          },
-          {
-           "text": {
-            "text": "질문으로 구체화",
-            "type": "plain_text"
-           },
-           "value": "질문으로 구체화"
-          },
-          {
-           "text": {
-            "text": "할 일 정리·보완",
-            "type": "plain_text"
-           },
-           "value": "할 일 정리·보완"
-          },
-          {
-           "text": {
-            "text": "담당 추천",
-            "type": "plain_text"
-           },
-           "value": "담당 추천"
-          },
-          {
-           "text": {
-            "text": "우선순위·과부하 조절",
-            "type": "plain_text"
-           },
-           "value": "우선순위·과부하 조절"
-          },
-          {
-           "text": {
-            "text": "알림·후속",
-            "type": "plain_text"
-           },
-           "value": "알림·후속"
-          },
-          {
-           "text": {
-            "text": "회의 운영",
-            "type": "plain_text"
-           },
-           "value": "회의 운영"
-          },
-          {
-           "text": {
-            "text": "동기화·기록",
-            "type": "plain_text"
-           },
-           "value": "동기화·기록"
-          },
-          {
-           "text": {
-            "text": "인수인계",
-            "type": "plain_text"
-           },
-           "value": "인수인계"
-          },
-          {
-           "text": {
-            "text": "보기 (캔버스·홈·카드)",
-            "type": "plain_text"
-           },
-           "value": "보기 (캔버스·홈·카드)"
-          },
-          {
-           "text": {
-            "text": "기반 (운영·권한·안전)",
-            "type": "plain_text"
-           },
-           "value": "기반 (운영·권한·안전)"
-          }
-         ],
-         "placeholder": {
-          "text": "기능",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        }
-       ],
-       "type": "actions"
-      },
-      {
-       "elements": [
-        {
-         "text": "목표일은 예상 시간으로 계산한 제안",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
-      },
-      {
-       "text": {
-        "text": "*▓▓▓▓▓▓▓▓▓▓ 완료 조건 3/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "dc:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "check_dc",
-         "initial_options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "봇 프로세스는 늘 1개",
-            "type": "mrkdwn"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "text": "꺼지면 로그에 남는다",
-            "type": "mrkdwn"
-           },
-           "value": "2"
-          }
-         ],
-         "options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "봇 프로세스는 늘 1개",
-            "type": "mrkdwn"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "text": "꺼지면 로그에 남는다",
-            "type": "mrkdwn"
-           },
-           "value": "2"
-          }
-         ],
-         "type": "checkboxes"
-        }
-       ],
-       "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
      "channel": "C0EXAMPLEPRJ",
      "icon_url": "https://raw.githubusercontent.com/webn77/pa-icons/main/pa-done.png",
      "reply_broadcast": true,
@@ -6242,7 +6272,7 @@
      ],
      "channel": "UREQUESTER",
      "text": "✅ 요청자 님이 확인했어요 — 완료로 닫았어요",
-     "ts": "4.5"
+     "ts": "3.5"
     },
     "method": "chat.update"
    }
@@ -6292,17 +6322,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "#13 봇이 브랜치와 PR까지 올리게 하기 (머지는 사람)",
-     "ts": "1789749258.124529"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -6614,8 +6634,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #13 설정",
-     "ts": "1789796629.849759"
+     "text": "#13 봇이 브랜치와 PR까지 올리게 하기 (머지는 사람)",
+     "ts": "1789749258.124529"
     },
     "method": "chat.update"
    },
@@ -6649,7 +6669,7 @@
     "body": {
      "channel": "C0EXAMPLEPRJ",
      "text": "🔄 9/21 목표일 9/25→9/30 · 김하나 (고객 일정 때문)",
-     "ts": "3.5"
+     "ts": "2.5"
     },
     "method": "chat.update"
    }
@@ -6707,17 +6727,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #12 권한 정리",
-     "ts": "1789749254.624039"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -7059,10 +7069,17 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #12 설정",
-     "ts": "1789796629.183459"
+     "text": "🎫 #12 권한 정리",
+     "ts": "1789749254.624039"
     },
     "method": "chat.update"
+   },
+   {
+    "body": {
+     "channel": "C0EXAMPLEPRJ",
+     "ts": "1789796629.183459"
+    },
+    "method": "chat.delete"
    }
   ],
   "trail": []
@@ -7109,17 +7126,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
-     "ts": "1789749231.241109"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -7479,8 +7486,8 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
+     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
+     "ts": "1789749231.241109"
     },
     "method": "chat.update"
    }
@@ -7581,7 +7588,7 @@
    "review_msg": {
     "channel": "UREQUESTER",
     "thread": null,
-    "ts": "4.5"
+    "ts": "3.5"
    },
    "spec": {
     "change": "LaunchAgent(KeepAlive) 로 등록하고 중복 실행을 막는다 (LaunchAgent 는 중요 파일 — PM 승인 후)",
@@ -7736,7 +7743,7 @@
      "icon": "🔄",
      "kind": "decision",
      "reason": "<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게…> 목표일을 9/24로 미뤘어요",
-     "ts": "3.5",
+     "ts": "2.5",
      "what": "목표일 없음→9/24",
      "who": "일정 위험 추천 적용·김하나"
     }
@@ -8283,7 +8290,7 @@
      "icon": "🔄",
      "kind": "decision",
      "reason": "자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안",
-     "ts": "5.5",
+     "ts": "4.5",
      "what": "담당 없음→박두리, 목표일 없음→9/22",
      "who": "AI 자동 조정"
     }
@@ -8704,7 +8711,7 @@
      "icon": "🔄",
      "kind": "decision",
      "reason": null,
-     "ts": "3.5",
+     "ts": "2.5",
      "what": "우선순위 P4→P2",
      "who": "김하나"
     },
@@ -8718,7 +8725,7 @@
      "icon": "🔄",
      "kind": "decision",
      "reason": "고객 일정 때문",
-     "ts": "3.5",
+     "ts": "2.5",
      "what": "목표일 9/25→9/30",
      "who": "김하나"
     }
@@ -9202,17 +9209,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #13 봇이 브랜치와 PR까지 올리게 하기 (머지는 사람)",
-     "ts": "1789749258.124529"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -9523,10 +9520,17 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #13 설정",
-     "ts": "1789796629.849759"
+     "text": "🎫 #13 봇이 브랜치와 PR까지 올리게 하기 (머지는 사람)",
+     "ts": "1789749258.124529"
     },
     "method": "chat.update"
+   },
+   {
+    "body": {
+     "channel": "C0EXAMPLEPRJ",
+     "ts": "1789796629.849759"
+    },
+    "method": "chat.delete"
    },
    {
     "body": {
@@ -9977,387 +9981,6 @@
    },
    {
     "body": {
-     "blocks": [
-      {
-       "text": {
-        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "card:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "set_assignee",
-         "initial_user": "U0EXAMPLEDEV",
-         "placeholder": {
-          "text": "누가 맡을까요?",
-          "type": "plain_text"
-         },
-         "type": "users_select"
-        },
-        {
-         "action_id": "set_prio",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "🔴 P1 긴급",
-           "type": "plain_text"
-          },
-          "value": "1"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔴 P1 긴급",
-            "type": "plain_text"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟠 P2 높음",
-            "type": "plain_text"
-           },
-           "value": "2"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🟡 P3 보통",
-            "type": "plain_text"
-           },
-           "value": "3"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⚪ P4 낮음",
-            "type": "plain_text"
-           },
-           "value": "4"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_due",
-         "initial_date": "2026-09-26",
-         "placeholder": {
-          "text": "목표일",
-          "type": "plain_text"
-         },
-         "type": "datepicker"
-        },
-        {
-         "action_id": "set_status",
-         "initial_option": {
-          "text": {
-           "emoji": true,
-           "text": "✅ 완료",
-           "type": "plain_text"
-          },
-          "value": "done"
-         },
-         "options": [
-          {
-           "text": {
-            "emoji": true,
-            "text": "🕒 대기",
-            "type": "plain_text"
-           },
-           "value": "todo"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "👀 진행 중",
-            "type": "plain_text"
-           },
-           "value": "doing"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "⛔ 보류",
-            "type": "plain_text"
-           },
-           "value": "blocked"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "🔍 확인 대기",
-            "type": "plain_text"
-           },
-           "value": "review"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "✅ 완료",
-            "type": "plain_text"
-           },
-           "value": "done"
-          },
-          {
-           "text": {
-            "emoji": true,
-            "text": "❌ 취소",
-            "type": "plain_text"
-           },
-           "value": "cancelled"
-          }
-         ],
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_stage",
-         "initial_option": {
-          "text": {
-           "text": "개발·도그푸딩",
-           "type": "plain_text"
-          },
-          "value": "개발·도그푸딩"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "기획",
-            "type": "plain_text"
-           },
-           "value": "기획"
-          },
-          {
-           "text": {
-            "text": "프로토타입",
-            "type": "plain_text"
-           },
-           "value": "프로토타입"
-          },
-          {
-           "text": {
-            "text": "개발·도그푸딩",
-            "type": "plain_text"
-           },
-           "value": "개발·도그푸딩"
-          },
-          {
-           "text": {
-            "text": "PoC",
-            "type": "plain_text"
-           },
-           "value": "PoC"
-          },
-          {
-           "text": {
-            "text": "판단",
-            "type": "plain_text"
-           },
-           "value": "판단"
-          },
-          {
-           "text": {
-            "text": "파일럿",
-            "type": "plain_text"
-           },
-           "value": "파일럿"
-          },
-          {
-           "text": {
-            "text": "나중 (단계 밖)",
-            "type": "plain_text"
-           },
-           "value": "나중 (단계 밖)"
-          }
-         ],
-         "placeholder": {
-          "text": "로드맵 단계",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        },
-        {
-         "action_id": "set_feature",
-         "initial_option": {
-          "text": {
-           "text": "기반 (운영·권한·안전)",
-           "type": "plain_text"
-          },
-          "value": "기반 (운영·권한·안전)"
-         },
-         "options": [
-          {
-           "text": {
-            "text": "요청 입구",
-            "type": "plain_text"
-           },
-           "value": "요청 입구"
-          },
-          {
-           "text": {
-            "text": "질문으로 구체화",
-            "type": "plain_text"
-           },
-           "value": "질문으로 구체화"
-          },
-          {
-           "text": {
-            "text": "할 일 정리·보완",
-            "type": "plain_text"
-           },
-           "value": "할 일 정리·보완"
-          },
-          {
-           "text": {
-            "text": "담당 추천",
-            "type": "plain_text"
-           },
-           "value": "담당 추천"
-          },
-          {
-           "text": {
-            "text": "우선순위·과부하 조절",
-            "type": "plain_text"
-           },
-           "value": "우선순위·과부하 조절"
-          },
-          {
-           "text": {
-            "text": "알림·후속",
-            "type": "plain_text"
-           },
-           "value": "알림·후속"
-          },
-          {
-           "text": {
-            "text": "회의 운영",
-            "type": "plain_text"
-           },
-           "value": "회의 운영"
-          },
-          {
-           "text": {
-            "text": "동기화·기록",
-            "type": "plain_text"
-           },
-           "value": "동기화·기록"
-          },
-          {
-           "text": {
-            "text": "인수인계",
-            "type": "plain_text"
-           },
-           "value": "인수인계"
-          },
-          {
-           "text": {
-            "text": "보기 (캔버스·홈·카드)",
-            "type": "plain_text"
-           },
-           "value": "보기 (캔버스·홈·카드)"
-          },
-          {
-           "text": {
-            "text": "기반 (운영·권한·안전)",
-            "type": "plain_text"
-           },
-           "value": "기반 (운영·권한·안전)"
-          }
-         ],
-         "placeholder": {
-          "text": "기능",
-          "type": "plain_text"
-         },
-         "type": "static_select"
-        }
-       ],
-       "type": "actions"
-      },
-      {
-       "elements": [
-        {
-         "text": "사람이 정한 값이에요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
-      },
-      {
-       "text": {
-        "text": "*▓▓▓▓▓▓▓▓▓▓ 완료 조건 3/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
-        "type": "mrkdwn"
-       },
-       "type": "section"
-      },
-      {
-       "block_id": "dc:1789749231.241109",
-       "elements": [
-        {
-         "action_id": "check_dc",
-         "initial_options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "봇 프로세스는 늘 1개",
-            "type": "mrkdwn"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "text": "꺼지면 로그에 남는다",
-            "type": "mrkdwn"
-           },
-           "value": "2"
-          }
-         ],
-         "options": [
-          {
-           "text": {
-            "text": "재부팅 뒤 자동 실행 확인",
-            "type": "mrkdwn"
-           },
-           "value": "0"
-          },
-          {
-           "text": {
-            "text": "봇 프로세스는 늘 1개",
-            "type": "mrkdwn"
-           },
-           "value": "1"
-          },
-          {
-           "text": {
-            "text": "꺼지면 로그에 남는다",
-            "type": "mrkdwn"
-           },
-           "value": "2"
-          }
-         ],
-         "type": "checkboxes"
-        }
-       ],
-       "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
      "blocks": [],
      "channel": "C0EXAMPLEPRJ",
      "text": "회의에서 다룸",
@@ -10550,17 +10173,7 @@
         }
        ],
        "type": "actions"
-      }
-     ],
-     "channel": "C0EXAMPLEPRJ",
-     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
-     "ts": "1789749231.241109"
-    },
-    "method": "chat.update"
-   },
-   {
-    "body": {
-     "blocks": [
+      },
       {
        "text": {
         "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요",
@@ -10911,10 +10524,17 @@
       }
      ],
      "channel": "C0EXAMPLEPRJ",
-     "text": "⚙️ #10 설정",
-     "ts": "1789796627.745949"
+     "text": "🎫 #10 봇을 재부팅해도 계속 돌게 하기",
+     "ts": "1789749231.241109"
     },
     "method": "chat.update"
+   },
+   {
+    "body": {
+     "channel": "C0EXAMPLEPRJ",
+     "ts": "1789796627.745949"
+    },
+    "method": "chat.delete"
    },
    {
     "body": {

@@ -46,8 +46,13 @@ def state_line(c, team=None):
 
 
 def card_blocks(c):
-    """채널 카드 = 제목(앞에 우선순위 색) + 상태 줄(앞에 상태 이모지) + 버튼 둘 (✋ 내가 할게요 · 📄 상세).
-    나머지 설정은 카드 스레드의 ⚙️ 에서. 사람 이름은 멘션하지 않는다 — 알림·강조색이 눈에 걸린다."""
+    """채널 카드 = 제목 + 상태 줄 + 버튼 + **설정**. 사람 이름은 멘션하지 않는다 — 알림이 눈에 걸린다.
+
+    **설정을 카드 안에 넣는다** (2026-09-22 사장님: 「알림은 하나가 가도록 해줘」).
+    예전에는 스레드에 ⚙️ 메시지를 따로 올렸다 — 할 일 하나에 **글이 둘**이었고, 둘 다 알림을 울렸다.
+    Slack 블록 한도는 50 인데 합쳐도 7 이라 나눌 이유가 없었다.
+    끝난 일에는 설정을 안 붙인다 — 고칠 게 없다.
+    """
     ts = c.get("card_ts") or "-"                                       # 첫 게시 땐 아직 ts 가 없다
     open_ = c["status"] not in ("done", "cancelled")
     title = f"~{tag(c['no'])} {c['title']}~" if c["status"] in ("done", "cancelled") else f"{tag(c['no'])} {c['title']}"   # 끝난 일은 취소선
@@ -59,9 +64,10 @@ def card_blocks(c):
         btns.append({"type": "button", "text": {"type": "plain_text", "text": "✋ 내가 할게요"},
                      "action_id": "pull_card", "value": ts})
     btns.append({"type": "button", "text": {"type": "plain_text", "text": "📄 상세"}, "action_id": "show_md", "value": ts})
-    return [{"type": "section", "text": {"type": "mrkdwn", "text": f"{PLEVEL[plevel(c)].split()[0]} *{title}*"}},
-            {"type": "context", "elements": [{"type": "mrkdwn", "text": line or " "}]},
-            {"type": "actions", "elements": btns}]
+    out = [{"type": "section", "text": {"type": "mrkdwn", "text": f"{PLEVEL[plevel(c)].split()[0]} *{title}*"}},
+           {"type": "context", "elements": [{"type": "mrkdwn", "text": line or " "}]},
+           {"type": "actions", "elements": btns}]
+    return out + (ctl_blocks(c) if open_ else [])
 
 
 def similar_blocks(c, hits):

@@ -100,17 +100,15 @@ def resolve(c, want, user):
 
 
 async def ensure_ctl(s, c):
-    """스레드의 ⚙️ 설정 메시지를 만들거나 최신으로 고친다."""
-    if not c.get("card_ts"):
-        return
-    body = {"channel": chan(c), "text": f"⚙️ #{c['no']} 설정", "blocks": ctl_blocks(c)}
+    """**더 이상 ⚙️ 를 따로 올리지 않는다** (2026-09-22 사장님: 「알림은 하나가 가도록 해줘」).
+
+    설정은 이제 카드 안에 있다 (`views.card.card_blocks`). 할 일 하나에 글이 둘이면
+    알림도 둘이다. 예전에 올려 둔 ⚙️ 가 남아 있으면 **치운다** — 두 벌이 보이면
+    어느 것이 지금인지 사람이 모른다.
+    """
     if c.get("ctl_ts"):
-        r = await api(s, "chat.update", body={**body, "ts": c["ctl_ts"]})
-        if r.get("ok"):
-            return
-    d = await api(s, "chat.postMessage", body={**body, "thread_ts": c["card_ts"]})
-    if d.get("ok"):
-        c["ctl_ts"] = d["ts"]
+        await api(s, "chat.delete", body={"channel": chan(c), "ts": c.pop("ctl_ts")})
+        log(f"옛 ⚙️ 설정 치움 #{c['no']}")
 
 
 async def redraw(s, c):

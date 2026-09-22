@@ -495,20 +495,22 @@ async def act_card_menu(s, p, a):              # 예전 카드의 「⋯」 메�
         await f(s, p, {"action_id": {"edit": "edit_card", "detail": "show_md", "pull": "pull_card"}[kind], "value": ts_})
 
 
-CTL_VER = 3          # 카드·⚙️ 모양이 바뀌면 올린다 — 켜질 때 한 번, 천천히 새로 그린다 (3: 끝난 일 취소선)
+CTL_VER = 4          # 카드·⚙️ 모양이 바뀌면 올린다 — 켜질 때 한 번, 천천히 새로 그린다
+                     # (3: 끝난 일 취소선 · 4: ⚙️ 를 카드 안으로 넣고 따로 올린 것은 치운다)
 
 
 async def refresh_ctls(s):
     if STATE.get("ctl_ver") == CTL_VER:
         return
     for c in [x for x in STATE["cards"].values() if x.get("card_ts")]:
+        if c.get("ctl_ts"):
+            await ensure_ctl(s, c)            # 따로 올려 둔 ⚙️ 를 치운다 (이제 카드 안에 있다)
         if c["status"] in ("done", "cancelled"):
             await api(s, "chat.update", body={"channel": chan(c), "ts": c["card_ts"],
                       "text": f"🎫 #{c['no']} {c['title']}", "blocks": card_blocks(c)})
-        elif c.get("ctl_ts"):
-            await ensure_ctl(s, c)
         else:
-            continue
+            await api(s, "chat.update", body={"channel": chan(c), "ts": c["card_ts"],
+                      "text": f"🎫 #{c['no']} {c['title']}", "blocks": card_blocks(c)})
         await asyncio.sleep(1.5)                       # chat.update 한도(분당 약 50) 안에서
     STATE["ctl_ver"] = CTL_VER
     save()
