@@ -49,6 +49,19 @@ async def _render_canvas_later(s, wait):
     await _render_canvas(s)
 
 
+def _repo_line():
+    """기록이 어디로 올라가는지 한 줄 (2026-09-22 사장님: 「레포 정보를 현황판에도 노출하는게
+    맞을거 같은데」). 안 붙였으면 빈 글자 — 없는 것을 있다고 하지 않는다."""
+    import config
+    from common import CANVAS, PROJECTS
+    hit = next((p for p in PROJECTS if p.get("canvas") == CANVAS), None)
+    repo = (hit or {}).get("repo") or config.GITHUB.get("repo")
+    if repo:
+        return f"\n📦 기록·할 일 → [{repo}](https://github.com/{repo})\n"
+    url = config.CFG.get("git_remote")
+    return f"\n📦 기록 → `{url}`\n" if url else ""
+
+
 def _canvas_title():
     """캔버스 이름 — 그 프로젝트 방 이름. 방이 여럿이면 어느 작업판인지 여기서 갈린다."""
     from common import CANVAS, ISSUE_NAME, PROJECTS
@@ -196,7 +209,7 @@ async def _render_canvas(s):
     md = f"""# {_canvas_title()}
 
 {intro}
-
+{_repo_line()}
 ## 😣 Pain point
 
 {why}

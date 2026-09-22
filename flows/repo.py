@@ -300,6 +300,14 @@ async def attach(repo, pkey, make=False, kind="github"):
         ok, out = await _run("gh", "repo", "create", repo, "--private")
         if not ok and "already exists" not in out.lower() and "name already" not in out.lower():
             return done, out[:150]
+        # **부탁한 이름과 생긴 이름이 다를 수 있다** (2026-09-22 실측). GitHub 은 한글을 버려서
+        # 「황금거위」 가 **`-`** 가 됐고, 설정은 없는 레포를 가리킨 채로 남았다.
+        # `gh` 가 찍어 주는 주소가 **진짜**다 — 그걸 읽는다
+        got = re.search(r"github\.com[/:]([\w.-]+/[\w.-]+?)(?:\.git)?\s*$", (out or "").strip())
+        if got and got.group(1) != repo:
+            log(f"레포 이름이 바뀜: {repo} → {got.group(1)}")
+            done.append(say("repo_renamed", want=repo, got=got.group(1)))
+            repo = got.group(1)
         done.append(say("repo_made") if ok else say("repo_had"))
     elif kind == "github":
         ok, out = await _run("gh", "repo", "view", repo, "--json", "name")

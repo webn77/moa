@@ -240,11 +240,12 @@ class RepoStepTest(Base):
         """이름을 안 주셔도 만든다 — **글자 수로 자르면** `-사내포털` 이 된다 (시뮬레이션이 잡았다)."""
         self.upto_goal()
         self.say("새로 만들어줘")
-        self.assertIn("`webn77/충전성공`", self.fake.texts()[-1])
-        self.assertNotIn("/-", self.fake.texts()[-1])
+        # **한글은 레포 이름으로 못 쓴다** — GitHub 이 버려서 `webn77/-` 가 됐다 (실측)
+        self.assertIn("`webn77/moa-p2`", self.fake.texts()[-1])
+        self.assertNotIn("/-`", self.fake.texts()[-1])
         self.say("네")
         self.assertEqual(self.attached[0][:1] + self.attached[0][2:],
-                         ("webn77/충전성공", True, "github"))
+                         ("webn77/moa-p2", True, "github"))
 
     def test_it_says_what_a_repo_is_and_what_private_means(self):
         """**모르는 낱말로 고르라고 하면** 아무거나 고르거나 그냥 「안 할래요」 를 누른다
@@ -271,12 +272,36 @@ class RepoStepTest(Base):
         self.say("네")
         self.assertEqual(self.attached[0][0], "webn77/moa-team")
 
-    def test_a_number_is_enough(self):
-        """**고르는 일과 적는 일을 나눈다** (2026-09-22 사장님: 「번호 붙여서 선택 하게 해서」)."""
+    def test_it_suggests_an_english_name_instead_of_making_one_up(self):
+        """**GitHub 은 한글을 조용히 버린다** (2026-09-22 실측: 「황금거위」 → `webn77/-`).
+
+        사장님: 「레포는 영어로 만들어야 해서 영어이름을 추천해서 만드는게 좋을거 같아」
+        번호 앞말과 같은 방식이다 — 기본값을 주고 고칠 기회를 둔다.
+        """
         self.upto_goal()
-        self.say("1")                                   # 새로 만들어줘
-        self.assertIn("`webn77/충전성공`", self.fake.texts()[-1])
-        self.assertIn("비공개", self.fake.texts()[-1])
+        self.say("1")
+        last = self.fake.texts()[-1]
+        self.assertIn("영문", last)
+        self.assertIn("`webn77/moa-p2`", last)          # 한글 이름이면 앞말을 쓴다
+        self.say("네")
+        self.assertIn("webn77/moa-p2", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached[0][0], "webn77/moa-p2")
+
+    def test_you_can_give_your_own_english_name(self):
+        self.upto_goal()
+        self.say("1")
+        self.say("golden-goose")
+        self.assertIn("`webn77/golden-goose`", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached[0][0], "webn77/golden-goose")
+
+    def test_a_name_with_no_letters_is_asked_again(self):
+        self.upto_goal()
+        self.say("1")
+        self.say("황금거위")                              # 영문이 하나도 없다
+        self.assertIn("영문", self.fake.texts()[-1])
+        self.assertEqual(self.attached, [])
 
     def test_four_means_no(self):
         self.upto_goal()

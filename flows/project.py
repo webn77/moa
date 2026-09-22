@@ -131,14 +131,22 @@ def _slug(title):
     return ("프로젝트-" + s)[:70] or "프로젝트"
 
 
-def _repo_name(title):
-    """프로젝트 이름으로 레포 이름을 짓는다 — `사내포털` → `사내포털`.
+def _repo_name(title, key=""):
+    """프로젝트 이름으로 레포 이름을 짓는다 — **영문·숫자만**.
 
-    **글자 수로 자르면 안 된다** — 「프로젝트-」 는 다섯 글자인데 넷을 잘라 `-사내포털` 이 됐다
-    (2026-09-22 시뮬레이션이 잡았다). 앞뒤 하이픈도 떼어 낸다: GitHub 이 안 받는다.
+    **GitHub 은 한글을 조용히 버린다** (2026-09-22 실측). 「황금거위」 로 만들어 달라고 했더니
+    `gh repo create` 는 성공했는데 실제로 생긴 것은 **`webn77/-`** 였다. 설정은 `황금거위` 를
+    가리키니 그 뒤로 GitHub 을 부를 때마다 「Could not resolve to a Repository」 가 났다.
+    **부탁한 이름과 생긴 이름이 다를 수 있다** — 그래서 만든 뒤에 확인도 한다 (`flows/repo.attach`).
+
+    한글만 있는 이름은 번호 앞말을 쓴다: `황금거위`(GD) → `moa-gd`. 지어낸 약칭보다 낫다 —
+    앞말은 사장님이 정하신 것이고 카드마다 이미 붙어 있다.
+
+    **글자 수로 자르지 않는다** — 「프로젝트-」 는 다섯 글자인데 넷을 잘라 `-사내포털` 이 됐다.
     """
-    s = re.sub(r"^프로젝트-", "", _slug(title)).strip("-")
-    return s or "moa"
+    s = re.sub(r"^프로젝트-", "", _slug(title))
+    s = re.sub(r"[^A-Za-z0-9._-]+", "-", s).strip("-._")
+    return s or (f"moa-{key.lower()}" if key else "moa")
 
 
 def _suggest_key(title, taken):
@@ -443,14 +451,29 @@ async def maybe(s, e, q, force=False):
             if got == "1":
                 who = await _me()
                 if who:
-                    st["repo"], st["rkind"], st["rmake"] = f"{who}/{_repo_name(st['title'])}", "github", True
-                    return await _show(s, ch, th, st)
+                    # **이름을 제안하고 확인받는다** (2026-09-22 사장님: 「레포는 영어로 만들어야
+                    # 해서 영어이름을 추천해서 만드는게 좋을거 같아」). 조용히 지어서 만들면
+                    # 나중에 그 이름을 보고 「이게 뭐지」 가 된다 — 번호 앞말과 같은 방식이다
+                    st["want"], st["owner"] = "new", who
+                    st["suggest"] = _repo_name(st["title"], st.get("key", ""))
+                    save()
+                    await _say(s, ch, say("proj_repo_new_name", who=who, name=st["suggest"]), th)
+                    return True
                 # **조용히 막히지 않는다** — 못 만드는 이유와 지금 할 수 있는 것을 같이 준다
                 return await _again(s, ch, th, st, say("proj_repo_no_gh"))
             st["want"] = "github" if got == "2" else "git"
             save()
             await _say(s, ch, say("proj_repo_link" if got == "2" else "proj_repo_url"), th)
             return True
+        # 제안한 영문 이름을 받는 자리 — 「네」 면 그대로, 아니면 주신 이름으로
+        if st.get("want") == "new":
+            name = st["suggest"] if _yes(q) else re.sub(r"[^A-Za-z0-9._-]+", "-", q.strip()).strip("-._")
+            if not name:
+                return await _again(s, ch, th, st,
+                                    say("proj_repo_name_bad", word=q.strip()[:20] or "빈 글자",
+                                        name=st["suggest"]))
+            st["repo"], st["rkind"], st["rmake"] = f"{st['owner']}/{name}", "github", True
+            return await _show(s, ch, th, st)
         if NO_REPO.match(q.strip()):
             st["repo"], st["rkind"] = "", ""
             return await _show(s, ch, th, st)
@@ -460,7 +483,7 @@ async def maybe(s, e, q, force=False):
             # **이름을 안 주셔도 만든다** — 프로젝트 이름으로. 올릴 곳은 `gh` 가 아는 계정
             who = await _me()
             if who:
-                st["repo"], st["rkind"], st["rmake"] = f"{who}/{_repo_name(st['title'])}", "github", True
+                st["repo"], st["rkind"], st["rmake"] = f"{who}/{_repo_name(st['title'], st.get('key', ''))}", "github", True
                 return await _show(s, ch, th, st)
         if not target:
             return await _again(s, ch, th, st,
