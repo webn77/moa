@@ -119,7 +119,7 @@ def set_goal(text):
 async def catch(s, e, q):
     """DM 의 이 말이 온보딩에 속하면 처리하고 True. 아니면 False (다른 갈래로 간다)."""
     user, ch = e.get("user"), e.get("channel")
-    th = e.get("thread_ts") or e.get("ts")
+    th = e.get("thread_ts")      # DM 에서는 스레드를 새로 파지 않는다 (답이 접혀 안 보인다)
     if skipped(q):
         give_up(user)
         await say_to(s, ch, say("onboard_skip"), th)

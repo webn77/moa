@@ -248,10 +248,12 @@ class OnboardTest(unittest.TestCase):
 
 
 class ThreadReplyTest(unittest.TestCase):
-    """DM 의 답은 **물어본 글 아래 스레드로** 간다 (2026-09-22 사장님 지적).
+    """DM 에서는 **스레드를 새로 파지 않는다** (2026-09-22 실측).
 
-    `agent_view` 를 켜면서 「…하는 중」 은 그 글 아래에 붙였는데 **답은 맨 위로 갔다** —
-    둘을 같이 옮겼어야 했다. 묻고 답한 짝이 흩어지면 DM 이 길어질수록 읽기 어렵다.
+    한때 모든 답을 스레드로 보냈는데 **답이 접혀서 안 보였다** — 사장님이 「글 남겨도 작동을
+    안 하는데?」 라고 하셨고, 봇은 답을 하고 있었다. 접힌 스레드 안이었다.
+    **DM 은 그 자체가 한 대화다.** 다만 **이미 스레드 안에서 물었으면 그 스레드에** 답한다 —
+    그건 사람이 만든 덩이다.
     """
 
     def sent(self, fn):
@@ -262,7 +264,8 @@ class ThreadReplyTest(unittest.TestCase):
             return {"ok": True}
         return got, api
 
-    def test_find_answers_in_the_thread(self):
+    def test_a_dm_answer_is_not_hidden_in_a_new_thread(self):
+        """맨 위에 답한다 — 새 스레드를 파면 접혀서 안 보인다."""
         from flows import find as find_mod
         got, api = self.sent(None)
         e = {"user": ME, "channel": "D0TEST", "ts": "111.1", "channel_type": "im"}
@@ -270,7 +273,7 @@ class ThreadReplyTest(unittest.TestCase):
             run(find_mod.find(None, e, "내 할 일"))
         posts = [b for m, b in got if m == "chat.postMessage"]
         self.assertTrue(posts, "답을 안 보냈다")
-        self.assertEqual(posts[0].get("thread_ts"), "111.1")
+        self.assertIsNone(posts[0].get("thread_ts"))
 
     def test_a_reply_inside_a_thread_stays_there(self):
         """이미 스레드 안에서 물으면 **그 스레드**에 답한다 — 새 스레드를 파면 안 된다."""
@@ -281,12 +284,16 @@ class ThreadReplyTest(unittest.TestCase):
             run(find_mod.find(None, e, "내 할 일"))
         self.assertEqual([b for m, b in got if m == "chat.postMessage"][0].get("thread_ts"), "111.1")
 
-    def test_project_flow_answers_in_the_thread(self):
+    def test_project_flow_answers_where_you_can_see_it(self):
         fake = Fake()
-        with mock.patch.object(project, "api", fake.api), mock.patch.object(project, "save", lambda: None):
+        with mock.patch.object(project, "api", fake.api), mock.patch.object(project, "save", lambda: None), \
+             mock.patch.object(project, "_fill", self._no_ai):
             run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "333.3"}, "프로젝트 만들기"))
         STATE.pop("new_project", None)
-        self.assertEqual([b for m, b in fake.sent if m == "chat.postMessage"][0].get("thread_ts"), "333.3")
+        self.assertIsNone([b for m, b in fake.sent if m == "chat.postMessage"][0].get("thread_ts"))
+
+    async def _no_ai(self, *a, **k):
+        return None
 
 
 class NameTest(unittest.TestCase):
@@ -421,3 +428,38 @@ class CanvasTitleTest(unittest.TestCase):
         from views.canvas import _canvas_title
         import common
         self.assertIn(common.PROJECTS[0].get("name") or common.ISSUE_NAME, _canvas_title())
+
+
+class StuckConversationTest(Base):
+    """대화가 갇히지 않는다 (2026-09-22 사장님 실측 — 「전혀 대화가 안 되는 거 같아」).
+
+    안전망(AI 가 안 될 때)이 **앞말 단계에서 무엇을 받아도 「앞말로 쓸 수 없어요」** 만
+    되풀이했다. 사람은 이름을 고치려 했는데 봇은 앞말로만 들었다.
+    """
+
+    def test_a_key_inside_a_sentence_is_found(self):
+        self.ai_says = None                       # AI 없음 = 안전망
+        self.say("프로젝트 만들기"); self.say("충전성공")
+        self.say("그리고 앞말은 ch로")
+        self.assertIn("누구와 함께", self.fake.texts()[-1])
+        self.assertEqual(STATE["new_project"][ME]["key"], "CH")
+
+    def test_fixing_the_name_goes_back_to_the_name(self):
+        """「아니 X가 이름이야」 는 앞말이 아니다 — 이름 단계로 돌아가야 한다."""
+        self.ai_says = None
+        self.say("프로젝트 만들기"); self.say("오케이 충전성공으로")
+        self.say("아니 충전성공이 프로젝트 이름이야!")
+        last = self.fake.texts()[-1]
+        self.assertIn("충전성공", last)
+        self.assertIn("번호 앞말", last)
+        self.assertNotIn("쓸 수 없어요", last)
+
+    def test_the_ai_outage_is_announced_once(self):
+        """조용히 모드가 바뀌면 고장으로 보인다 — 한 번은 말한다. 매번은 안 한다."""
+        self.ai_says = None
+        self.say("프로젝트 만들기")
+        self.assertIn("AI 가 잠깐", self.fake.texts()[0])
+        before = len([x for x in self.fake.texts() if "AI 가 잠깐" in x])
+        self.say("충전성공")
+        after = len([x for x in self.fake.texts() if "AI 가 잠깐" in x])
+        self.assertEqual(before, after, "같은 말을 또 했다")

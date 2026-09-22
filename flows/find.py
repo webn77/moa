@@ -152,9 +152,10 @@ async def find(s, e, q):
         save()
     body = {"channel": e["channel"], "text": text, "unfurl_links": False}
     if e.get("channel_type") == "im":                  # DM 은 원래 나만 보는 자리다
-        # **물어본 글 아래 스레드로** (2026-09-22 사장님 지적). 맨 위에 답하면 DM 이 길어질 때
-        # 묻고 답한 짝이 흩어진다. Slack 도 `agent_view` 에서 「…하는 중」 을 그 글 아래에 그린다
-        body["thread_ts"] = e.get("thread_ts") or e.get("ts")
+        # **DM 에서 스레드를 새로 파지 않는다** — 답이 접혀서 안 보인다 (2026-09-22 실측).
+        # 이미 스레드 안에서 물었으면 그 스레드에 답한다 (사람이 만든 덩이니까)
+        if e.get("thread_ts"):
+            body["thread_ts"] = e["thread_ts"]
         await api(s, "chat.postMessage", body=body)
     else:
         await api(s, "chat.postEphemeral", body={**body, "user": e.get("user")})

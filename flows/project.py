@@ -37,6 +37,19 @@ ALONE = ("혼자", "나만", "저만", "없어", "없음")
 # 앞말은 **영문 2~6글자**. 예전엔 4글자까지라 `charge` 가 튕겼는데 **왜 튕겼는지 말도 안 했다**
 # (2026-09-22 사장님 실측 — 답을 했는데 같은 질문이 또 오면 고장으로 보인다)
 KEY_OK = re.compile(r"^[A-Za-z][A-Za-z0-9]{1,5}$")
+# 사람은 앞말만 딱 쓰지 않는다 — 「앞말은 ch로」 · 「CH 로 해줘」 (2026-09-22 사장님 실측).
+# 통째로 받으면 「번호 앞말로 쓸 수 없어요」 만 되풀이하며 **대화가 갇힌다**
+KEY_IN = re.compile(r"(?:앞말|키|코드)\s*(?:은|는|을|를)?\s*[:：]?\s*([A-Za-z][A-Za-z0-9]{1,5})\b"
+                    r"|\b([A-Za-z][A-Za-z0-9]{1,5})\s*(?:로|으로)\s*(?:해|하자|할게|주세요|해줘)?")
+
+
+def _key_of(text):
+    """말에서 번호 앞말만 골라낸다. 못 고르면 빈 글자."""
+    s = (text or "").strip()
+    if KEY_OK.match(s):
+        return s.upper()
+    m = KEY_IN.search(s)
+    return (m.group(1) or m.group(2)).upper() if m else ""
 
 # 사람은 이름만 딱 말하지 않는다 — 「충전성공이라는 프로젝트야」 · 「충전성공 이게 프로젝트 이름이야」.
 # 통째로 받으면 그게 방 이름이 되고 카드마다 따라다닌다 (2026-09-22 사장님 실측).
@@ -222,7 +235,7 @@ async def maybe(s, e, q):
     다 차면 **되읽어 확인**받은 뒤 만든다. AI 가 안 되면 옛 세 마디 방식으로 떨어진다.
     """
     user, ch = e.get("user"), e.get("channel")
-    th = e.get("thread_ts") or e.get("ts")
+    th = e.get("thread_ts")      # DM 에서는 스레드를 새로 파지 않는다 (답이 접혀 안 보인다)
     st = _asking(user)
     if st is None:
         if not START.search(q):
@@ -297,12 +310,22 @@ async def _old_way(s, e, q, st, th, taken):
         return True
     if step == "key":
         w = q.strip()
+        # **이름을 고치려는 말이면 이름 단계로 돌아간다** — 「아니 X가 이름이야」 를 앞말로 받으면
+        # 「앞말로 쓸 수 없어요」 만 되풀이하며 대화가 갇힌다 (2026-09-22 실측)
+        again = _name_of(q)
+        if again and _nameable(again) and not _key_of(q):
+            st["title"] = again
+            st["key"] = _suggest_key(again, taken)
+            save()
+            await _say(s, ch, say("proj_ask_key", title=again, k=st["key"]), th)
+            return True
         if w.lower() not in YES:
-            if not KEY_OK.match(w):
+            got_key = _key_of(q)
+            if not got_key:
                 await _say(s, ch, say("proj_key_bad", word=w[:20], k=st["key"]), th); save(); return True
-            if w.upper() in taken:
-                await _say(s, ch, say("proj_key_taken", k=w.upper()), th); save(); return True
-            st["key"] = w.upper()
+            if got_key in taken:
+                await _say(s, ch, say("proj_key_taken", k=got_key), th); save(); return True
+            st["key"] = got_key
         st["old"] = "who"; save()
         await _say(s, ch, say("proj_ask_who"), th)
         return True
