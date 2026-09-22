@@ -1,5 +1,5 @@
 """채널 캔버스 (#30 에서 bot.py 를 나눔)."""
-import asyncio, datetime, hashlib, time
+import asyncio, datetime, hashlib, re, time
 import config
 import core
 from common import BOT, CANVAS, CHANNEL, HERE, LABEL, PLEVEL, QUEUE, fill, log, plevel  # noqa: E402,F401
@@ -80,8 +80,76 @@ async def render_canvas_now(s):
     (2026-09-22 실측: API 로 캔버스를 통째로 덮어쓴 뒤 🔄 를 눌러도 되살아나지 않았다.)
     """
     STATE.pop("canvas_hash", None)
+    STATE.pop("proj_hash", None)              # 프로젝트마다의 작업판도 같이 되살린다
     _CANVAS["last"] = ""
     await _render_canvas(s)
+
+
+def _proj_md(p, cards, team):
+    """**프로젝트 하나의 작업판** (2026-09-22 사장님 지시).
+
+    봇은 오랫동안 **팀에 캔버스 하나**만 그렸다 (`common.CANVAS`). 그런데 온보딩은
+    「프로젝트 하나에 채널 하나와 현황판 하나」 라고 **약속한다** — 둘째 프로젝트부터는
+    만들 때 쓴 글이 그대로 멈춰 있었다 (사장님이 충전성공·황금거위에서 보셨다).
+
+    여기는 **그 프로젝트 것만** 담는다: 목표 · 레포 · 누가 뭘 · 할 일.
+    팀 전체 이야기(Pain point · 기능 · 지표 · 로드맵)는 첫 작업판에 그대로 둔다 —
+    프로젝트마다 베껴 두면 고칠 때 어긋난다.
+    """
+    key, name = p.get("key") or "", _short(p.get("name"))
+    mine = [c for c in cards if (c.get("project") or "") == key]
+    open_ = [c for c in mine if c["status"] not in ("done", "cancelled")]
+    done_ = [c for c in mine if c["status"] == "done"]
+    goal = (p.get("goal") or "").strip()
+    repo = p.get("repo")
+    rows = []
+    for c in sorted(open_, key=lambda c: (plevel(c), c.get("rank", 99))):
+        who = team.get(c.get("assignee"), {}).get("name") or "🙋 아직 없음"
+        # 번호 칸에는 **번호만** — 옆 칸에 제목이 이미 있다 (`ref` 는 제목까지 붙여 준다)
+        no = f"`{key}-{c['no']}`" if key else f"`#{c['no']}`"
+        rows.append(f"| {no} | {link_of(c, text=c['title'][:40])} | `{LABEL[c['status']]}` "
+                    f"| {who} | {due_text(c) or '-'} |")
+    return f"""# 📋 {name} 작업판
+
+{"🎯 **" + goal + "**" if goal else "_🎯 목표가 아직 비어 있어요 — 「프로젝트 만들기」 에서 여쭙는 칸이에요_"}
+{"📦 기록·할 일 → [" + repo + "](https://github.com/" + repo + ")" if repo else ""}
+
+## 🎫 할 일 — 열린 것 {len(open_)}건 · 끝난 것 {len(done_)}건
+
+| 번호 | 할 일 | 상태 | 담당 | 목표일 |
+| --- | --- | --- | --- | --- |
+{chr(10).join(rows) or "| - | _아직 없어요 — 이 방에 「🎫 무슨 일」 이라고 쓰시거나 " + BOT + " 에게 「할 일 등록」_ | - | - | - |"}
+
+---
+
+_{BOT} 가 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_
+"""
+
+
+async def _render_projects(s, cards, team):
+    """첫 작업판 말고 **나머지 프로젝트**의 작업판을 그린다. 지문은 캔버스마다 따로 둔다."""
+    from common import CANVAS, PROJECTS
+    marks = STATE.setdefault("proj_hash", {})
+    for p in PROJECTS:
+        cv = p.get("canvas")
+        if not cv or cv == CANVAS:                 # 첫 작업판은 팀 전체용이라 위에서 그린다
+            continue
+        md = _proj_md(p, cards, team)
+        digest_ = hashlib.sha1(md.encode("utf-8")).hexdigest()
+        if marks.get(cv) == digest_:
+            continue
+        r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": [
+            {"operation": "replace", "document_content": {"type": "markdown", "markdown": md}}]})
+        if r.get("ok"):
+            marks[cv] = digest_
+            log(f"작업판 다시 그림 — {_short(p.get('name'))}")
+        else:
+            log(f"작업판 실패 {_short(p.get('name'))}: {r.get('error')}")
+    save()
+
+
+def _short(name):
+    return re.sub(r"^프로젝트[-\s]*", "", name or "").strip() or "프로젝트"
 
 
 async def _render_canvas(s):
@@ -259,6 +327,7 @@ _봇이 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_
     digest_ = hashlib.sha1(md.encode("utf-8")).hexdigest()
     # 같으면 캔버스를 건드리지 않는다 — 재시작해도 잊지 않게 지문을 저장한다. 통째로 바꿀 때마다
     # 열어 둔 화면에 지운 칸이 쌓인다 (9/20 재시작 20번 뒤 「작업판에 중복」 제보)
+    await _render_projects(s, cards, team)     # 프로젝트마다의 작업판도 같이 (2026-09-22)
     if md == _CANVAS["last"] or STATE.get("canvas_hash") == digest_:
         _CANVAS["last"] = md
         await refresh_homes(s)
