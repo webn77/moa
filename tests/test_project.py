@@ -258,11 +258,49 @@ class RepoStepTest(Base):
         self.assertEqual(self.attached[0][:1] + self.attached[0][2:],
                          ("webn77/충전성공", True, "github"))
 
+    def test_it_says_what_a_repo_is_and_what_private_means(self):
+        """**모르는 낱말로 고르라고 하면** 아무거나 고르거나 그냥 「안 할래요」 를 누른다
+        (2026-09-22 사장님: 「레포가 뭔지 설명을 해주면 좋을거 같아. private에 대해서도」)."""
+        self.upto_goal()
+        last = self.fake.texts()[-1]
+        self.assertIn("레포는 GitHub 에 있는 폴더", last)
+        self.assertIn("비공개(private)", last)
+        self.assertIn("공개(public)", last)
+        self.assertIn("이 맥이 꺼져도 기록이 남고", last)          # 왜 하는지
+
+    def test_the_recommended_one_is_a_new_repo(self):
+        """**이미 있는 레포는 권하지 않는다** — 그 안에 무엇이 있는지 나는 모른다
+        (사장님: 「이전에 프로젝트로 사용되고 있으면 추천 하면 안될거 같은데」)."""
+        self.upto_goal()
+        last = self.fake.texts()[-1]
+        self.assertIn("*새로 만들어줘* (추천)", last)
+        self.assertNotIn("(추천) — 번호로", last)
+
+    def test_a_repo_the_team_already_uses_is_marked(self):
+        self.repos = [("webn77/moa", True, "2026-09-22"),
+                      (common.PROJECTS[1]["repo"], True, "2026-09-20")]
+        self.upto_goal()
+        last = self.fake.texts()[-1]
+        self.assertIn("이 팀이 이미 쓰는 중", last)
+        self.assertEqual(last.count("이 팀이 이미 쓰는 중"), 1)
+
+    def test_it_does_not_ask_again_once_records_have_a_home(self):
+        """**데이터 폴더의 remote 는 하나뿐이다** — 두 번째 프로젝트에서 다른 곳을 고르면
+        첫 프로젝트 기록이 가던 곳까지 바뀐다 (2026-09-22 사장님 지적에서 드러났다)."""
+        with mock.patch.object(project, "_records_at", lambda: "webn77/team-records"):
+            self.say("프로젝트 만들기"); self.say("충전성공"); self.say("네")
+            self.say("충전 실패를 절반으로 줄인다")
+            self.assertIn("이렇게 만들까요", self.fake.texts()[-1])       # 4번째 칸이 없다
+            self.assertIn("이미 `webn77/team-records` 로", self.fake.texts()[-1])
+            self.say("네")
+        self.assertEqual(self.attached, [])                              # 다시 붙이지 않는다
+        self.assertIn("바꾸시려면", self.fake.texts()[-1])
+
     def test_without_a_list_it_still_asks_for_an_address(self):
         """`gh` 가 없거나 레포가 없으면 목록이 빈다 — 그때는 주소를 적어 달라고 한다."""
         self.repos = []
         self.upto_goal()
-        self.assertIn("주소나", self.fake.texts()[-1])
+        self.assertIn("`올릴곳/이름`", self.fake.texts()[-1])
         self.say("webn77/moa-team"); self.say("네")
         self.assertEqual(self.attached[0][0], "webn77/moa-team")
 

@@ -161,12 +161,27 @@ async def mine(limit=6):
             for x in got if x.get("nameWithOwner")]
 
 
+def used():
+    """이 팀이 이미 쓰고 있는 레포 — 설정에 적힌 것들."""
+    import config
+    out = {(config.GITHUB.get("repo") or "").strip()}
+    out |= {(p.get("repo") or "").strip() for p in config.projects()}
+    return {x for x in out if x}
+
+
 def repo_lines(repos):
-    """고를 목록 — 번호로 답할 수 있게. 하나도 없으면 주소를 적어 달라고 한다."""
+    """고를 목록 — 번호로 답할 수 있게. 하나도 없으면 주소를 적어 달라고 한다.
+
+    **이미 쓰는 것은 그렇다고 적는다** (2026-09-22 사장님: 「이전에 프로젝트로 사용되고
+    있으면 추천 하면 안될거 같은데」). 고를 수는 있게 두되 — 같은 팀이 한 레포를 같이 쓰는 건
+    흔하다 — **권하지는 않는다.** 그 안에 무엇이 있는지 나는 모른다.
+    """
     if not repos:
         return say("repo_none")
+    mine_ = used()
     return say("repo_head") + "".join(
-        say("repo_one", n=i + 1, repo=r, lock="🔒" if priv else "🌐", when=when)
+        say("repo_used" if r in mine_ else "repo_one",
+            n=i + 1, repo=r, lock="🔒" if priv else "🌐", when=when)
         for i, (r, priv, when) in enumerate(repos))
 
 

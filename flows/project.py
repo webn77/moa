@@ -194,11 +194,22 @@ STEP_WHAT = {"title": "프로젝트 이름", "key": "번호 앞말", "goal": "�
              "repo": "기록을 어디에", "confirm": "마지막 확인"}
 
 
+def _records_at():
+    """팀 기록이 이미 어디로 올라가고 있나 — 없으면 빈 글자.
+
+    **데이터 폴더의 remote 는 하나뿐이다.** 두 번째 프로젝트에서 다른 레포를 고르면
+    첫 프로젝트 기록이 가던 곳까지 바뀐다 (2026-09-22 사장님 지적에서 드러났다).
+    그래서 **이미 정해져 있으면 다시 묻지 않는다** — 바꾸려면 「깃허브 등록」 에서 한 번에 바꾼다.
+    """
+    import config
+    return (config.CFG.get("git_remote") or "").strip()
+
+
 def _steps(st):
     # **늘 넷이다** (2026-09-22 사장님: 「고객에게 github주소를 물어보고 연결하는거 까지 하면
     # 되는거 아님?」). 예전에는 `gh` 가 있는지 보고 물을지 말지를 정했는데, 그러면 칸 수가
     # 맥마다 달라지고 **사내 서버는 `gh` 로 보이지도 않는다.** 그냥 묻고, 주시는 대로 쓴다
-    return ["title", "key", "goal", "repo"]
+    return ["title", "key", "goal"] + ([] if st.get("records") else ["repo"])
 
 
 def _where(st):
@@ -267,7 +278,9 @@ async def _show(s, ch, th, st):
     st["step"] = "confirm"
     save()
     where = say("proj_repo_no")
-    if st.get("repo"):
+    if st.get("records"):
+        where = say("proj_repo_same", repo=st["records"])
+    elif st.get("repo"):
         where = say("proj_repo_github" if st.get("rkind") == "github" else "proj_repo_git",
                     repo=st["repo"], make=" (제가 비공개로 만들어요)" if st.get("rmake") else "")
     await _say(s, ch, say("proj_confirm", title=st["title"], k=st["key"],
@@ -346,7 +359,8 @@ async def maybe(s, e, q, force=False):
         opened = True
         # **부르신 글 아래에 스레드를 연다** — 등록 대화는 여기서 끝까지 이어진다.
         # 사람이 맨 위에 답을 써도 흐름은 이어지고, 답은 이 스레드에 모인다
-        st = {"by": user, "step": "title", "th": e.get("thread_ts") or e.get("ts")}
+        st = {"by": user, "step": "title", "th": e.get("thread_ts") or e.get("ts"),
+              "records": _records_at()}       # 이미 정해져 있으면 4번째 칸을 안 묻는다
         # **4번째 칸을 물을 수 있나** — `gh` 가 없거나 로그인이 안 되어 있으면 묻지 않는다.
         # 물어 놓고 마지막에 「gh 가 없어요」 라고 하면 헛일을 시킨 것이다.
         # 여는 자리에서 한 번만 본다 — 칸 수를 세어 「n/4」 라고 말해야 하니까
@@ -412,6 +426,8 @@ async def maybe(s, e, q, force=False):
             return await _again(s, ch, th, st, say("proj_goal_bad"))
         else:
             st["goal"] = w[:120]
+        if st.get("records"):
+            return await _show(s, ch, th, st)   # 갈 곳이 이미 정해져 있다 — 다시 안 묻는다
         return await _ask_repo(s, ch, th, st)
 
     # ④ 기록을 어디에 쌓을까 — **있을 때만 묻는다.** 「안 할래요」 면 이 맥에만 둔다
@@ -476,6 +492,8 @@ async def _build(s, ch, th, st, user):
         lines, err = await attach(st["repo"], st["key"], st.get("rmake"), st.get("rkind") or "github")
         detail += "".join(lines) if lines else ""
         detail += say("proj_repo_fail", err=str(err)[:120]) if err else ""
+    elif st.get("records"):
+        detail += say("proj_repo_same_done", repo=st["records"])
     else:
         detail += say("proj_repo_no_done")        # 이 맥에만 둔다 — 그게 무슨 뜻인지 말한다
     await _say(s, ch, head + say("proj_done", title=st["title"], channel=got["channel"],
