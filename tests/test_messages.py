@@ -78,7 +78,9 @@ class MessageRules(unittest.TestCase):
         """
         for k, v in TEXTS.items():
             for bad, good in (("굴리", "해 나가다"), ("차려", "준비가 끝나다 · 만들다"), ("차리", "만들다"),
-                              ("정본", "기록 파일")):
+                              ("정본", "기록 파일"),
+                              # 2026-09-22 사장님: 「오래된 메시지가 가려지거나 이거 너무 어려워」
+                              ("가려지", "안 보이게 되다"), ("가려집", "안 보이게 돼요")):
                 self.assertNotIn(bad, v, f"{k}: 「{bad}」 → 「{good}」")
 
     def test_no_particle_after_date(self):

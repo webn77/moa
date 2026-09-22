@@ -254,7 +254,7 @@ class RepoStepTest(Base):
         self.assertIn("레포는 GitHub 의 폴더 하나", last)
         self.assertIn("비공개(private)", last)
         self.assertIn("공개(public)", last)
-        self.assertIn("Slack 밖에서도 열려요", last)              # 왜 하는지
+        self.assertIn("한 벌이 더 남아요", last)                  # 왜 하는지
 
     def test_an_existing_repo_is_given_as_a_link(self):
         """**찾아 주지 않는다 — 링크를 받는다** (2026-09-22 사장님 지시).
@@ -280,7 +280,7 @@ class RepoStepTest(Base):
         self.upto_goal()
         last = self.fake.texts()[-1]
         self.assertIn("Slack 에도 다 남지만", last)
-        self.assertIn("Slack 밖에서도 열려요", last)
+        self.assertIn("한 벌이 더 남아요", last)
 
     def test_the_recommended_one_is_a_new_repo(self):
         """**이미 있는 레포는 권하지 않는다** — 그 안에 무엇이 있는지 나는 모른다
