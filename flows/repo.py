@@ -35,6 +35,13 @@ START = re.compile(r"(깃허브|깃헙|github|레포|repo|저장소)\S*\s*\S{0,4
 # `owner/name` — GitHub 이 받는 글자만. 「https://github.com/a/b」 로 붙여 넣어도 받는다
 REPO_OK = re.compile(r"(?:https?://github\.com/)?([A-Za-z0-9][\w.-]*)/([\w.-]+?)(?:\.git)?/?\s*$")
 MAKE_IT = ("만들어", "새로", "없어", "없음", "만들자", "생성")
+# **remote 가 GitHub 일 필요는 없다** (2026-09-22 사장님: 「위험하지 않도록 내부서버에서
+# 관리할 방법도 있나 git 으로」). 사내 서버·사내 GitLab·NAS 의 bare 저장소 — 무엇이든 된다.
+# 봇이 올리는 것은 `git push origin HEAD:main` 하나뿐이라 remote 종류를 안 가린다.
+#
+# 다만 **이슈·보드는 GitHub 것이다** — 사내 서버로 두면 기록은 쌓이고 밖으로는 안 나가지만,
+# 할 일이 이슈로 남지는 않고 번호는 봇이 매긴다. 그 차이를 확인 줄에서 밝힌다
+GIT_URL = re.compile(r"^(?:ssh://|git@|https?://|file://|/)\S+$", re.I)
 _HEAD = re.compile(HEAD, re.I)
 STEP_WHAT = {"repo": "어느 레포", "project": "어느 프로젝트", "confirm": "마지막 확인"}
 # 데이터 폴더에는 로그·pid·plist 가 같이 있다 — 사람이 `git add .` 을 하면 그게 다 올라간다.
@@ -69,6 +76,22 @@ def _repo_of(text):
         if m and m.group(2) not in ("", "."):
             return f"{m.group(1)}/{m.group(2)}"
     return ""
+
+
+def target_of(text):
+    """말에서 **어디에 쌓을지**를 읽는다 — ("github", "owner/name") · ("git", 주소) · (None, "").
+
+    GitHub 모양을 먼저 본다: 맨 `owner/name` 과 github.com 주소. 그다음이 아무 git 주소다.
+    """
+    for word in re.split(r"[\s,]+", (text or "").strip()):
+        if not word:
+            continue
+        got = _repo_of(word)
+        if got:
+            return "github", got
+        if GIT_URL.match(word) and (word.endswith(".git") or word.count("/") >= 2):
+            return "git", word
+    return None, ""
 
 
 def _short(name):
@@ -240,57 +263,71 @@ async def maybe(s, e, q, force=False):
     return await _again(s, ch, th, st, say("repo_fix_how"))
 
 
-async def _build(s, ch, th, st, user):
-    """정말로 붙인다 — **한 것만 적는다.** 중간에 막히면 거기까지만 됐다고 말한다."""
-    import config
-    from common import reload_projects
-    await _say(s, ch, say("repo_making"), th)
-    repo, done = st["repo"], []
+async def attach(repo, pkey, make=False, kind="github"):
+    """레포를 데이터 폴더와 설정에 붙인다 — **(한 일 줄들, 막힌 이유)** 를 돌려준다.
 
-    if st.get("make"):
+    **입구가 둘, 몸은 하나다** (2026-09-22 사장님: 「프로젝트 등록 할때 붙이는건 어떨까?」)
+      · 프로젝트를 만들 때 4번째 칸으로 (flows/project.py)
+      · 나중에 따로 — 「깃허브 등록」 (여기)
+    두 벌로 두면 한쪽만 고치는 날이 오고, 그날 어느 쪽이 맞는지 아무도 모른다.
+
+    **한 것만 적는다** — 중간에 막히면 거기까지만 했다고 말한다.
+    """
+    import config
+    import gh_link
+    from common import PROJECTS, reload_projects
+    done = []
+    if kind == "github" and make:
         ok, out = await _run("gh", "repo", "create", repo, "--private")
         if not ok and "already exists" not in out.lower() and "name already" not in out.lower():
-            STATE["new_repo"].pop(user, None); save()
-            await _say(s, ch, say("repo_fail", err=out[:150]), th)
-            return True
+            return done, out[:150]
         done.append(say("repo_made") if ok else say("repo_had"))
-    else:
+    elif kind == "github":
         ok, out = await _run("gh", "repo", "view", repo, "--json", "name")
         if not ok:
-            STATE["new_repo"].pop(user, None); save()
-            await _say(s, ch, say("repo_no_such", repo=repo, err=out[:120]), th)
-            return True
+            return done, say("repo_no_such", repo=repo, err=out[:120])
+    # kind == "git" 이면 **아무것도 확인하지 않는다** — 사내 서버는 `gh` 로 볼 수가 없다.
+    # 첫 push 때 맞는지 드러나고, 실패하면 로그에 남는다 (gh_link.commit 의 ⚠️)
 
     if not (HERE / ".git").exists():
         ok, out = await _run("git", "init", "-q", "-b", "main")
         if not ok:
-            STATE["new_repo"].pop(user, None); save()
-            await _say(s, ch, say("repo_fail", err=out[:150]), th)
-            return True
+            return done, out[:150]
         done.append(say("repo_git_made"))
     gi = HERE / ".gitignore"
     if not gi.exists():
         gi.write_text(IGNORE, encoding="utf-8")
         done.append(say("repo_ignore"))
+    url = f"https://github.com/{repo}.git" if kind == "github" else repo
     have, _ = await _run("git", "remote", "get-url", "origin")
-    await _run(*(("git", "remote", "set-url", "origin") if have else ("git", "remote", "add", "origin")),
-               f"https://github.com/{repo}.git")
+    await _run(*(("git", "remote", "set-url", "origin") if have else ("git", "remote", "add", "origin")), url)
     done.append(say("repo_remote"))
 
     cfg = dict(config.CFG)
-    cfg.setdefault("github", {})["repo"] = repo
+    if kind == "github":
+        cfg.setdefault("github", {})["repo"] = repo
+    cfg["git_remote"] = url                   # 어디로 올라가는지 적어 둔다 — 안 적으면 아무도 모른다
     cfg["projects"] = [dict(p) for p in PROJECTS]
     for p in cfg["projects"]:
-        if (p.get("key") or "") == (st.get("pkey") or ""):
-            p["repo"] = repo
+        if (p.get("key") or "") == (pkey or ""):
+            p["repo"] = repo if kind == "github" else None
     config.PATH.write_text(json.dumps(cfg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    config.GITHUB = cfg["github"]
-    import gh_link
-    gh_link.REPO = repo                       # 다시 띄우지 않아도 이 자리에서 쓰기 시작한다
+    if kind == "github":
+        config.GITHUB = cfg["github"]
+        gh_link.REPO = repo                   # 다시 띄우지 않아도 이 자리에서 쓰기 시작한다
     reload_projects()
     done.append(say("repo_wrote"))
+    log(f"{'GitHub' if kind == 'github' else 'git'} 붙임 {repo} ({pkey or '첫 프로젝트'})")
+    return done, None
 
+
+async def _build(s, ch, th, st, user):
+    """정말로 붙인다 — 몸은 `attach` 하나다."""
+    await _say(s, ch, say("repo_making"), th)
+    done, err = await attach(st["repo"], st.get("pkey"), st.get("make"))
     STATE["new_repo"].pop(user, None); save()
-    log(f"GitHub 붙임 {repo} ← {user}")
-    await _say(s, ch, say("repo_done", repo=repo, list="".join(done)), th)
+    if err:
+        await _say(s, ch, err if err.startswith("`") else say("repo_fail", err=err), th)
+        return True
+    await _say(s, ch, say("repo_done", repo=st["repo"], list="".join(done)), th)
     return True

@@ -51,8 +51,15 @@ class Base(unittest.TestCase):
         self.saved_cfg = json.loads(config.PATH.read_text(encoding="utf-8")) if config.PATH.exists() else {}
         self.saved_projects = [dict(p) for p in common.PROJECTS]
         STATE.pop("new_project", None)
+        # **진짜 `gh` 를 부르지 않는다** — 시험이 25초씩 걸렸다 (2026-09-22). 기본은 「없다」:
+        # 4번째 칸(기록 쌓을 곳)은 `RepoStepTest` 가 따로 켜서 본다
+        self.ask_repo = False
+
+        async def fake_ready():
+            return self.ask_repo
         self.patches = [mock.patch.object(project, "api", self.fake.api),
                         mock.patch.object(project, "save", lambda: None),
+                        mock.patch.object(project, "_repo_ready", fake_ready),
                         # `config.PATH` 통째로 가짜 — Path 인스턴스의 메서드는 갈아 끼울 수 없다.
                         # 진짜 config.json 을 시험이 덮어쓰면 그 팀의 설정이 날아간다
                         mock.patch.object(config, "PATH", mock.MagicMock()),
@@ -169,6 +176,94 @@ class ConversationTest(Base):
         self.say(taken)
         self.assertIn("이미 쓰고 있는", self.fake.texts()[-1])
         self.assertEqual(STATE["new_project"][ME]["step"], "key")
+
+
+class RepoStepTest(Base):
+    """④번째 칸 — **기록을 어디에 쌓을까** (2026-09-22 사장님: 「프로젝트 등록 할때 붙이는건 어떨까?」).
+
+    프로젝트를 만든 **직후**가 자연스러운 자리다. 다만 `gh` 가 없으면 **묻지 않는다** —
+    물어 놓고 마지막에 「gh 가 없어요」 라고 하면 헛일을 시킨 것이다.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.ask_repo = True
+        self.attached = []
+
+        async def fake_attach(repo, pkey, make=False, kind="github"):
+            self.attached.append((repo, pkey, make, kind))
+            return ["• 붙였어요\n"], None
+        self.att = mock.patch("flows.repo.attach", fake_attach)
+        self.att.start()
+
+    def tearDown(self):
+        self.att.stop()
+        super().tearDown()
+
+    def upto_goal(self):
+        self.say("프로젝트 만들기"); self.say("충전성공"); self.say("네")
+        self.say("충전 실패를 절반으로 줄인다")
+
+    def test_it_asks_after_the_goal_and_counts_four(self):
+        self.upto_goal()
+        self.assertIn("기록을 어디에 쌓을까요", self.fake.texts()[-1])
+        self.assertIn("4\ufe0f\u20e3", self.fake.texts()[-1])
+        self.say("음?")
+        self.assertIn("4/4 단계", self.fake.texts()[-1])
+
+    def test_saying_no_keeps_it_local(self):
+        self.upto_goal()
+        self.say("안 할래요")
+        self.assertIn("이 컴퓨터에만", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached, [])
+        self.assertIn("✅", self.fake.texts()[-1])
+
+    def test_a_github_repo_is_attached_after_the_room_is_made(self):
+        """**방을 먼저 만들고 그다음 붙인다** — 붙이다 막혀도 방과 작업판은 남는다."""
+        self.upto_goal()
+        self.say("webn77/moa-team")
+        self.assertIn("이슈로도 남아요", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(len(self.attached), 1)
+        repo, pkey, make, kind = self.attached[0]
+        self.assertEqual((repo, kind, make), ("webn77/moa-team", "github", False))
+        methods = [m for m, _ in self.fake.sent]
+        self.assertLess(methods.index("conversations.create"), len(methods))
+
+    def test_make_it_asks_for_a_private_repo(self):
+        self.upto_goal()
+        self.say("webn77/moa-new 만들어줘")
+        self.assertIn("비공개", self.fake.texts()[-1])
+        self.say("네")
+        self.assertTrue(self.attached[0][2])
+
+    def test_our_own_server_says_it_does_not_leave(self):
+        """**remote 가 GitHub 일 필요는 없다** (사장님: 「내부서버에서 관리할 방법도 있나」)."""
+        self.upto_goal()
+        self.say("ssh://git@git.company.com/team/moa.git")
+        last = self.fake.texts()[-1]
+        self.assertIn("밖으로 안 나가요", last)
+        self.assertIn("이슈는 없어요", last)
+        self.say("네")
+        self.assertEqual(self.attached[0][3], "git")
+
+    def test_a_bad_answer_does_not_get_you_stuck(self):
+        self.upto_goal()
+        self.say("이거 아님")
+        self.assertIn("못 읽었어요", self.fake.texts()[-1])
+        self.assertIn("취소", self.fake.texts()[-1])
+        self.say("안 할래요"); self.say("네")
+        self.assertIn("✅", self.fake.texts()[-1])
+
+    def test_without_gh_it_never_asks_and_says_the_way_back(self):
+        """**막다른 길로 두지 않는다** — 못 물은 이유와 나중 길을 한 줄로 알려 준다."""
+        self.ask_repo = False
+        self.upto_goal()
+        self.assertIn("이렇게 만들까요", self.fake.texts()[-1])     # 4번째 칸을 안 묻는다
+        self.say("네")
+        self.assertIn("gh auth login", self.fake.texts()[-1])
+        self.assertEqual(self.attached, [])
 
 
 class GoalTest(Base):

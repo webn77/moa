@@ -174,9 +174,25 @@ async def _say(s, ch, text, thread=None):
     await api(s, "chat.postMessage", body=body)
 
 
-# 몇 단계 중 어디인지 — 되물을 때마다 같이 알린다
-STEP_NO = {"title": 1, "key": 2, "goal": 3, "confirm": 3}
-STEP_WHAT = {"title": "프로젝트 이름", "key": "번호 앞말", "goal": "목표 한 줄", "confirm": "마지막 확인"}
+# 「안 할래요」 — **어미가 변한다.** 목록으로 맞추면 「안 할래」 는 되고 「안 할래요」 는 안 된다
+# (2026-09-22 시험이 잡았다 — 이 저장소가 네 번째로 같은 함정에 빠졌다)
+NO_REPO = re.compile(r"^\s*(안\s*할|안할|아니|없|괜찮|필요\s*없|나중|건너|스킵|skip|패스)", re.I)
+# 몇 단계 중 어디인지 — 되물을 때마다 같이 알린다.
+# **4번째 칸은 있을 때만 센다** (2026-09-22 사장님: 「프로젝트 등록 할때 붙이는건 어떨까?」) —
+# `gh` 가 없거나 로그인이 안 되어 있으면 묻지 않고, 그러면 세 칸이다
+STEP_WHAT = {"title": "프로젝트 이름", "key": "번호 앞말", "goal": "목표 한 줄",
+             "repo": "기록을 어디에", "confirm": "마지막 확인"}
+
+
+def _steps(st):
+    return ["title", "key", "goal"] + (["repo"] if st.get("ask_repo") else [])
+
+
+def _where(st):
+    steps, step = _steps(st), st.get("step") or "title"
+    n = steps.index(step) + 1 if step in steps else len(steps)
+    return n, len(steps), STEP_WHAT.get(step, "확인")
+
 
 async def _again(s, ch, th, st, text):
     """물은 것과 다른 답이 왔을 때 — **어디에 있는지와 나가는 길**을 늘 함께 알린다.
@@ -186,9 +202,9 @@ async def _again(s, ch, th, st, text):
     갇혔는지** 모른다 — 9/22 에 실제로 그랬다. 답이 안 맞는 건 사람 잘못이 아니고,
     봇이 지금 무엇을 묻는 중인지 말하지 않은 탓이다.
     """
-    step = st.get("step") or "title"
-    await _say(s, ch, text + "\n\n" + say("ask_where", kind="프로젝트 등록", n=STEP_NO[step],
-                                        total=3, what=STEP_WHAT[step]), th)
+    n, total, what = _where(st)
+    await _say(s, ch, text + "\n\n" + say("ask_where", kind="프로젝트 등록",
+                                        n=n, total=total, what=what), th)
     save()
     return True
 
@@ -207,12 +223,39 @@ async def _ask_goal(s, ch, th, st):
     return True
 
 
+async def _repo_ready():
+    """기록 쌓을 곳을 물어봐도 되나 — `gh` 가 있고 로그인돼 있을 때만."""
+    try:
+        from flows.repo import ready
+        got = await ready()
+        return bool(got.get("gh") and got.get("auth"))
+    except Exception as ex:
+        log(f"gh 확인 실패: {type(ex).__name__}")
+        return False
+
+
+def _repo_target(text):
+    from flows.repo import target_of
+    return target_of(text)
+
+
+async def _ask_repo(s, ch, th, st):
+    st["step"] = "repo"
+    save()
+    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3"), th)
+    return True
+
+
 async def _show(s, ch, th, st):
     """되읽어 준다 — **되돌릴 수 없는 일 앞에는 늘 확인이 있다.**"""
     st["step"] = "confirm"
     save()
+    where = say("proj_repo_no")
+    if st.get("repo"):
+        where = say("proj_repo_github" if st.get("rkind") == "github" else "proj_repo_git",
+                    repo=st["repo"], make=" (제가 비공개로 만들어요)" if st.get("rmake") else "")
     await _say(s, ch, say("proj_confirm", title=st["title"], k=st["key"],
-                          goal=st.get("goal") or "(아직 없음)"), th)
+                          goal=st.get("goal") or "(아직 없음)", where=where), th)
     return True
 
 
@@ -288,6 +331,10 @@ async def maybe(s, e, q, force=False):
         # **부르신 글 아래에 스레드를 연다** — 등록 대화는 여기서 끝까지 이어진다.
         # 사람이 맨 위에 답을 써도 흐름은 이어지고, 답은 이 스레드에 모인다
         st = {"by": user, "step": "title", "th": e.get("thread_ts") or e.get("ts")}
+        # **4번째 칸을 물을 수 있나** — `gh` 가 없거나 로그인이 안 되어 있으면 묻지 않는다.
+        # 물어 놓고 마지막에 「gh 가 없어요」 라고 하면 헛일을 시킨 것이다.
+        # 여는 자리에서 한 번만 본다 — 칸 수를 세어 「n/4」 라고 말해야 하니까
+        st["ask_repo"] = await _repo_ready()
         STATE.setdefault("new_project", {})[user] = st
         save()
     # **연 스레드 안에서 이어 간다.** 사람이 맨 위에 답을 써도 (thread_ts 없이) 답은 이
@@ -350,6 +397,20 @@ async def maybe(s, e, q, force=False):
             return await _again(s, ch, th, st, say("proj_goal_bad"))
         else:
             st["goal"] = w[:120]
+        if st.get("ask_repo"):
+            return await _ask_repo(s, ch, th, st)
+        return await _show(s, ch, th, st)
+
+    # ④ 기록을 어디에 쌓을까 — **있을 때만 묻는다.** 「안 할래요」 면 이 맥에만 둔다
+    if step == "repo":
+        if NO_REPO.match(q.strip()):
+            st["repo"], st["rkind"] = "", ""
+            return await _show(s, ch, th, st)
+        kind, target = _repo_target(q)
+        if not target:
+            return await _again(s, ch, th, st, say("proj_repo_bad", word=q.strip()[:30] or "빈 글자"))
+        st["repo"], st["rkind"] = target, kind
+        st["rmake"] = kind == "github" and any(x in q for x in ("만들어", "새로", "만들자", "생성"))
         return await _show(s, ch, th, st)
 
     # ④ 확인 — **고치자는 말을 먼저 본다.** 「그래 앞말은 PAY 로」 처럼 맞장구와 고칠 것이
@@ -385,6 +446,15 @@ async def _build(s, ch, th, st, user):
     detail = say("proj_canvas_ok") if got["canvas"] else say("proj_canvas_no", err=got["canvas_err"] or "이유 모름")
     goal = (st.get("goal") or "").strip()
     detail += say("proj_goal_ok", goal=goal) if goal else say("proj_goal_no")
+    # **방을 먼저 만들고 그다음 붙인다** — 붙이다 막혀도 방과 작업판은 남는다.
+    # 몸은 `flows/repo.py` 의 `attach` 하나다 (입구가 둘, 몸은 하나)
+    if st.get("repo"):
+        from flows.repo import attach
+        lines, err = await attach(st["repo"], st["key"], st.get("rmake"), st.get("rkind") or "github")
+        detail += "".join(lines) if lines else ""
+        detail += say("proj_repo_fail", err=str(err)[:120]) if err else ""
+    elif st.get("ask_repo") is False:
+        detail += say("proj_repo_later")          # gh 가 없어서 못 물었다 — 나중 길을 알려 준다
     await _say(s, ch, head + say("proj_done", title=st["title"], channel=got["channel"],
                                  n=got["people"], k=st["key"], detail=detail), th)
     return True
