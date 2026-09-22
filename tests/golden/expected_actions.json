@@ -9508,6 +9508,24 @@
    {
     "body": {
      "canvas_id": "F0XXSECOND",
+     "criteria": {
+      "contains_text": "목표일"
+     }
+    },
+    "method": "canvases.sections.lookup"
+   },
+   {
+    "body": {
+     "canvas_id": "F0XXSECOND",
+     "criteria": {
+      "contains_text": "마지막으로 바뀐 때"
+     }
+    },
+    "method": "canvases.sections.lookup"
+   },
+   {
+    "body": {
+     "canvas_id": "F0XXSECOND",
      "changes": [
       {
        "document_content": {
@@ -10082,6 +10100,24 @@
      "canvas_id": "F0XXSECOND",
      "criteria": {
       "contains_text": "지금 할 일"
+     }
+    },
+    "method": "canvases.sections.lookup"
+   },
+   {
+    "body": {
+     "canvas_id": "F0XXSECOND",
+     "criteria": {
+      "contains_text": "목표일"
+     }
+    },
+    "method": "canvases.sections.lookup"
+   },
+   {
+    "body": {
+     "canvas_id": "F0XXSECOND",
+     "criteria": {
+      "contains_text": "마지막으로 바뀐 때"
      }
     },
     "method": "canvases.sections.lookup"

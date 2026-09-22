@@ -159,25 +159,29 @@ async def _render_projects(s, cards, team):
         digest_ = hashlib.sha1((head + table).encode("utf-8")).hexdigest()
         if marks.get(cv) == digest_:
             continue
-        where = await _look(s, cv, HEAD_MARK)
-        if not where:
-            # 봇 칸이 아직 없다 — 맨 위에 넣는다. 사람이 쓴 것은 그대로 아래 남는다
+        # **셋 다 찾아본 뒤에 정한다.** 하나만 보고 「없네」 하면 사람이 제목을 고쳤을 때
+        # 봇 칸을 **하나 더 만든다** — 10분마다 계속 늘어난다 (이 저장소의 「카드 31개」 와 같은 꼴).
+        # 하나라도 남아 있으면 그걸 기둥 삼아 **고쳐 끼운다**
+        got = {k: await _look(s, cv, m) for k, m in
+               (("head", HEAD_MARK), ("table", TABLE_MARK), ("foot", FOOT_MARK))}
+        anchor = got["head"] or got["table"] or got["foot"]
+        if not anchor:
+            # 봇 칸이 아예 없다 — 맨 위에 넣는다. 사람이 쓴 것은 그대로 아래 남는다
             r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": [
                 {"operation": "insert_at_start",
                  "document_content": {"type": "markdown", "markdown": f"{head}\n\n{table}\n\n{foot}"}}]})
         else:
-            old_tbl, old_foot = await _look(s, cv, TABLE_MARK), await _look(s, cv, FOOT_MARK)
-            ch = [{"operation": "replace", "section_id": where,
-                   "document_content": {"type": "markdown", "markdown": head}}]
-            if old_tbl:
-                ch.append({"operation": "replace", "section_id": old_tbl,
-                           "document_content": {"type": "markdown", "markdown": table}})
-            else:
-                ch.append({"operation": "insert_after", "section_id": where,
-                           "document_content": {"type": "markdown", "markdown": table}})
-            if old_foot:
-                ch.append({"operation": "replace", "section_id": old_foot,
-                           "document_content": {"type": "markdown", "markdown": foot}})
+            ch, after = [], anchor
+            for k, md in (("head", head), ("table", table), ("foot", foot)):
+                if got[k]:
+                    ch.append({"operation": "replace", "section_id": got[k],
+                               "document_content": {"type": "markdown", "markdown": md}})
+                    after = got[k]
+                else:
+                    ch.append({"operation": "insert_after", "section_id": after,
+                               "document_content": {"type": "markdown", "markdown": md}})
+            if not all(got.values()):
+                log(f"프로젝트 캔버스 — 봇 칸 일부가 바뀌어 있어 고쳐 끼움: {_short(p.get('name'))}")
             r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": ch})
         if r.get("ok"):
             marks[cv] = digest_
