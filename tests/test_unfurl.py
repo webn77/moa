@@ -270,16 +270,27 @@ class DmTest(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.went, self.called = [], []
         self.old = (handlers.show_digest, handlers.tidy_propose, handlers.propose_issue,
-                    handlers.find, handlers.refresh_draft)
+                    handlers.find, handlers.refresh_draft, handlers.new_task)
         handlers.show_digest = lambda s, ch, u, th=None: self._go("현황")   # th = 답할 스레드 (2026-09-22)
         handlers.tidy_propose = lambda s, ch, u: self._go("정리")
         handlers.propose_issue = lambda s, e, q: self._go("만들기")
         handlers.find = lambda s, e, q: self._go("찾기")
         handlers.refresh_draft = lambda s, e: self._go("초안", True)
+        # 할 일 올리기는 **한 칸씩 묻는 흐름**으로 간다 (2026-09-22) — 예전에는 AI 초안이었다.
+        # **진짜와 같은 낱말로 가른다** — 늘 True 를 주는 가짜를 쓰면 「현황」 까지 삼켜서
+        # 갈림길 시험이 통째로 무의미해진다 (여기서 한 번 그랬다)
+        handlers.new_task = self._task
+
+    async def _task(self, s, e, q, force=False):
+        from flows.task import START
+        if not (force or START.search(q)):
+            return False
+        self.went.append("할일등록")
+        return True
 
     def tearDown(self):
         (handlers.show_digest, handlers.tidy_propose, handlers.propose_issue,
-         handlers.find, handlers.refresh_draft) = self.old
+         handlers.find, handlers.refresh_draft, handlers.new_task) = self.old
 
     async def _go(self, name, ret=None):
         self.went.append(name)
@@ -300,7 +311,7 @@ class DmTest(unittest.IsolatedAsyncioTestCase):
     async def test_same_words_as_the_channel(self):
         self.assertEqual(await self.dm("현황"), ["현황"])
         self.assertEqual(await self.dm("정리"), ["정리"])
-        self.assertEqual(await self.dm("이슈 만들어줘"), ["만들기"])
+        self.assertEqual(await self.dm("이슈 만들어줘"), ["할일등록"])
         self.assertEqual(await self.dm("목록"), ["찾기"])
         self.assertEqual(await self.dm("이동원"), ["찾기"])
 

@@ -131,6 +131,8 @@ async def on_dm(s, e):
         # 「결제 개편」 이 프로젝트 이름인데 검색어로 받으면 대화가 끊긴다 (2026-09-21)
         if await new_project(s, e, q):
             return
+        if await new_task(s, e, q):           # 할 일 올리기 — 같은 틀로 한 칸씩 (2026-09-22)
+            return
         if await onboard_catch(s, e, q):      # 처음 오신 분의 한 걸음 — 「됐어요」 만 여기서 받는다
             return
         if "현황" in q:
@@ -139,8 +141,6 @@ async def on_dm(s, e):
             await tidy_propose(s, e["channel"], e["user"])
         elif ORDER.match(q):
             await tidy_order(s, e["channel"], e["user"])
-        elif MAKE.search(q):
-            await propose_issue(s, e, q)
         elif e.get("thread_ts") and await refresh_draft(s, e):
             return
         elif ASKISH.search(q):
@@ -152,7 +152,7 @@ async def on_dm(s, e):
             if kind == "project":
                 await new_project(s, e, q, force=True)
             elif kind == "task":
-                await propose_issue(s, e, q)
+                await new_task(s, e, q, force=True)
             else:
                 await find(s, e, q)
         else:
@@ -513,6 +513,7 @@ async def refresh_ctls(s):
 from ai import answer, coach, intent, refine  # noqa: E402,F401
 from flows.onboard import catch as onboard_catch, nudge  # noqa: E402
 from flows.project import maybe as new_project  # noqa: E402
+from flows.task import maybe as new_task  # noqa: E402
 from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401

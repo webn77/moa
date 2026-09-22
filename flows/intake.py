@@ -9,17 +9,21 @@ from slack import Step, api, mood, name_of  # noqa: E402,F401
 from store import STATE, chan, project_for, add_log, decision_snap, ref, save  # noqa: E402,F401
 
 
-async def add_issue(s, title, user, project=None):
-    """요청 메시지 없이 이슈 카드만 만든다 — 관리자·봇이 직접 등록할 때. 팀 대화방을 어지럽히지 않는다.
+async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=True):
+    """요청 메시지 없이 할 일 카드만 만든다 — DM 등록·관리자·봇이 직접 올릴 때.
 
     `project` 를 주면 그 프로젝트로 (#70). 안 주면 첫 프로젝트 — 프로젝트가 하나면 늘 그것이다.
+    `assignee`·`due` 는 **사람이 이미 말한 것**이다 (DM 등록의 ③④번 칸). 주면 AI 에게 다시
+    묻지 않는다 — 물어서 받은 답을 두고 AI 에게 추천을 시키면 그게 더 이상하다.
+    `ask=False` 면 카드를 만든 뒤 AI 가 이어서 캐묻지 않는다 (완료 조건은 카드 버튼으로 —
+    2026-09-22 사장님이 정함).
     만든 카드를 돌려준다 (못 만들었으면 None).
     """
     room = next((p.get("channel") for p in PROJECTS if p.get("key") == project), CHANNEL) if project else CHANNEL
-    return await new_card(s, {"text": title, "user": user}, room)
+    return await new_card(s, {"text": title, "user": user}, room, assignee=assignee, due=due, ask=ask)
 
 
-async def new_card(s, m, origin_channel=None, spec=None, number=None):
+async def new_card(s, m, origin_channel=None, spec=None, number=None, assignee=None, due=None, ask=True):
     """요청을 이슈 카드로 만든다. 카드는 언제나 프로젝트 방에, 링크는 요청이 온 자리에.
     spec 을 주면 정의를 붙인 채로 만든다 — 그러면 봇이 다시 묻지 않는다 (초안 → 버튼 경로, #54).
     만든 카드를 돌려준다.
@@ -42,7 +46,10 @@ async def new_card(s, m, origin_channel=None, spec=None, number=None):
                           "text": say("no_number", err=str(e)[:120])})
             return None
     c = {"no": no, "title": title, "by": await name_of(s, m), "origin_ts": m.get("ts"),
-         "origin_channel": origin_channel, "status": "todo", "assignee": None, "spec": spec,
+         "origin_channel": origin_channel, "status": "todo", "assignee": assignee, "spec": spec,
+         # 사람이 말한 것은 `human` 이다 — AI 가 정한 것과 섞으면 「AI 배정 수락률」 이 거짓이 된다
+         "assign_src": "human" if assignee else None,
+         **({"due": due, "due_src": "human"} if due else {}),
          "spec_src": "ai" if spec else None, "coach": "done" if spec else None,
          "request": m.get("text", ""), "stage": current_stage(), "project": proj.get("key"),
          "by_id": m.get("user")}
@@ -61,7 +68,8 @@ async def new_card(s, m, origin_channel=None, spec=None, number=None):
                   "text": say("card_made", link=link, no=c["no"])})
     snap = decision_snap()
     try:                                   # 담당 없음을 남기지 않는다 — 만들자마자 추천·순서까지
-        await recommend(s, [c])
+        if not assignee:                   # **물어서 받은 답을 두고 다시 추천하지 않는다**
+            await recommend(s, [c])
         await prioritize(s)
         await api(s, "chat.update", body={"channel": chan(c), "ts": c["card_ts"],
                   "text": f"🎫 #{c['no']} {c['title']}", "blocks": card_blocks(c)})
@@ -70,7 +78,11 @@ async def new_card(s, m, origin_channel=None, spec=None, number=None):
         log(f"담당 추천 실패 #{c['no']}: {e}")
     await ask_similar(s, c)                   # 혹시 같은 일인가요? (#57 — 만들 때 막는다)
     await ensure_ctl(s, c)                    # 스레드 첫 메시지 — ⚙️ 담당·우선순위·목표일
-    asyncio.create_task(coach(s, c, "new"))   # 이어서 빠진 것만 묻는다 (#31)
+    if ask:                                   # 이어서 빠진 것만 묻는다 (#31).
+        # **한 칸씩 물어 올린 할 일에는 캐묻지 않는다** (2026-09-22 사장님이 정함) — 방금
+        # 세 가지를 답하셨는데 AI 가 또 물으면 같은 대화를 두 번 하는 셈이다.
+        # 완료 조건은 그 할 일의 [✨ 정리해 줘] 를 누를 때 채운다
+        asyncio.create_task(coach(s, c, "new"))
     await render_canvas(s)
     save()
     log(f"카드 #{c['no']} 생성" + (f" (GitHub {c['tracker']})" if url else ""))

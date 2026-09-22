@@ -37,6 +37,9 @@ import json
 import re
 
 from common import log, reload_projects
+# 「네」·「취소」·「나중에」 같은 대꾸와 막을 낱말은 **틀에서 가져온다** — 등록 흐름이 둘이
+# 되었으니 (프로젝트·할 일) 이 낱말이 두 곳에서 갈라지면 안 된다 (2026-09-22)
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, YES
 from messages import say
 from slack import api
 from store import STATE, save
@@ -46,10 +49,6 @@ from store import STATE, save
 # 두 조각(프로젝트 + 만들다)이 함께 있는지를 본다 (#71 에서 배운 것).
 # **이 낱말로 안 걸리는 말은 `ai.intent` 가 받는다** — 그래서 여기를 늘릴 일이 줄었다
 START = re.compile(r"프로젝트\s*(를)?\s*(하나\s*)?(새로\s*)?(만들|생성|추가|시작|등록)|새\s*프로젝트")
-CANCEL = ("취소", "그만", "안 할래", "안할래", "아니요", "아니야", "됐어")
-YES = ("네", "웅", "ㅇㅇ", "응", "그래", "좋아", "그걸로", "그거로", "예", "맞아", "ok", "오케이")
-# 목표를 지금 못 정할 수도 있다 — **묻는 칸 때문에 갇히면 안 된다** (이 파일이 두 번 겪은 일)
-LATER = ("나중", "모르", "건너", "없어", "없음", "패스", "skip", "미정", "안 정")
 # 앞말은 **영문 2~6글자**. 사장님이 정한 기본은 **두 자**(`_suggest_key`)지만, 받는 쪽은
 # 넓게 둔다 — 예전에 4글자까지라 `charge` 가 튕겼고 **왜 튕겼는지 말도 안 했다**
 # (2026-09-22 사장님 실측 — 답을 했는데 같은 질문이 또 오면 고장으로 보인다)
@@ -80,8 +79,7 @@ NAME_CUT = (
     re.compile(r"(?:프로젝트\s*)?이름은?\s*[:：]?\s*(\S.{1,})"),      # 「프로젝트 이름은 X」
 )
 TAIL = re.compile(r"\s*(?:이야|이에요|예요|입니다|이다|야|임|요)\s*[!.~]*$")
-# 머리말은 이름이 아니다 — 「**아니** 결제개편이 이름이야」 의 「아니」 까지 이름이 됐다 (시험이 잡았다)
-HEAD = re.compile(r"^\s*(오케이|오키|okay|ok|그럼|그러면|일단|자|아니|아니야|응|네)[\s,.!~]+", re.I)
+_HEAD = re.compile(HEAD, re.I)        # 머리말 떼기 — 틀에 있는 낱말로 (flows/ask.py)
 
 
 def _name_of(text):
@@ -93,7 +91,7 @@ def _name_of(text):
     s = re.sub(r"\s+", " ", (text or "").strip())
     # 머리말은 이름이 아니다 — 「**오케이** 충전성공으로 …」 를 통째로 받으면 방 이름이 그렇게 된다
     # (2026-09-22 사장님 실측: 「오케이 충전성공으로」 가 이름이 됐다)
-    s = HEAD.sub("", s)
+    s = _HEAD.sub("", s)
     s = CALL.sub(" ", s).strip(" ,.!~")               # 「프로젝트 하나 만들어줘」 같은 부름말은 뺀다
     # 꼬리에 붙은 「…으로 만들자」 · 「…로 만들어줘」 도 이름이 아니다
     s = re.sub(r"\s*(?:으로|로)?\s*(?:만들|생성|추가|시작|등록)\S*\s*$", "", s).strip()
@@ -112,7 +110,7 @@ def _fix_of(text):
     통째로 이름으로 받으면 「아니 그게 아니고…」 가 프로젝트 이름이 된다. 그래서
     **알아들은 것만** 고치고, 못 알아들으면 다시 보여 주며 어떻게 말하면 되는지 알려 준다.
     """
-    s = HEAD.sub("", (text or "").strip())       # 「아니 …」 의 「아니」 가 이름에 붙었다
+    s = _HEAD.sub("", (text or "").strip())       # 「아니 …」 의 「아니」 가 이름에 붙었다
     m = GOAL_IN.search(s)
     if m:
         return "goal", m.group(1).strip()[:120]
@@ -179,11 +177,6 @@ async def _say(s, ch, text, thread=None):
 # 몇 단계 중 어디인지 — 되물을 때마다 같이 알린다
 STEP_NO = {"title": 1, "key": 2, "goal": 3, "confirm": 3}
 STEP_WHAT = {"title": "프로젝트 이름", "key": "번호 앞말", "goal": "목표 한 줄", "confirm": "마지막 확인"}
-# 묻는 자리에서도 **이미 뜻이 있는 말**은 답으로 받지 않는다 — 「현황」 이 프로젝트 이름이
-# 되면 그 방은 그 이름으로 남는다 (Slack 은 채널 삭제가 없다). **딱 그 말일 때만** 막는다:
-# 「현황판 개편」 은 진짜 프로젝트 이름일 수 있다
-COMMANDS = ("현황", "목록", "도움말", "정리", "내 할 일", "회의", "캔버스", "상세", "순서", "도움")
-
 
 async def _again(s, ch, th, st, text):
     """물은 것과 다른 답이 왔을 때 — **어디에 있는지와 나가는 길**을 늘 함께 알린다.
@@ -194,7 +187,8 @@ async def _again(s, ch, th, st, text):
     봇이 지금 무엇을 묻는 중인지 말하지 않은 탓이다.
     """
     step = st.get("step") or "title"
-    await _say(s, ch, text + "\n\n" + say("proj_where", n=STEP_NO[step], what=STEP_WHAT[step]), th)
+    await _say(s, ch, text + "\n\n" + say("ask_where", kind="프로젝트 등록", n=STEP_NO[step],
+                                        total=3, what=STEP_WHAT[step]), th)
     save()
     return True
 
@@ -315,7 +309,7 @@ async def maybe(s, e, q, force=False):
         await _say(s, ch, say("proj_cancel"), th)
         return True
     if q.strip() in COMMANDS:          # 「현황」 이 프로젝트 이름이 되면 안 된다
-        return await _again(s, ch, th, st, say("proj_busy", word=q.strip()))
+        return await _again(s, ch, th, st, say("ask_busy", word=q.strip(), kind="프로젝트를 만드는"))
 
     step, taken = st.get("step"), _taken()
 

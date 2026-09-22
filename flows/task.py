@@ -1,0 +1,356 @@
+"""DM 에서 할 일 올리기 — **한 칸씩 묻는다** (2026-09-22 사장님 결정).
+
+  사람: 충전성공에 할 일 등록하려고
+  모아: 무슨 일인가요? 한 줄로                 ← ①
+  사람: 충전 실패 알림이 두 번 와요
+  모아: 누가 할까요?                           ← ③ (②프로젝트는 「충전성공」 으로 이미 알았다)
+  사람: 제가
+  모아: 언제까지 하면 될까요?                   ← ④
+  사람: 이번 주
+  모아: 이렇게 올릴까요? → 「네」 → 카드·현황판
+
+**왜 바꿨나** (2026-09-22 사장님: 「할일을 채우는것도 다시 정리해보자고! 프로젝트 등록처럼
+그 틀을 바탕으로 단계로」). 예전에는 AI 가 ❓ 가 박힌 초안을 내놓고 이렇게 말했다:
+
+  이렇게 봤는데 맞을까요? ❓ 자리만 한 줄 채워 주시면 할 일로 만들어 둘게요.
+    왜  ❓ / 바뀌는 것  충전 성공 시점에 … / 기대와 확인  ❓ / 완료 조건  ❓
+
+무엇을 어디에 써야 하는지 알 수 없고, 빈 칸 넷을 내미는 건 **양식을 요구하는 것**이다.
+`project.md` 에 이미 적어 둔 약속과 어긋난다 — 「작업자에게 틀을 요구하지 않는다」.
+
+**어느 프로젝트인지는 아는 경우 묻지 않는다** (사장님: 「이미 알고 있다면 넘어가고」)
+  · 말에 이름이나 앞말이 있으면 그것 — 「**충전성공**에 할 일 등록」
+  · 프로젝트가 하나뿐이면 그것
+그래서 질문은 보통 **셋**이고, 프로젝트가 여럿인데 안 말하셨을 때만 넷이 된다.
+
+**완료 조건은 여기서 묻지 않는다** (사장님이 정함: 「카드에서 버튼으로」). 필요할 때
+그 할 일의 [✨ 정리해 줘] 를 누르면 그때 AI 가 채운다 — 안 누르면 AI 를 안 쓴다.
+"""
+import datetime
+import re
+
+from common import PROJECTS, log
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, YES
+from messages import say
+from slack import api
+from store import STATE, save
+
+
+# 시작하는 말 — **만드는 낱말이 함께 있어야** 잡는다. 「내 할 일」·「할 일 목록」 은 찾는 말이다
+START = re.compile(r"(할\s*일|이슈|업무|작업)\S*\s*(를|을|로|은|는)?\s*\S{0,4}\s*(등록|만들|추가|올려|생성)"
+                   r"|등록\s*(할래|하려|해줘|하자|할게)")
+_HEAD = re.compile(HEAD, re.I)
+WHO_ME = ("제가", "내가", "나가", "나요", "저요", "제요", "나", "저")
+DUE_IN = re.compile(r"(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})\s*/\s*(\d{1,2})|(\d{1,2})\s*월\s*(\d{1,2})\s*일")
+# 확인 단계에서 무엇을 고치려는 말인지 가른다
+# **「일」 을 넣으면 안 된다** — 「할**일** 등록 하려고」 의 「일」 에 걸려서 제목이
+# 「등록 하려고」 가 됐다 (2026-09-22 시뮬레이션이 잡았다). 짧은 낱말은 우연히 걸린다
+TITLE_IN = re.compile(r"(?:제목|이름)\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
+WHO_IN = re.compile(r"담당\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
+DUE_WORD = re.compile(r"(?:언제까지|기한|목표일|마감)\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
+STEP_WHAT = {"title": "무슨 일인가", "project": "어느 프로젝트", "who": "누가 할까", "due": "언제까지",
+             "confirm": "마지막 확인"}
+
+
+def _asking(user):
+    return (STATE.get("new_task") or {}).get(user)
+
+
+def _steps(st):
+    """이 대화에서 물을 칸 — **아는 것은 빼고 센다.** 「3/3」 이라고 했는데 넷을 물으면 안 된다."""
+    out = ["title"]
+    if not st.get("pkey_known"):
+        out.append("project")
+    return out + ["who", "due"]
+
+
+def _where(st):
+    """지금 몇 번째 칸인가 — (번호, 전체, 무엇)."""
+    steps = _steps(st)
+    step = st.get("step") or "title"
+    n = steps.index(step) + 1 if step in steps else len(steps)
+    return n, len(steps), STEP_WHAT.get(step, "확인")
+
+
+def _titleable(text):
+    """할 일 이름으로 쓸 글자가 두 자 이상 남나 — 이모지만이면 목록에서 못 알아본다."""
+    return len(re.sub(r"[^0-9A-Za-z가-힣]", "", text or "")) >= 2
+
+
+def _short(name):
+    """설정에 적힌 방 이름에서 사람이 부르는 이름만 — `프로젝트-충전성공` → `충전성공`."""
+    return re.sub(r"^프로젝트[-\s]*", "", name or "").strip()
+
+
+def _title_of(text):
+    """시작하는 말에서 **할 일 이름만** 골라낸다. 못 고르면 빈 글자.
+
+    「충전성공에 할 일 등록하려고」 를 통째로 받으면 그게 할 일 제목이 된다 —
+    프로젝트 등록에서 똑같이 겪은 고장이다 (그 파일의 `_name_of` 설명에).
+    """
+    s = _HEAD.sub("", re.sub(r"\s+", " ", (text or "").strip()))
+    m = TITLE_IN.search(s)
+    if m and _titleable(m.group(1)):
+        # **꼬리말을 함부로 떼지 않는다.** 프로젝트 이름과 달리 할 일 제목은 **문장**이다 —
+        # 「알림이 두 번 와요」 에서 「요」 를 떼면 「…와」 가 된다 (시험이 잡았다, 2026-09-22).
+        # 그래서 「이에요·예요·입니다」 처럼 **떼도 뜻이 남는 것만** 뗀다
+        return re.sub(r"\s*(?:이에요|예요|입니다)\s*[!.~]*$", "",
+                      m.group(1)).strip(" ,.!~\"'「」")[:60]
+    return ""
+
+
+def _project_of(text):
+    """말에서 프로젝트를 찾는다 — 「충전성공에 할 일」 · 「CH 에」. 못 찾으면 None.
+
+    **아는 것은 묻지 않는다** (사장님). 이름은 방 이름에서 `프로젝트-` 를 뗀 것으로 맞춘다.
+    """
+    s = (text or "")
+    # **빈칸을 지우고 맞춘다** — 「두번째 프로젝트」 라고 붙여 쓰면 `두 번째 프로젝트` 와 안 맞는다
+    flat = re.sub(r"\s+", "", s).lower()
+    for p in PROJECTS:
+        name = _short(p.get("name"))
+        if name and len(re.sub(r"\s+", "", name)) >= 2 and re.sub(r"\s+", "", name).lower() in flat:
+            return p
+    for p in PROJECTS:                      # 앞말은 짧아서 우연히 걸리기 쉽다 — 이름을 먼저 본다
+        key = (p.get("key") or "").strip()
+        if key and re.search(rf"(?<![A-Za-z0-9]){re.escape(key)}(?![A-Za-z0-9])", s, re.I):
+            return p
+    return None
+
+
+def _pick_project(text):
+    """번호(「1」)나 이름으로 고른다. 못 고르면 None."""
+    s = (text or "").strip()
+    m = re.fullmatch(r"(\d{1,2})\s*(?:번|번째|요|이요|입니다)?[.!~]*", s)
+    if m and 1 <= int(m.group(1)) <= len(PROJECTS):
+        return PROJECTS[int(m.group(1)) - 1]
+    return _project_of(s)
+
+
+def _project_list():
+    return "\n".join(f"  {i + 1}. {_short(p.get('name')) or '이름 없음'}"
+                     + (f" (`{p['key']}`)" if p.get("key") else "")
+                     for i, p in enumerate(PROJECTS))
+
+
+def _who_of(text, by):
+    """누가 할까 — 멘션 · 「제가」 · 「나중에」. 못 읽으면 False (다시 묻는다)."""
+    m = re.search(r"<@(U[A-Z0-9]+)>", text or "")
+    if m:
+        return m.group(1)
+    s = (text or "").strip().rstrip("요!.~ ")
+    if s in WHO_ME or any(w in (text or "") for w in ("제가", "내가", "저요", "제거")):
+        return by
+    if any(x in (text or "") for x in LATER):
+        return None
+    return False
+
+
+def _due_of(text):
+    """언제까지 — 「오늘」·「내일」·「이번 주」·「9/30」·「2026-09-30」. 못 읽으면 False.
+
+    **주 단위는 그 주의 금요일로 본다** — 「이번 주」 라고 하면 사람은 주말 전을 뜻한다.
+    「나중에」 면 None (목표일 없이 만든다).
+    """
+    s = (text or "").strip()
+    today = datetime.date.today()
+    if any(x in s for x in LATER):
+        return None
+    for word, days in (("오늘", 0), ("내일", 1), ("모레", 2)):
+        if word in s:
+            return (today + datetime.timedelta(days=days)).isoformat()
+    if "이번" in s and "주" in s:
+        return (today + datetime.timedelta(days=(4 - today.weekday()) % 7)).isoformat()
+    if "다음" in s and "주" in s:
+        return (today + datetime.timedelta(days=(4 - today.weekday()) % 7 + 7)).isoformat()
+    m = DUE_IN.search(s)
+    if m:
+        y, mo, d = (m.group(1), m.group(2), m.group(3)) if m.group(1) else \
+                   (None, m.group(4) or m.group(6), m.group(5) or m.group(7))
+        try:
+            return datetime.date(int(y) if y else today.year, int(mo), int(d)).isoformat()
+        except ValueError:
+            return False
+    return False
+
+
+def _due_text(iso):
+    if not iso:
+        return "정하지 않았어요"
+    d = datetime.date.fromisoformat(iso)
+    left = (d - datetime.date.today()).days
+    return f"{d.month}/{d.day}" + (f" (D-{left})" if left > 0 else " (오늘)" if left == 0 else " (지났어요)")
+
+
+async def _say(s, ch, text, thread=None):
+    """**등록 대화는 스레드 안에서** — 묻고 답하는 대여섯 마디를 한 덩이로 묶는다."""
+    body = {"channel": ch, "text": text, "unfurl_links": False}
+    if thread:
+        body["thread_ts"] = thread
+    await api(s, "chat.postMessage", body=body)
+
+
+async def _again(s, ch, th, st, text):
+    """물은 것과 다른 답이 왔을 때 — **어디에 있는지와 나가는 길**을 늘 함께 (사장님 지시)."""
+    n, total, what = _where(st)
+    st["miss"] = st.get("miss", 0) + 1        # 몇 번째로 못 알아들었나 — 세 번째엔 더 좁게 묻는다
+    await _say(s, ch, text + "\n\n" + say("ask_where", kind="할 일 등록", n=n, total=total, what=what), th)
+    save()
+    return True
+
+
+def _keycap(n):
+    """1 → 1️⃣. **번호는 계산해서 붙인다** — 건너뛴 칸이 있으면 글로 박아 둔 번호가 어긋난다."""
+    return f"{n}\ufe0f\u20e3"
+
+
+async def _ask(s, ch, th, st, step, head=""):
+    """다음 칸을 묻는다 — 아는 칸은 건너뛰고, 번호는 남은 칸으로 센다."""
+    st["step"], st["miss"] = step, 0          # 칸이 넘어가면 못 알아들은 횟수도 처음으로
+    save()
+    no = _keycap(_where(st)[0])
+    if step == "project":
+        text = say("task_ask_project", step=no, list=_project_list())
+    elif step == "who":
+        text = say("task_ask_who", step=no)
+    elif step == "due":
+        text = say("task_ask_due", step=no)
+    else:
+        return await _show(s, ch, th, st)
+    await _say(s, ch, head + text, th)
+    return True
+
+
+async def _after_title(s, ch, th, st):
+    """제목을 **한 번** 되읽어 준다 — 못 들은 줄 알면 같은 말을 또 하신다."""
+    return await _ask(s, ch, th, st, "who" if st.get("pkey_known") else "project",
+                      head=say("task_title_ok", title=st["title"]) + "\n\n")
+
+
+async def _show(s, ch, th, st):
+    """되읽어 준다 — 번호는 GitHub 에서 받아 오고, 받은 번호는 되돌리지 않는다."""
+    from docs import load_team
+    st["step"] = "confirm"
+    save()
+    who = st.get("who")
+    name = _short(next((p.get("name") for p in PROJECTS if p.get("key") == st.get("pkey")), "")) or "프로젝트"
+    await _say(s, ch, say("task_confirm", title=st["title"], name=name,
+                          who=(load_team().get(who, {}).get("name") or f"<@{who}>") if who else "아직 없어요",
+                          due=_due_text(st.get("due"))), th)
+    return True
+
+
+async def maybe(s, e, q, force=False):
+    """DM 의 이 말이 할 일 올리기와 관련 있으면 처리하고 True. 아니면 False.
+
+    프로젝트 등록과 **같은 틀**이다 (사장님 지시). 여기서도 AI 를 부르지 않는다 —
+    묻는 칸이 정해져 있으니 지어낼 것이 없다.
+    """
+    user, ch = e.get("user"), e.get("channel")
+    st, opened = _asking(user), False
+    if st is None:
+        if not (force or START.search(q)):
+            return False
+        opened = True
+        st = {"by": user, "step": "title", "th": e.get("thread_ts") or e.get("ts")}
+        hit = _project_of(q) if len(PROJECTS) > 1 else (PROJECTS[0] if PROJECTS else None)
+        if hit is not None:                 # **아는 것은 묻지 않는다** (사장님)
+            st["pkey"], st["pkey_known"] = hit.get("key") or "", True
+        STATE.setdefault("new_task", {})[user] = st
+        save()
+    th = e.get("thread_ts") or st.get("th")
+    if opened:
+        name = _title_of(q)                 # 「제목은 X」 처럼 또렷이 말했을 때만 줍는다
+        if _titleable(name):
+            st["title"] = name
+            return await _after_title(s, ch, th, st)
+        await _say(s, ch, say("task_ask_title", step=_keycap(1)), th)
+        return True
+    if q.strip() in CANCEL:
+        STATE["new_task"].pop(user, None); save()
+        await _say(s, ch, say("task_cancel"), th)
+        return True
+    if q.strip() in COMMANDS:
+        return await _again(s, ch, th, st, say("ask_busy", word=q.strip(), kind="할 일을 올리는"))
+
+    step = st.get("step")
+
+    # ① 무슨 일인가 — 여기서는 **적으신 그대로** 받는다. 제목은 사람이 읽을 한 줄이다
+    if step == "title":
+        title = q.strip()[:60]
+        if not _titleable(title):
+            return await _again(s, ch, th, st, say("task_title_bad", word=title[:20] or "빈 글자"))
+        st["title"] = title
+        return await _after_title(s, ch, th, st)
+
+    # ② 어느 프로젝트 — 번호로도 이름으로도 받는다
+    if step == "project":
+        hit = _pick_project(q)
+        if hit is None:
+            # **두 번 못 알아들었으면 더 좁게 묻는다** — 같은 줄을 되풀이하면 고장으로 보인다
+            if st.get("miss", 0) >= 2:
+                return await _again(s, ch, th, st, say(
+                    "task_project_only", list=_project_list(),
+                    what=" · ".join(str(i + 1) for i in range(len(PROJECTS)))))
+            return await _again(s, ch, th, st, say("task_project_bad", list=_project_list()))
+        st["pkey"] = hit.get("key") or ""
+        return await _ask(s, ch, th, st, "who")
+
+    # ③ 누가
+    if step == "who":
+        who = _who_of(q, st["by"])
+        if who is False:
+            return await _again(s, ch, th, st, say("task_ask_who", step=_keycap(_where(st)[0])))
+        st["who"] = who
+        return await _ask(s, ch, th, st, "due")
+
+    # ④ 언제까지
+    if step == "due":
+        due = _due_of(q)
+        if due is False:
+            return await _again(s, ch, th, st, say("task_due_bad"))
+        st["due"] = due
+        return await _show(s, ch, th, st)
+
+    # ⑤ 확인 — 「네」 면 올리고, 고치자는 말이면 **알아들은 것만** 고쳐서 다시 보여 준다
+    if q.strip().lower() in YES:
+        return await _build(s, ch, th, st, user)
+    s2 = _HEAD.sub("", q.strip())
+    m = TITLE_IN.search(s2)
+    if m and _titleable(m.group(1)):
+        st["title"] = m.group(1).strip(" ,.!~\"'「」")[:60]
+    elif WHO_IN.search(s2) and _who_of(WHO_IN.search(s2).group(1), st["by"]) is not False:
+        st["who"] = _who_of(WHO_IN.search(s2).group(1), st["by"])
+    elif DUE_WORD.search(s2) and _due_of(DUE_WORD.search(s2).group(1)) is not False:
+        st["due"] = _due_of(DUE_WORD.search(s2).group(1))
+    elif _pick_project(s2) is not None and len(PROJECTS) > 1:
+        st["pkey"] = _pick_project(s2).get("key") or ""
+    else:
+        return await _again(s, ch, th, st, say("task_fix_how"))
+    return await _show(s, ch, th, st)
+
+
+async def _build(s, ch, th, st, user):
+    """정말로 올린다 — 여기까지 오면 확인을 받은 것이다."""
+    from flows.intake import add_issue
+    from flows.status import redraw
+    await _say(s, ch, say("task_making"), th)
+    try:
+        c = await add_issue(s, st["title"], user, project=st.get("pkey"),
+                            assignee=st.get("who"), due=st.get("due"), ask=False)
+    except Exception as ex:
+        c = None
+        log(f"할 일 올리기 실패: {type(ex).__name__}: {ex}")
+    STATE["new_task"].pop(user, None); save()
+    if not c:
+        await _say(s, ch, say("task_fail", err="번호를 못 받았어요"), th)
+        return True
+    from store import chan, ref
+    link = (await api(s, "chat.getPermalink", channel=chan(c), message_ts=c["card_ts"])).get("permalink", "")
+    from docs import load_team
+    who = st.get("who")
+    await _say(s, ch, say("task_done", link=link, ref=ref(c["no"]), channel=chan(c),
+                          who=(load_team().get(who, {}).get("name") or f"<@{who}>") if who else "아직 없어요",
+                          due=_due_text(st.get("due"))), th)
+    log(f"할 일 올림 {ref(c['no'])} ← {user}")
+    return True
