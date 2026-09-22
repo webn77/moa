@@ -512,12 +512,33 @@ class ThreadReplyTest(unittest.TestCase):
             run(find_mod.find(None, e, "내 할 일"))
         self.assertEqual([b for m, b in got if m == "chat.postMessage"][0].get("thread_ts"), "111.1")
 
-    def test_project_flow_answers_where_you_can_see_it(self):
+    def test_the_registration_talk_lives_in_a_thread(self):
+        """**등록 대화는 다르다** (2026-09-22 사장님: 「스레드 처리가 안 되는데 이유는?」).
+
+        오전에 DM 전체에서 스레드를 끊었는데, 그건 **묻지 않은 답**이 접혀 숨었기 때문이다.
+        등록은 물어서 주고받는 대여섯 마디라 **한 덩이로 묶여야** 읽을 수 있고, 사람이
+        스레드를 열고 기다리는 중이라 숨지도 않는다.
+        """
         fake = Fake()
+        STATE.pop("new_project", None)
         with mock.patch.object(project, "api", fake.api), mock.patch.object(project, "save", lambda: None):
             run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "333.3"}, "프로젝트 만들기"))
+            # 사람이 **맨 위에** 답을 써도 (thread_ts 없이) 답은 그 스레드에 모인다
+            run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "444.4"}, "충전성공"))
         STATE.pop("new_project", None)
-        self.assertIsNone([b for m, b in fake.sent if m == "chat.postMessage"][0].get("thread_ts"))
+        posts = [b for m, b in fake.sent if m == "chat.postMessage"]
+        self.assertEqual([b.get("thread_ts") for b in posts], ["333.3", "333.3"],
+                         "등록 대화가 한 스레드에 모이지 않았다")
+
+    def test_a_registration_started_inside_a_thread_stays_there(self):
+        """이미 스레드 안에서 부르셨으면 새로 파지 않는다 — 그건 사람이 만든 덩이다."""
+        fake = Fake()
+        STATE.pop("new_project", None)
+        with mock.patch.object(project, "api", fake.api), mock.patch.object(project, "save", lambda: None):
+            run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "555.5",
+                                     "thread_ts": "111.1"}, "프로젝트 만들기"))
+        STATE.pop("new_project", None)
+        self.assertEqual([b for m, b in fake.sent if m == "chat.postMessage"][0].get("thread_ts"), "111.1")
 
 
 class NameTest(unittest.TestCase):
