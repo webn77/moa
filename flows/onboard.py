@@ -99,7 +99,7 @@ async def catch(s, e, q):
     묻지 않은 자리에서 받으면 무엇이든 받게 되고, 그게 이 봇이 가장 자주 낸 고장이었다.
     """
     user, ch = e.get("user"), e.get("channel")
-    th = e.get("thread_ts")      # DM 에서는 스레드를 새로 파지 않는다 (답이 접혀 안 보인다)
+    th = e.get("thread_ts") or e.get("ts")      # DM 에서도 스레드가 기본 (사장님이 정함 9/22)
     if skipped(q):
         give_up(user)
         log(f"온보딩 그만: ← {user}")

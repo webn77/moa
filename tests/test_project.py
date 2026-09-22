@@ -476,12 +476,11 @@ class OnboardTest(unittest.TestCase):
 
 
 class ThreadReplyTest(unittest.TestCase):
-    """DM 에서는 **스레드를 새로 파지 않는다** (2026-09-22 실측).
+    """**DM 에서도 스레드가 기본이다** (2026-09-22 사장님: 「dm 스레드가 기본이야 없애지말아줘」).
 
-    한때 모든 답을 스레드로 보냈는데 **답이 접혀서 안 보였다** — 사장님이 「글 남겨도 작동을
-    안 하는데?」 라고 하셨고, 봇은 답을 하고 있었다. 접힌 스레드 안이었다.
-    **DM 은 그 자체가 한 대화다.** 다만 **이미 스레드 안에서 물었으면 그 스레드에** 답한다 —
-    그건 사람이 만든 덩이다.
+    물은 글과 답이 붙어 있어야 나중에 무엇에 대한 답인지 안다. 같은 날 오전에 이걸 껐던
+    적이 있다 — 「글 남겨도 작동을 안 하는데?」 의 원인을 접힌 스레드로 봤는데, **그때 AI 도
+    죽어 있었다** (Anthropic 500). 한 번에 두 가지를 고치면 어느 쪽이 원인인지 못 가린다.
     """
 
     def sent(self, fn):
@@ -492,8 +491,8 @@ class ThreadReplyTest(unittest.TestCase):
             return {"ok": True}
         return got, api
 
-    def test_a_dm_answer_is_not_hidden_in_a_new_thread(self):
-        """맨 위에 답한다 — 새 스레드를 파면 접혀서 안 보인다."""
+    def test_a_dm_answer_hangs_under_the_question(self):
+        """물은 글 아래 스레드로 — 답이 맨 위에 쌓이면 질문과 답의 짝이 흩어진다."""
         from flows import find as find_mod
         got, api = self.sent(None)
         e = {"user": ME, "channel": "D0TEST", "ts": "111.1", "channel_type": "im"}
@@ -501,7 +500,7 @@ class ThreadReplyTest(unittest.TestCase):
             run(find_mod.find(None, e, "내 할 일"))
         posts = [b for m, b in got if m == "chat.postMessage"]
         self.assertTrue(posts, "답을 안 보냈다")
-        self.assertIsNone(posts[0].get("thread_ts"))
+        self.assertEqual(posts[0].get("thread_ts"), "111.1")
 
     def test_a_reply_inside_a_thread_stays_there(self):
         """이미 스레드 안에서 물으면 **그 스레드**에 답한다 — 새 스레드를 파면 안 된다."""
