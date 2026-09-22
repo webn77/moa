@@ -194,7 +194,10 @@ class FlowTest(Base):
         self.say("깃허브 등록")
         self.say("취소")
         self.assertNotIn(ME, STATE.get("new_repo", {}))
-        self.assertEqual([x for x in self.ran if not x.startswith("gh auth")], [])
+        # 읽기만 하는 것(`gh auth status` · `gh api`)은 아무것도 바꾸지 않는다 —
+        # 무엇을 **바꿨나**만 본다: 레포 만들기 · git init · remote
+        self.assertEqual([x for x in self.ran
+                          if not x.startswith(("gh auth", "gh api"))], [])
 
     def test_it_says_where_you_are_when_the_answer_does_not_fit(self):
         self.say("깃허브 등록")

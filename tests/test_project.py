@@ -193,11 +193,18 @@ class RepoStepTest(Base):
         async def fake_attach(repo, pkey, make=False, kind="github"):
             self.attached.append((repo, pkey, make, kind))
             return ["• 붙였어요\n"], None
-        self.att = mock.patch("flows.repo.attach", fake_attach)
-        self.att.start()
+
+        async def fake_owners():
+            return "• 👤 `webn77/…` — 개인 계정 (그 계정에 묶여요)\n"
+        # **진짜 `gh api` 를 부르지 않는다** — 시험이 7초 걸렸다 (2026-09-22 두 번째로 같은 일)
+        self.att = [mock.patch("flows.repo.attach", fake_attach),
+                    mock.patch.object(project, "_owners", fake_owners)]
+        for x in self.att:
+            x.start()
 
     def tearDown(self):
-        self.att.stop()
+        for x in self.att:
+            x.stop()
         super().tearDown()
 
     def upto_goal(self):

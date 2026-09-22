@@ -234,6 +234,18 @@ async def _repo_ready():
         return False
 
 
+async def _owners():
+    """**올릴 수 있는 곳을 물어서 보여 준다** — 예시를 지어내면 개인 계정을 팀 레포로 권하게 된다
+    (2026-09-22 사장님: 「webn77 이거는 개인 레포잖어!」)."""
+    try:
+        from flows.repo import owner_lines, owners
+        me, orgs = await owners()
+        return owner_lines(me, orgs)
+    except Exception as ex:
+        log(f"올릴 곳 확인 실패: {type(ex).__name__}")
+        return ""
+
+
 def _repo_target(text):
     from flows.repo import target_of
     return target_of(text)
@@ -242,7 +254,8 @@ def _repo_target(text):
 async def _ask_repo(s, ch, th, st):
     st["step"] = "repo"
     save()
-    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3"), th)
+    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3",
+                          list=await _owners()), th)
     return True
 
 
@@ -334,7 +347,7 @@ async def maybe(s, e, q, force=False):
         # **4번째 칸을 물을 수 있나** — `gh` 가 없거나 로그인이 안 되어 있으면 묻지 않는다.
         # 물어 놓고 마지막에 「gh 가 없어요」 라고 하면 헛일을 시킨 것이다.
         # 여는 자리에서 한 번만 본다 — 칸 수를 세어 「n/4」 라고 말해야 하니까
-        st["ask_repo"] = await _repo_ready()
+        st["ask_repo"], st["owners"] = await _repo_ready(), ""
         STATE.setdefault("new_project", {})[user] = st
         save()
     # **연 스레드 안에서 이어 간다.** 사람이 맨 위에 답을 써도 (thread_ts 없이) 답은 이

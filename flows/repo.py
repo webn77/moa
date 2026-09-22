@@ -135,6 +135,36 @@ async def _run(*args):
     return await asyncio.get_running_loop().run_in_executor(None, lambda: _sh(*args))
 
 
+async def owners():
+    """레포를 만들 수 있는 곳 — (개인 계정, 조직 목록).
+
+    **예시를 지어내지 않는다** (2026-09-22 사장님: 「webn77 이거는 개인 레포잖어!」).
+    안내에 `webn77/우리팀` 이라고 적었는데 그건 **개인 계정**이고, 팀 레포로는 맞지 않다 —
+    데이터가 한 사람 계정에 묶이고 그 사람이 떠나면 곤란해진다.
+    그런데 이 맥에는 조직이 하나도 없었다 (`gh api user/orgs` 가 빈 값).
+
+    그래서 **있는 것만 보여 준다.** 조직이 없으면 그렇다고 말하고, 만드는 길을 알려 준다.
+    """
+    me, orgs = "", []
+    ok, out = await _run("gh", "api", "user", "--jq", ".login")
+    if ok:
+        me = (out or "").strip()
+    ok, out = await _run("gh", "api", "user/orgs", "--jq", ".[].login")
+    if ok:
+        orgs = [x.strip() for x in (out or "").splitlines() if x.strip()]
+    return me, orgs
+
+
+def owner_lines(me, orgs):
+    """고를 수 있는 곳을 줄로 — **개인 계정은 개인 계정이라고 말한다.**"""
+    out = [say("repo_owner_org", who=o) for o in orgs]
+    if me:
+        out.append(say("repo_owner_me", who=me))
+    if not orgs:
+        out.append(say("repo_owner_no_org"))
+    return "".join(out) or say("repo_owner_none")
+
+
 async def ready():
     """무엇이 준비됐나 — **사람이 할 것과 봇이 할 수 있는 것을 가른다.**
 
@@ -215,11 +245,13 @@ async def maybe(s, e, q, force=False):
             STATE["new_repo"].pop(user, None); save()
             await _say(s, ch, say("repo_need_auth"), th)
             return True
-        st["who"] = got["who"]
+        me, orgs = await owners()
+        st["who"], st["orgs"] = me or got["who"], orgs
         save()
-        await _say(s, ch, say("repo_ask", who=got["who"] or "(이름 모름)",
+        await _say(s, ch, say("repo_ask", who=st["who"] or "(이름 모름)",
                               git=say("repo_git_yes") if got["git"] else say("repo_git_no"),
-                              now=say("repo_now", repo=got["repo"]) if got["repo"] else ""), th)
+                              now=say("repo_now", repo=got["repo"]) if got["repo"] else "",
+                              list=owner_lines(me or got["who"], orgs)), th)
         return True
     if q.strip() in CANCEL:
         STATE["new_repo"].pop(user, None); save()
