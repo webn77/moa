@@ -140,6 +140,45 @@ async def _run(*args):
 # 그건 **내가 그 팀의 사정을 짐작하는 것**이다 — 사내 서버는 애초에 `gh` 로 보이지도 않는다.
 # 그냥 묻고, 주시는 주소를 쓴다.
 
+async def mine(limit=6):
+    """지금 쓸 수 있는 GitHub 레포 — [(이름, 비공개인가, 마지막 올린 날)]. 못 받으면 빈 목록.
+
+    **지어내는 것과 보여 주는 것은 다르다** (2026-09-22 사장님: 「github 링크나 쉽게 안내할
+    방법은 없나? 아니면 컴퓨터에서 찾던가」). 예전에 `webn77/우리팀` 같은 **없는 이름**을
+    예시로 적어서 혼을 났는데, 이건 `gh` 가 주는 **있는 목록**이다. 번호로 고르면 끝난다.
+
+    최근에 올린 순서로 온다 (`gh` 기본) — 요즘 쓰는 것이 위에 온다.
+    """
+    ok, out = await _run("gh", "repo", "list", "--limit", str(limit),
+                         "--json", "nameWithOwner,pushedAt,isPrivate")
+    if not ok:
+        return []
+    try:
+        got = json.loads(out or "[]")
+    except Exception:
+        return []
+    return [(x.get("nameWithOwner", ""), bool(x.get("isPrivate")), (x.get("pushedAt") or "")[:10])
+            for x in got if x.get("nameWithOwner")]
+
+
+def repo_lines(repos):
+    """고를 목록 — 번호로 답할 수 있게. 하나도 없으면 주소를 적어 달라고 한다."""
+    if not repos:
+        return say("repo_none")
+    return say("repo_head") + "".join(
+        say("repo_one", n=i + 1, repo=r, lock="🔒" if priv else "🌐", when=when)
+        for i, (r, priv, when) in enumerate(repos))
+
+
+def pick(text, repos):
+    """번호나 이름으로 고른다. 못 고르면 빈 글자."""
+    s = (text or "").strip()
+    m = re.fullmatch(r"(\d{1,2})\s*(?:번|번째|요|이요)?[.!~]*", s)
+    if m and 1 <= int(m.group(1)) <= len(repos):
+        return repos[int(m.group(1)) - 1][0]
+    return ""
+
+
 async def ready():
     """무엇이 준비됐나 — **사람이 할 것과 봇이 할 수 있는 것을 가른다.**
 

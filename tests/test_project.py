@@ -51,8 +51,15 @@ class Base(unittest.TestCase):
         self.saved_cfg = json.loads(config.PATH.read_text(encoding="utf-8")) if config.PATH.exists() else {}
         self.saved_projects = [dict(p) for p in common.PROJECTS]
         STATE.pop("new_project", None)
+        # **밖으로 나가는 것은 시험에서 늘 막는다** — 안 막으면 느려지고(9.5초 → 0.3초),
+        # 그 맥에 무엇이 있느냐에 따라 답이 달라진다. 목록이 필요한 시험은 `self.repos` 를 채운다
+        self.repos = []
+
+        async def fake_mine(limit=6):
+            return self.repos
         self.patches = [mock.patch.object(project, "api", self.fake.api),
                         mock.patch.object(project, "save", lambda: None),
+                        mock.patch("flows.repo.mine", fake_mine),
                         # `config.PATH` 통째로 가짜 — Path 인스턴스의 메서드는 갈아 끼울 수 없다.
                         # 진짜 config.json 을 시험이 덮어쓰면 그 팀의 설정이 날아간다
                         mock.patch.object(config, "PATH", mock.MagicMock()),
@@ -189,7 +196,7 @@ class RepoStepTest(Base):
             self.attached.append((repo, pkey, make, kind))
             return ["• 붙였어요\n"], None
 
-        # 목록을 긁어 오지 않으므로 갈아 끼울 것은 `attach` 하나다 (2026-09-22)
+        self.repos = [("webn77/moa", True, "2026-09-22"), ("webn77/pa-second", True, "2026-09-20")]
         x = mock.patch("flows.repo.attach", fake_attach)
         x.start()
         self.addCleanup(x.stop)
@@ -231,6 +238,33 @@ class RepoStepTest(Base):
         self.assertIn("비공개", self.fake.texts()[-1])
         self.say("네")
         self.assertTrue(self.attached[0][2])
+
+    def test_picking_by_number_is_the_easy_path(self):
+        """**번호 하나로 끝난다** (2026-09-22 사장님: 「github 링크나 쉽게 안내할 방법은 없나?」)."""
+        self.upto_goal()
+        self.assertIn("1. `webn77/moa`", self.fake.texts()[-1])
+        self.say("2")
+        self.assertIn("webn77/pa-second", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached[0][0], "webn77/pa-second")
+
+    def test_make_one_without_a_name_uses_the_project_name(self):
+        """이름을 안 주셔도 만든다 — **글자 수로 자르면** `-사내포털` 이 된다 (시뮬레이션이 잡았다)."""
+        self.upto_goal()
+        self.say("새로 만들어줘")
+        self.assertIn("`webn77/충전성공`", self.fake.texts()[-1])
+        self.assertNotIn("/-", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached[0][:1] + self.attached[0][2:],
+                         ("webn77/충전성공", True, "github"))
+
+    def test_without_a_list_it_still_asks_for_an_address(self):
+        """`gh` 가 없거나 레포가 없으면 목록이 빈다 — 그때는 주소를 적어 달라고 한다."""
+        self.repos = []
+        self.upto_goal()
+        self.assertIn("주소나", self.fake.texts()[-1])
+        self.say("webn77/moa-team"); self.say("네")
+        self.assertEqual(self.attached[0][0], "webn77/moa-team")
 
     def test_our_own_server_says_it_does_not_leave(self):
         """**remote 가 GitHub 일 필요는 없다** (사장님: 「내부서버에서 관리할 방법도 있나」)."""

@@ -131,6 +131,16 @@ def _slug(title):
     return ("프로젝트-" + s)[:70] or "프로젝트"
 
 
+def _repo_name(title):
+    """프로젝트 이름으로 레포 이름을 짓는다 — `사내포털` → `사내포털`.
+
+    **글자 수로 자르면 안 된다** — 「프로젝트-」 는 다섯 글자인데 넷을 잘라 `-사내포털` 이 됐다
+    (2026-09-22 시뮬레이션이 잡았다). 앞뒤 하이픈도 떼어 낸다: GitHub 이 안 받는다.
+    """
+    s = re.sub(r"^프로젝트-", "", _slug(title)).strip("-")
+    return s or "moa"
+
+
 def _suggest_key(title, taken):
     """번호 앞말 후보 — **영문 두 자** (사장님이 정함: 「앞 2자리 구분 영문 대문자」).
 
@@ -232,9 +242,23 @@ def _repo_target(text):
 
 
 async def _ask_repo(s, ch, th, st):
+    """**번호로 고르게 한다** — 주소를 찾아 와서 붙여넣는 건 번거롭다 (사장님 지적).
+
+    목록은 `gh` 가 준 **있는 레포**다. 못 받으면(로그인 없음·`gh` 없음) 주소를 적어 달라고 한다.
+    """
     st["step"] = "repo"
+    try:
+        from flows.repo import mine, repo_lines
+        got = await mine()
+    except Exception as ex:
+        log(f"레포 목록 실패: {type(ex).__name__}")
+        got = []
+    st["repos"] = [r for r, _, _ in got]
+    # 「새로 만들어줘」 를 위해 **올릴 곳**을 기억해 둔다 — 요즘 쓰는 레포의 주인이다
+    st["owner"] = st["repos"][0].split("/")[0] if st["repos"] else ""
     save()
-    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3"), th)
+    from flows.repo import repo_lines as lines
+    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3", list=lines(got)), th)
     return True
 
 
@@ -395,11 +419,21 @@ async def maybe(s, e, q, force=False):
         if NO_REPO.match(q.strip()):
             st["repo"], st["rkind"] = "", ""
             return await _show(s, ch, th, st)
+        from flows.repo import pick
+        picked = pick(q, [(r, 0, 0) for r in st.get("repos") or []])
+        if picked:                          # 번호로 고르셨다 — 가장 쉬운 길
+            st["repo"], st["rkind"], st["rmake"] = picked, "github", False
+            return await _show(s, ch, th, st)
+        make = any(x in q for x in ("만들어", "새로", "만들자", "생성"))
         kind, target = _repo_target(q)
+        if not target and make and st.get("owner"):
+            # **이름을 안 주셔도 만든다** — 프로젝트 이름으로 (사장님: 「쉽게 할 방법?」)
+            st["repo"], st["rkind"], st["rmake"] = f"{st['owner']}/{_repo_name(st['title'])}", "github", True
+            return await _show(s, ch, th, st)
         if not target:
             return await _again(s, ch, th, st, say("proj_repo_bad", word=q.strip()[:30] or "빈 글자"))
         st["repo"], st["rkind"] = target, kind
-        st["rmake"] = kind == "github" and any(x in q for x in ("만들어", "새로", "만들자", "생성"))
+        st["rmake"] = kind == "github" and make
         return await _show(s, ch, th, st)
 
     # ④ 확인 — **고치자는 말을 먼저 본다.** 「그래 앞말은 PAY 로」 처럼 맞장구와 고칠 것이
