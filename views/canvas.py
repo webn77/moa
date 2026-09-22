@@ -49,6 +49,14 @@ async def _render_canvas_later(s, wait):
     await _render_canvas(s)
 
 
+def _canvas_title():
+    """캔버스 이름 — 그 프로젝트 방 이름. 방이 여럿이면 어느 작업판인지 여기서 갈린다."""
+    from common import CANVAS, ISSUE_NAME, PROJECTS
+    hit = next((p for p in PROJECTS if p.get("canvas") == CANVAS), None)
+    name = (hit or {}).get("name") or ISSUE_NAME or "프로젝트"
+    return f"📋 {name} 작업판"
+
+
 async def render_canvas_now(s):
     """🔄 버튼 — 기다리지 않고 바로. 내용이 같으면 쓰지 않는 건 그대로."""
     await _render_canvas(s)
@@ -167,7 +175,12 @@ async def _render_canvas(s):
 
     head = fill((HERE / "canvas_head.md").read_text(encoding="utf-8"))
     intro = head.split("---", 1)[0].strip() if "---" in head else ""
-    md = f"""{intro}
+    # **맨 첫 줄이 제목(H1)이어야 한다** — Slack 은 그것을 캔버스 이름으로 쓴다.
+    # 없으면 채널 탭에 「제목 없음」 이라고 뜬다 (2026-09-22 사장님 지적, 새 워크스페이스에서 실측).
+    # 프로젝트마다 이름이 달라야 하므로 문서가 아니라 **여기서** 붙인다.
+    md = f"""# {_canvas_title()}
+
+{intro}
 
 ## 😣 Pain point
 

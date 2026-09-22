@@ -395,3 +395,23 @@ class AiFillTest(Base):
         self.assertIn("번호 앞말", self.fake.texts()[-1])
         self.say("charge"); self.say("혼자")
         self.assertIn("✅", self.fake.texts()[-1])
+
+
+class CanvasTitleTest(unittest.TestCase):
+    """캔버스 맨 첫 줄은 **제목(H1)** 이어야 한다 (2026-09-22 사장님 지적).
+
+    Slack 은 그것을 캔버스 이름으로 쓴다. 없으면 채널 탭에 **「제목 없음」** 이라고 뜬다 —
+    새 워크스페이스에 깔자마자 드러났다. 프로젝트가 여럿이면 어느 작업판인지도 여기서 갈린다.
+    """
+
+    def test_canvas_starts_with_a_title(self):
+        import json
+        import pathlib
+        d = json.loads((pathlib.Path(__file__).parent / "golden" / "expected.json").read_text(encoding="utf-8"))
+        md = json.dumps(d.get("canvas"), ensure_ascii=False)
+        self.assertRegex(md, r'"markdown": "# ', "캔버스가 제목으로 시작하지 않는다")
+
+    def test_the_title_names_the_project(self):
+        from views.canvas import _canvas_title
+        import common
+        self.assertIn(common.PROJECTS[0].get("name") or common.ISSUE_NAME, _canvas_title())
