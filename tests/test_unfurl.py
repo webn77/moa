@@ -7,6 +7,7 @@ import asyncio
 import os
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import handlers  # noqa: E402
@@ -267,7 +268,7 @@ class DmTest(unittest.IsolatedAsyncioTestCase):
     """DM — 배울 것을 늘리지 않는다. 채널에서 `@PA 목록` 이면 DM 에서는 그냥 `목록` (2026-09-20)."""
 
     def setUp(self):
-        self.went = []
+        self.went, self.called = [], []
         self.old = (handlers.show_digest, handlers.tidy_propose, handlers.propose_issue,
                     handlers.find, handlers.refresh_draft)
         handlers.show_digest = lambda s, ch, u, th=None: self._go("현황")   # th = 답할 스레드 (2026-09-22)
@@ -285,9 +286,16 @@ class DmTest(unittest.IsolatedAsyncioTestCase):
         return ret
 
     async def dm(self, text, **kw):
+        """**진짜 DM 사건에는 늘 `ts` 가 있다.** 안 넣으면 상태 줄 갈래를 그냥 지나쳐서,
+        「로딩이 동작 안 한다」 같은 고장을 시험이 못 본다 (2026-09-22)."""
         self.went.clear()
-        await handlers.on_dm(None, {"channel": "D1", "user": "U1", "text": text, **kw})
+        with mock.patch("slack.api", self._api):
+            await handlers.on_dm(None, {"channel": "D1", "user": "U1", "ts": "1.0", "text": text, **kw})
         return self.went
+
+    async def _api(self, s, method, body=None, **p):
+        self.called.append((method, body or p))
+        return {"ok": True}
 
     async def test_same_words_as_the_channel(self):
         self.assertEqual(await self.dm("현황"), ["현황"])
@@ -295,6 +303,20 @@ class DmTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.dm("이슈 만들어줘"), ["만들기"])
         self.assertEqual(await self.dm("목록"), ["찾기"])
         self.assertEqual(await self.dm("이동원"), ["찾기"])
+
+    async def test_every_branch_shows_the_status_line(self):
+        """**상태 줄은 갈래와 무관하게 뜬다** (2026-09-22 사장님: 「로딩이 동작 안 하는 거 같은데」).
+
+        예전에는 `thinking` 이 갈래 몇 개만 감쌌다 — 프로젝트 만들기·첫 걸음은 그 앞에서
+        끝나서 상태 줄이 아예 안 떴다. 감싸는 자리를 바깥으로 옮겼고, 여기서 그걸 지킨다.
+        """
+        for q in ("현황", "정리", "목록", "이슈 만들어줘", "이동원"):
+            self.called.clear()
+            await self.dm(q)
+            st = [b for m, b in self.called if m == "assistant.threads.setStatus"]
+            self.assertTrue(st, f"{q}: 상태 줄이 안 떴다")
+            self.assertEqual(st[0]["thread_ts"], "1.0", q)
+            self.assertEqual(st[-1]["status"], "", f"{q}: 켜 놓고 안 껐다")
 
     async def test_draft_thread_first(self):
         self.assertEqual(await self.dm("한 줄 더", thread_ts="9.0"), ["초안"])

@@ -146,8 +146,15 @@ async def thinking(s, e, *steps):
     `Step.waiting` 과 자리가 다르다 — 저건 **봇이 올린 줄**을 고쳐 쓰고, 이건 **사람이 쓴 줄**
     아래에 Slack 이 그려 준다. 둘 다 쓰면 같은 말이 두 군데 보이므로, 이 자리를 쓰는 갈래에서는
     `Step.waiting` 을 쓰지 않는다.
+
+    **`thread_ts` 는 스레드 뿌리여야 한다** (2026-09-22 실측). 스레드 **안의 답글 ts** 를 주면
+    `invalid_thread_ts` 로 막힌다 — 그래서 스레드에서 주고받는 동안에는 상태 줄이 한 번도
+    안 떴다. DM 스레드를 기본으로 되돌린 뒤에 드러난 것이다 (사장님: 「로딩이 동작 안 하는 거 같은데」).
+
+        setStatus(thread_ts=뿌리)   → ok: True
+        setStatus(thread_ts=답글)   → ok: False · invalid_thread_ts
     """
-    ch, ts = e.get("channel"), e.get("ts")
+    ch, ts = e.get("channel"), e.get("thread_ts") or e.get("ts")
     steps = [x for x in steps if x] or [say("thinking")]
     if ch and ts:
         body = {"channel_id": ch, "thread_ts": ts, "status": steps[0]}

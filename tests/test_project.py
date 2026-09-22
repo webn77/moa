@@ -540,6 +540,57 @@ class ThreadReplyTest(unittest.TestCase):
         self.assertEqual([b for m, b in fake.sent if m == "chat.postMessage"][0].get("thread_ts"), "111.1")
 
 
+class StatusLineTest(unittest.TestCase):
+    """「…하는 중」 상태 줄 (2026-09-22 사장님: 「로딩이 동작 안 하는 거 같은데」).
+
+    두 가지가 겹쳐 있었고 **둘 다 실측으로 확인했다**:
+      ① 프로젝트 만들기·첫 걸음이 `thinking` 블록 **앞에서** 끝났다 → 아예 안 켰다
+      ② `thread_ts` 에 스레드 **안의 답글 ts** 를 줬다 → Slack 이 `invalid_thread_ts` 로 막는다
+         (실측: 뿌리 ts → ok True · 답글 ts → ok False)
+    """
+
+    def sent(self):
+        got = []
+
+        async def api(s, method, body=None, **p):
+            got.append((method, body or p))
+            return {"ok": True, "channel": {"id": "C0NEW"}, "canvas_id": "F0NEW", "ts": "9.9",
+                    "permalink": "", "channels": []}
+        return got, api
+
+    def test_the_status_uses_the_thread_root_not_the_reply(self):
+        """답글 ts 를 주면 Slack 이 막는다 — 스레드에서 주고받는 동안 한 번도 안 떴다."""
+        import slack
+        got, api = self.sent()
+        e = {"channel": "D0T", "ts": "222.2", "thread_ts": "111.1"}
+        with mock.patch.object(slack, "api", api):
+            async def go():
+                async with slack.thinking(None, e, "살펴보는 중"):
+                    pass
+            run(go())
+        statuses = [b for m, b in got if m == "assistant.threads.setStatus"]
+        self.assertTrue(statuses, "상태 줄을 아예 안 켰다")
+        self.assertEqual([b["thread_ts"] for b in statuses], ["111.1", "111.1"])
+        self.assertEqual(statuses[-1]["status"], "", "켜 놓고 안 껐다 — 사장님 화면에서 계속 돈다")
+
+    def test_making_a_project_shows_the_status(self):
+        """예전에는 이 갈래가 `thinking` 블록 앞에서 끝나 상태 줄이 안 떴다."""
+        import handlers
+        from flows import project as proj, onboard as onb
+        got, api = self.sent()
+        STATE.pop("new_project", None)
+        e = {"user": ME, "channel": "D0T", "ts": "777.7", "channel_type": "im", "text": "프로젝트 만들기"}
+        with mock.patch.object(handlers, "api", api), mock.patch.object(proj, "api", api), \
+             mock.patch.object(onb, "api", api), mock.patch("slack.api", api), \
+             mock.patch.object(proj, "save", lambda: None):
+            run(handlers.on_dm(None, e))
+        STATE.pop("new_project", None)
+        statuses = [b for m, b in got if m == "assistant.threads.setStatus"]
+        self.assertTrue(statuses, "프로젝트 만들기에서 상태 줄이 안 떴다")
+        self.assertEqual(statuses[0]["thread_ts"], "777.7")
+        self.assertEqual(statuses[-1]["status"], "")
+
+
 class NameTest(unittest.TestCase):
     """사람은 이름만 딱 말하지 않는다 (2026-09-22 사장님 실측).
 
