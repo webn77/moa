@@ -137,10 +137,23 @@ def _first_md(p, cards, team):
 
 
 async def _look(s, cv, text):
+    """그 말이 든 섹션들 — 앞의 것이 진짜, 뒤의 것은 겹친 것이다."""
     d = await api(s, "canvases.sections.lookup",
                   body={"canvas_id": cv, "criteria": {"contains_text": text}})
-    got = d.get("sections") or []
-    return got[0]["id"] if got else None
+    return [x["id"] for x in (d.get("sections") or [])]
+
+
+async def _one(s, cv, change):
+    """**캔버스 고치기는 한 번에 하나씩** (2026-09-22 실측).
+
+        세 개를 한 번에 → invalid_arguments
+        하나씩 따로     → 셋 다 ok
+
+    묶어 보내면 통째로 튕기고, 그러면 **아무것도 안 고쳐진다** — 그 실패를 실제로 봤다
+    (황금거위 캔버스, 18:01).
+    """
+    r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": [change]})
+    return bool(r.get("ok")), r.get("error")
 
 
 async def _render_projects(s, cards, team):
@@ -164,30 +177,35 @@ async def _render_projects(s, cards, team):
         # 하나라도 남아 있으면 그걸 기둥 삼아 **고쳐 끼운다**
         got = {k: await _look(s, cv, m) for k, m in
                (("head", HEAD_MARK), ("table", TABLE_MARK), ("foot", FOOT_MARK))}
-        anchor = got["head"] or got["table"] or got["foot"]
-        if not anchor:
+        name = _short(p.get("name"))
+        ok, err = True, None
+        if not any(got.values()):
             # 봇 칸이 아예 없다 — 맨 위에 넣는다. 사람이 쓴 것은 그대로 아래 남는다
-            r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": [
-                {"operation": "insert_at_start",
-                 "document_content": {"type": "markdown", "markdown": f"{head}\n\n{table}\n\n{foot}"}}]})
+            ok, err = await _one(s, cv, {"operation": "insert_at_start",
+                                         "document_content": {"type": "markdown",
+                                                              "markdown": f"{head}\n\n{table}\n\n{foot}"}})
         else:
-            ch, after = [], anchor
+            after = (got["head"] or got["table"] or got["foot"])[0]
             for k, md in (("head", head), ("table", table), ("foot", foot)):
-                if got[k]:
-                    ch.append({"operation": "replace", "section_id": got[k],
-                               "document_content": {"type": "markdown", "markdown": md}})
-                    after = got[k]
+                ids = got[k]
+                if ids:
+                    good, e = await _one(s, cv, {"operation": "replace", "section_id": ids[0],
+                                                 "document_content": {"type": "markdown", "markdown": md}})
+                    after = ids[0]
+                    # **겹친 칸은 지운다** — 옛 글이 두 벌 남으면 사람이 어느 게 지금인지 모른다
+                    for dup in ids[1:]:
+                        await _one(s, cv, {"operation": "delete", "section_id": dup})
+                        log(f"프로젝트 캔버스 — 겹친 칸 하나 지움 ({name})")
                 else:
-                    ch.append({"operation": "insert_after", "section_id": after,
-                               "document_content": {"type": "markdown", "markdown": md}})
-            if not all(got.values()):
-                log(f"프로젝트 캔버스 — 봇 칸 일부가 바뀌어 있어 고쳐 끼움: {_short(p.get('name'))}")
-            r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": ch})
-        if r.get("ok"):
+                    good, e = await _one(s, cv, {"operation": "insert_after", "section_id": after,
+                                                 "document_content": {"type": "markdown", "markdown": md}})
+                    log(f"프로젝트 캔버스 — 없어진 봇 칸을 다시 끼움 ({name})")
+                ok, err = ok and good, err or e
+        if ok:
             marks[cv] = digest_
-            log(f"프로젝트 캔버스 고침 — {_short(p.get('name'))}")
+            log(f"프로젝트 캔버스 고침 — {name}")
         else:
-            log(f"프로젝트 캔버스 실패 {_short(p.get('name'))}: {r.get('error')}")
+            log(f"프로젝트 캔버스 실패 {name}: {err}")
     save()
 
 

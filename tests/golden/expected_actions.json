@@ -456,7 +456,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -883,7 +968,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -1171,7 +1341,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -1476,7 +1731,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -1894,7 +2234,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -2241,7 +2666,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -2585,7 +3095,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -3081,7 +3676,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -3407,7 +4087,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -3726,7 +4491,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -4080,7 +4930,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -4421,7 +5356,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -5012,7 +6032,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -5394,7 +6499,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -5730,7 +6920,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -6049,7 +7324,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -8048,7 +9408,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -8370,7 +9815,92 @@
         "block_id": "f",
         "element": {
          "action_id": "feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "type": "static_select"
         },
         "label": {
@@ -8652,7 +10182,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -9150,7 +10765,92 @@
         },
         {
          "action_id": "set_feature",
-         "options": [],
+         "initial_option": {
+          "text": {
+           "text": "기반 (운영·권한·안전)",
+           "type": "plain_text"
+          },
+          "value": "기반 (운영·권한·안전)"
+         },
+         "options": [
+          {
+           "text": {
+            "text": "요청 입구",
+            "type": "plain_text"
+           },
+           "value": "요청 입구"
+          },
+          {
+           "text": {
+            "text": "질문으로 구체화",
+            "type": "plain_text"
+           },
+           "value": "질문으로 구체화"
+          },
+          {
+           "text": {
+            "text": "할 일 정리·보완",
+            "type": "plain_text"
+           },
+           "value": "할 일 정리·보완"
+          },
+          {
+           "text": {
+            "text": "담당 추천",
+            "type": "plain_text"
+           },
+           "value": "담당 추천"
+          },
+          {
+           "text": {
+            "text": "우선순위·과부하 조절",
+            "type": "plain_text"
+           },
+           "value": "우선순위·과부하 조절"
+          },
+          {
+           "text": {
+            "text": "알림·후속",
+            "type": "plain_text"
+           },
+           "value": "알림·후속"
+          },
+          {
+           "text": {
+            "text": "회의 운영",
+            "type": "plain_text"
+           },
+           "value": "회의 운영"
+          },
+          {
+           "text": {
+            "text": "동기화·기록",
+            "type": "plain_text"
+           },
+           "value": "동기화·기록"
+          },
+          {
+           "text": {
+            "text": "인수인계",
+            "type": "plain_text"
+           },
+           "value": "인수인계"
+          },
+          {
+           "text": {
+            "text": "보기 (캔버스·홈·카드)",
+            "type": "plain_text"
+           },
+           "value": "보기 (캔버스·홈·카드)"
+          },
+          {
+           "text": {
+            "text": "기반 (운영·권한·안전)",
+            "type": "plain_text"
+           },
+           "value": "기반 (운영·권한·안전)"
+          }
+         ],
          "placeholder": {
           "text": "기능",
           "type": "plain_text"
@@ -9559,7 +11259,7 @@
      "changes": [
       {
        "document_content": {
-        "markdown": "# 📋 프로젝트-예시 작업판\n\n> 👋 **처음 오셨나요?** 프로젝트가 이 한 화면에 있어요. 할 일은 **#팀-대화** 에 🎫 로 시작하는 한 줄 · 현황은 `@Moa 현황` · 쓰는 법은 **Moa 홈 → ❓ 사용법**\n\n## 😣 Pain point\n\n- **도구가 대화 밖에 있다** — 일은 Slack에서 정해지는데 Jira·Linear는 따로 열어 옮겨 적어야 한다 → 안 적으면 흘러가고, 적어도 금방 옛날 정보가 된다\n- **PM이 비서 일을 한다** — 나누기 · 챙기기 · 회의록 · 알림을 사람이 손으로 한다 → 팀이 커질수록 PM이 병목\n- **맥락이 흩어진다** — 결정과 이유가 스레드 · 회의 · 도구에 흩어져 → 이어받으려면 다 읽어야 한다\n- **AI가 팀을 안 굴린다** — 지금 AI는 요약·검색까지 → 나누고 챙기는 협업 일은 여전히 사람 몫\n\n## 🎯 목표\n\n**Slack 안의 AI 프로젝트 비서로, 프로젝트 팀의 협업 생산성을 2배로 올린다.**\n\n| 할 일 | 바뀌는 것 | 진척 | 성공 기준 · 지금 / 목표 |\n| --- | --- | --- | --- |\n| **구체화** | 봇이 물어봐서 완료 조건까지 갖춘 할 일이 된다 | - | 완료 조건을 갖춘 할 일 비율 **-** / 80% 이상 ⏳ |\n| **나눔** | AI가 역할·여유를 보고 추천하고 넘치면 조절한다 | - | AI 배정 수락률 **아직 없음** / 70% 이상 ⏳ |\n| **챙김** | 봇이 먼저 알리고 묻는다 | - | 3일 넘게 멈춘 일 **0건** / 0건 ✅ |\n| **남김** | 회의록·히스토리·결정이 알아서 GitHub 에 쌓인다 | - | 인수인계 성공 (#25) **0건** / 1건 ⏳ |\n| 기반 | PoC 전에 있어야 하는 것 (상시 실행·권한·안전) | - | 밑바탕 — 2배 목표에 직접 닿지 않아요 |\n\n## 🧩 기능 — 할 일마다 무엇을 만드나 · 연결된 이슈\n\n| 할 일 | 기능 | 상태 | 이슈 |\n| --- | --- | --- | --- |\n\n\n## 🗺️ 로드맵 — 판단일 2026-10-02 (D-11)\n\n| 단계 | 끝나는 날 | 진행 | 하는 중 |\n| --- | --- | --- | --- |\n| ✅ **기획** | ~9/18 | ✅ 끝남 | Slack + GitHub 로 간다 (Linear 폐기 — 느림·유료) |\n| ✅ **프로토타입** | ~9/19 | ✅ 끝남 | 캔버스 API 갱신 · 카드 · GitHub 이슈·보드 동기화 실측 성공 |\n| ▶ **개발·도그푸딩** | ~9/24 | ▓▓▓░░░░░░░ 30% (10/33) | [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) · [PA-35 core.py 분리 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) · [PA-14 Slack 메시지를 명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) |\n| **PoC** | ~10/1 | ░░░░░░░░░░ 0% (0/5) | [XX-41 PoC 참가자 1~3명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) · [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) |\n| **판단** | ~10/2 | ░░░░░░░░░░ 0% (0/1) | 계속 · 방향 수정 · 중단, 그리고 파일럿으로 갈지 정한다 |\n| **파일럿** | 미정 | - | 외부 팀 1곳의 실제 업무에 범위를 좁혀 시범 운영한다 (판단에서 가기로 할 때만) |\n| 💤 단계 밖 (나중) | | 7건 | 단계가 정해지면 들어가요 |\n\n> 🔒 **앞선 일 기다림** [PA-5 AI가 레포와 회의록을 읽고 …](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) ← #14 · [PA-8 요청을 AI가 이슈 후보로 골…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749224195209) ← #14 · [PA-12 권한 정리 2](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039) ← #14 · [PA-13 봇이 브랜치와 PR까지 올리게…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529) ← #14 · [PA-24 인수인계 요약](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775746410959) ← #22 #23 …외 2건\n> ⏱️ **일정** 김하나 ⚠️ 4.3시간 넘침 · 박두리 ⚠️ 9.6시간 넘침\n\n## 👥 누가 뭘 맡나\n\n| 사람 · 역할 | 맡는 영역 | 맡은 일 (우선순위순) |\n| --- | --- | --- |\n| ![](@U0EXAMPLEPM) · **PM** | 목표·우선순위, 정책·권한 기준, 이슈 정의·완료 조건 승인, 회의 진행·결정 기록, 사용성 검증 | 🔴 [XX-41 PoC 참가자 1~3명 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) `대기` 📅 9/22 💡 · 🔴 [PA-14 Slack 메시지를 명령으…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) `대기` 📅 9/23 💡 · 🟠 [PA-40 team.md 확인](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319) `대기` 📅 9/21 💡 · 🟠 [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) `대기` 📅 9/24 💡 · 🟠 [PA-43 연재](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239) `대기` 📅 9/25 |\n| ![](@U0EXAMPLEDEV) · **개발** | Slack 봇·앱 설정, GitHub·보드 연동, AI 연동, 운영·상시 실행, 자동 보고 | 🔴 [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) `진행 중` 📅 9/28 💡 · 🔴 [PA-35 core.py 분리 + 배…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) `진행 중` 📅 9/21 💡 · 🔴 [PA-30 bot.py 나누기 + 동…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609) `대기` 📅 9/23 💡 · 🟠 [PA-38 시험용 메시지 정리](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539) `대기` 📅 9/22 💡 · 🟠 [PA-5 AI가 레포와 회의록을 읽…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) `대기` 📅 9/30 |\n| 디자인 · **빈 역할** | 대행 김하나 (제안 — PM 확정 필요) | - |\n| 🙋 **담당 없는 일** | 자리가 나면 추천 담당에게 | 26건 — 🟠 [PA-36 2배 지표 준비](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794228447349) `대기` · 🟠 [PA-42 10/02 판단 회의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794397321529) `대기` · 🟠 [PA-15 팀원 초대와 접근 범위 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749265278799) `대기` · 🟠 [PA-53 이번 주 보기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835367445089?thread_ts=1789835367.445089&cid=C0EXAMPLEPRJ) `대기` … |\n\n> 🔴 P1 긴급 · 🟠 P2 높음 · 🟡 P3 보통 · ⚪ P4 낮음 — 상태는 `대기` `진행 중` `보류` `완료`. 사람마다 맡은 일은 5개까지(진행 3 + 대기 2), 나머지는 🙋 담당 없는 일. 💡 = AI 추천 (카드의 **👍 맡을게요** 로 확정)\n\n## 🗓️ 회의록\n\n| 언제 | 회의 | 이슈 | 기록 |\n| --- | --- | --- | --- |\n| 2026-09-21 | [주간 점검](https://x) | PA-10 봇을 재부팅해도 계속 돌게… | 📝 `meetings/t.md` |\n| 2026-09-19 | [결제 알림 중복 건 논의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789779475158899?thread_ts=1789779475.158899&cid=C0EXAMPLEPRJ) | PA-4 결제 실패 알림 중복 발송… | 📝 `meetings/2026-09-19-결제-알림-중복-건-논의.md` |\n\n---\n\n📂 목록 · 규칙 · 조사 자료는 **모아 홈** 버튼에서 (🔴 우선순위별 · 🙋 담당 없는 일 · 🧮 규칙 · 🔍 벤치마킹 …)\n\n_봇이 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_\n",
+        "markdown": "# 📋 프로젝트-예시 작업판\n\n> 👋 **처음 오셨나요?** 프로젝트가 이 한 화면에 있어요. 할 일은 **#팀-대화** 에 🎫 로 시작하는 한 줄 · 현황은 `@Moa 현황` · 쓰는 법은 **Moa 홈 → ❓ 사용법**\n\n## 😣 Pain point\n\n- **도구가 대화 밖에 있다** — 일은 Slack에서 정해지는데 Jira·Linear는 따로 열어 옮겨 적어야 한다 → 안 적으면 흘러가고, 적어도 금방 옛날 정보가 된다\n- **PM이 비서 일을 한다** — 나누기 · 챙기기 · 회의록 · 알림을 사람이 손으로 한다 → 팀이 커질수록 PM이 병목\n- **맥락이 흩어진다** — 결정과 이유가 스레드 · 회의 · 도구에 흩어져 → 이어받으려면 다 읽어야 한다\n- **AI가 팀을 안 굴린다** — 지금 AI는 요약·검색까지 → 나누고 챙기는 협업 일은 여전히 사람 몫\n\n## 🎯 목표\n\n**Slack 안의 AI 프로젝트 비서로, 프로젝트 팀의 협업 생산성을 2배로 올린다.**\n\n| 할 일 | 바뀌는 것 | 진척 | 성공 기준 · 지금 / 목표 |\n| --- | --- | --- | --- |\n| **구체화** | 봇이 물어봐서 완료 조건까지 갖춘 할 일이 된다 | ▓▓▓▓▓▓▓░░░ 기능 2/3 · 만드는 중 1 | 완료 조건을 갖춘 할 일 비율 **-** / 80% 이상 ⏳ |\n| **나눔** | AI가 역할·여유를 보고 추천하고 넘치면 조절한다 | ▓▓▓▓▓▓▓▓▓▓ 기능 2/2 | AI 배정 수락률 **아직 없음** / 70% 이상 ⏳ |\n| **챙김** | 봇이 먼저 알리고 묻는다 | ▓▓▓▓▓░░░░░ 기능 1/2 · 만드는 중 1 | 3일 넘게 멈춘 일 **0건** / 0건 ✅ |\n| **남김** | 회의록·히스토리·결정이 알아서 GitHub 에 쌓인다 | ░░░░░░░░░░ 기능 0/2 · 만드는 중 1 | 인수인계 성공 (#25) **0건** / 1건 ⏳ |\n| 기반 | PoC 전에 있어야 하는 것 (상시 실행·권한·안전) | ░░░░░░░░░░ 기능 0/2 · 만드는 중 2 | 밑바탕 — 2배 목표에 직접 닿지 않아요 |\n\n## 🧩 기능 — 할 일마다 무엇을 만드나 · 연결된 이슈\n\n| 할 일 | 기능 | 상태 | 이슈 |\n| --- | --- | --- | --- |\n| 구체화 | **요청 입구** | ✅ 있음 | [PA-53 이번 주 보기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835367445089?thread_ts=1789835367.445089&cid=C0EXAMPLEPRJ) · [PA-52 제가 할게요 + 할 일…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835331158699?thread_ts=1789835331.158699&cid=C0EXAMPLEPRJ) · [PA-51 분류함](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835289677499?thread_ts=1789835289.677499&cid=C0EXAMPLEPRJ) · [PA-54 #번호 불러오기 · /…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835403671929?thread_ts=1789835403.671929&cid=C0EXAMPLEPRJ) …외 3 · ✅ 2건 끝남 |\n| 구체화 | **질문으로 구체화** | ✅ 있음 | [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) |\n| 구체화 | **할 일 정리·보완** | 🔧 만드는 중 | - |\n| 나눔 | **담당 추천** | ✅ 있음 | - |\n| 나눔 | **우선순위·과부하 조절** | ✅ 있음 | - |\n| 챙김 | **알림·후속** | 🔧 만드는 중 | [PA-36 2배 지표 준비](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794228447349) · [PA-33 뒤로 보냈어요 알림 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792763110749) · [PA-17 아침 알림](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775680992979) · [PA-46 AI 상태 제안](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789795585488129) …외 2 · ✅ 1건 끝남 |\n| 챙김 | **회의 운영** | ✅ 있음 | [PA-42 10/02 판단 회의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794397321529) · [PA-45 팀 일정](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789795150754579) |\n| 남김 | **동기화·기록** | 🔧 만드는 중 | [PA-30 bot.py 나누기 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609) · [PA-23 이슈 md에 히스토리 …](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775743015369) · [PA-22 결정을 남기기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775739678749) |\n| 남김 | **인수인계** | ▫️ 예정 | [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) · [PA-24 인수인계 요약](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775746410959) |\n| 기반 | **보기 (캔버스·홈·카드)** | 🔧 만드는 중 | [PA-38 시험용 메시지 정리](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539) · [PA-37 캔버스 바뀐 칸만 고치…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794260968539) · ✅ 4건 끝남 |\n| 기반 | **기반 (운영·권한·안전)** | 🔧 만드는 중 | [XX-41 PoC 참가자 1~3명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) · [PA-14 Slack 메시지를 명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) · [PA-35 core.py 분리 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) · [PA-40 team.md 확인](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319) …외 8 · ✅ 3건 끝남 |\n\n## 🗺️ 로드맵 — 판단일 2026-10-02 (D-11)\n\n| 단계 | 끝나는 날 | 진행 | 하는 중 |\n| --- | --- | --- | --- |\n| ✅ **기획** | ~9/18 | ✅ 끝남 | Slack + GitHub 로 간다 (Linear 폐기 — 느림·유료) |\n| ✅ **프로토타입** | ~9/19 | ✅ 끝남 | 캔버스 API 갱신 · 카드 · GitHub 이슈·보드 동기화 실측 성공 |\n| ▶ **개발·도그푸딩** | ~9/24 | ▓▓▓░░░░░░░ 30% (10/33) | [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) · [PA-35 core.py 분리 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) · [PA-14 Slack 메시지를 명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) |\n| **PoC** | ~10/1 | ░░░░░░░░░░ 0% (0/5) | [XX-41 PoC 참가자 1~3명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) · [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) |\n| **판단** | ~10/2 | ░░░░░░░░░░ 0% (0/1) | 계속 · 방향 수정 · 중단, 그리고 파일럿으로 갈지 정한다 |\n| **파일럿** | 미정 | - | 외부 팀 1곳의 실제 업무에 범위를 좁혀 시범 운영한다 (판단에서 가기로 할 때만) |\n| 💤 단계 밖 (나중) | | 7건 | 단계가 정해지면 들어가요 |\n\n> 🔒 **앞선 일 기다림** [PA-5 AI가 레포와 회의록을 읽고 …](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) ← #14 · [PA-8 요청을 AI가 이슈 후보로 골…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749224195209) ← #14 · [PA-12 권한 정리 2](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039) ← #14 · [PA-13 봇이 브랜치와 PR까지 올리게…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529) ← #14 · [PA-24 인수인계 요약](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775746410959) ← #22 #23 …외 2건\n> ⏱️ **일정** 김하나 ⚠️ 4.3시간 넘침 · 박두리 ⚠️ 9.6시간 넘침\n\n## 👥 누가 뭘 맡나\n\n| 사람 · 역할 | 맡는 영역 | 맡은 일 (우선순위순) |\n| --- | --- | --- |\n| ![](@U0EXAMPLEPM) · **PM** | 목표·우선순위, 정책·권한 기준, 이슈 정의·완료 조건 승인, 회의 진행·결정 기록, 사용성 검증 | 🔴 [XX-41 PoC 참가자 1~3명 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) `대기` 📅 9/22 💡 · 🔴 [PA-14 Slack 메시지를 명령으…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) `대기` 📅 9/23 💡 · 🟠 [PA-40 team.md 확인](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319) `대기` 📅 9/21 💡 · 🟠 [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) `대기` 📅 9/24 💡 · 🟠 [PA-43 연재](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239) `대기` 📅 9/25 |\n| ![](@U0EXAMPLEDEV) · **개발** | Slack 봇·앱 설정, GitHub·보드 연동, AI 연동, 운영·상시 실행, 자동 보고 | 🔴 [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) `진행 중` 📅 9/28 💡 · 🔴 [PA-35 core.py 분리 + 배…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) `진행 중` 📅 9/21 💡 · 🔴 [PA-30 bot.py 나누기 + 동…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609) `대기` 📅 9/23 💡 · 🟠 [PA-38 시험용 메시지 정리](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539) `대기` 📅 9/22 💡 · 🟠 [PA-5 AI가 레포와 회의록을 읽…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) `대기` 📅 9/30 |\n| 디자인 · **빈 역할** | 대행 김하나 (제안 — PM 확정 필요) | - |\n| 🙋 **담당 없는 일** | 자리가 나면 추천 담당에게 | 26건 — 🟠 [PA-36 2배 지표 준비](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794228447349) `대기` · 🟠 [PA-42 10/02 판단 회의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794397321529) `대기` · 🟠 [PA-15 팀원 초대와 접근 범위 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749265278799) `대기` · 🟠 [PA-53 이번 주 보기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835367445089?thread_ts=1789835367.445089&cid=C0EXAMPLEPRJ) `대기` … |\n\n> 🔴 P1 긴급 · 🟠 P2 높음 · 🟡 P3 보통 · ⚪ P4 낮음 — 상태는 `대기` `진행 중` `보류` `완료`. 사람마다 맡은 일은 5개까지(진행 3 + 대기 2), 나머지는 🙋 담당 없는 일. 💡 = AI 추천 (카드의 **👍 맡을게요** 로 확정)\n\n## 🗓️ 회의록\n\n| 언제 | 회의 | 이슈 | 기록 |\n| --- | --- | --- | --- |\n| 2026-09-21 | [주간 점검](https://x) | PA-10 봇을 재부팅해도 계속 돌게… | 📝 `meetings/t.md` |\n| 2026-09-19 | [결제 알림 중복 건 논의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789779475158899?thread_ts=1789779475.158899&cid=C0EXAMPLEPRJ) | PA-4 결제 실패 알림 중복 발송… | 📝 `meetings/2026-09-19-결제-알림-중복-건-논의.md` |\n\n---\n\n📂 목록 · 규칙 · 조사 자료는 **모아 홈** 버튼에서 (🔴 우선순위별 · 🙋 담당 없는 일 · 🧮 규칙 · 🔍 벤치마킹 …)\n\n_봇이 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_\n",
         "type": "markdown"
        },
        "operation": "replace"
@@ -10158,7 +11858,7 @@
      "changes": [
       {
        "document_content": {
-        "markdown": "# 📋 프로젝트-예시 작업판\n\n> 👋 **처음 오셨나요?** 프로젝트가 이 한 화면에 있어요. 할 일은 **#팀-대화** 에 🎫 로 시작하는 한 줄 · 현황은 `@Moa 현황` · 쓰는 법은 **Moa 홈 → ❓ 사용법**\n\n## 😣 Pain point\n\n- **도구가 대화 밖에 있다** — 일은 Slack에서 정해지는데 Jira·Linear는 따로 열어 옮겨 적어야 한다 → 안 적으면 흘러가고, 적어도 금방 옛날 정보가 된다\n- **PM이 비서 일을 한다** — 나누기 · 챙기기 · 회의록 · 알림을 사람이 손으로 한다 → 팀이 커질수록 PM이 병목\n- **맥락이 흩어진다** — 결정과 이유가 스레드 · 회의 · 도구에 흩어져 → 이어받으려면 다 읽어야 한다\n- **AI가 팀을 안 굴린다** — 지금 AI는 요약·검색까지 → 나누고 챙기는 협업 일은 여전히 사람 몫\n\n## 🎯 목표\n\n**Slack 안의 AI 프로젝트 비서로, 프로젝트 팀의 협업 생산성을 2배로 올린다.**\n\n| 할 일 | 바뀌는 것 | 진척 | 성공 기준 · 지금 / 목표 |\n| --- | --- | --- | --- |\n| **구체화** | 봇이 물어봐서 완료 조건까지 갖춘 할 일이 된다 | - | 완료 조건을 갖춘 할 일 비율 **-** / 80% 이상 ⏳ |\n| **나눔** | AI가 역할·여유를 보고 추천하고 넘치면 조절한다 | - | AI 배정 수락률 **아직 없음** / 70% 이상 ⏳ |\n| **챙김** | 봇이 먼저 알리고 묻는다 | - | 3일 넘게 멈춘 일 **0건** / 0건 ✅ |\n| **남김** | 회의록·히스토리·결정이 알아서 GitHub 에 쌓인다 | - | 인수인계 성공 (#25) **0건** / 1건 ⏳ |\n| 기반 | PoC 전에 있어야 하는 것 (상시 실행·권한·안전) | - | 밑바탕 — 2배 목표에 직접 닿지 않아요 |\n\n## 🧩 기능 — 할 일마다 무엇을 만드나 · 연결된 이슈\n\n| 할 일 | 기능 | 상태 | 이슈 |\n| --- | --- | --- | --- |\n\n\n## 🗺️ 로드맵 — 판단일 2026-10-02 (D-11)\n\n| 단계 | 끝나는 날 | 진행 | 하는 중 |\n| --- | --- | --- | --- |\n| ✅ **기획** | ~9/18 | ✅ 끝남 | Slack + GitHub 로 간다 (Linear 폐기 — 느림·유료) |\n| ✅ **프로토타입** | ~9/19 | ✅ 끝남 | 캔버스 API 갱신 · 카드 · GitHub 이슈·보드 동기화 실측 성공 |\n| ▶ **개발·도그푸딩** | ~9/24 | ▓▓▓░░░░░░░ 30% (10/33) | [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) · [PA-35 core.py 분리 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) · [PA-14 Slack 메시지를 명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) |\n| **PoC** | ~10/1 | ░░░░░░░░░░ 0% (0/5) | [XX-41 PoC 참가자 1~3명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) · [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) |\n| **판단** | ~10/2 | ░░░░░░░░░░ 0% (0/1) | 계속 · 방향 수정 · 중단, 그리고 파일럿으로 갈지 정한다 |\n| **파일럿** | 미정 | - | 외부 팀 1곳의 실제 업무에 범위를 좁혀 시범 운영한다 (판단에서 가기로 할 때만) |\n| 💤 단계 밖 (나중) | | 7건 | 단계가 정해지면 들어가요 |\n\n> 🔒 **앞선 일 기다림** [PA-5 AI가 레포와 회의록을 읽고 …](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) ← #14 · [PA-8 요청을 AI가 이슈 후보로 골…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749224195209) ← #14 · [PA-12 권한 정리 2](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039) ← #14 · [PA-13 봇이 브랜치와 PR까지 올리게…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529) ← #14 · [PA-24 인수인계 요약](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775746410959) ← #22 #23 …외 2건\n> ⏱️ **일정** 김하나 ⚠️ 4.3시간 넘침 · 박두리 ⚠️ 9.6시간 넘침\n\n## 👥 누가 뭘 맡나\n\n| 사람 · 역할 | 맡는 영역 | 맡은 일 (우선순위순) |\n| --- | --- | --- |\n| ![](@U0EXAMPLEPM) · **PM** | 목표·우선순위, 정책·권한 기준, 이슈 정의·완료 조건 승인, 회의 진행·결정 기록, 사용성 검증 | 🔴 [XX-41 PoC 참가자 1~3명 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) `대기` 📅 9/22 💡 · 🔴 [PA-14 Slack 메시지를 명령으…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) `대기` 📅 9/23 💡 · 🟠 [PA-40 team.md 확인](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319) `대기` 📅 9/21 💡 · 🟠 [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) `대기` 📅 9/24 💡 · 🟠 [PA-43 연재](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239) `대기` 📅 9/25 |\n| ![](@U0EXAMPLEDEV) · **개발** | Slack 봇·앱 설정, GitHub·보드 연동, AI 연동, 운영·상시 실행, 자동 보고 | 🔴 [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) `진행 중` 📅 9/28 💡 · 🔴 [PA-35 core.py 분리 + 배…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) `진행 중` 📅 9/21 💡 · 🔴 [PA-30 bot.py 나누기 + 동…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609) `대기` 📅 9/23 💡 · 🟠 [PA-38 시험용 메시지 정리](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539) `대기` 📅 9/22 💡 · 🟠 [PA-5 AI가 레포와 회의록을 읽…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) `대기` 📅 9/30 |\n| 디자인 · **빈 역할** | 대행 김하나 (제안 — PM 확정 필요) | - |\n| 🙋 **담당 없는 일** | 자리가 나면 추천 담당에게 | 26건 — 🟠 [PA-36 2배 지표 준비](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794228447349) `대기` · 🟠 [PA-42 10/02 판단 회의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794397321529) `대기` · 🟠 [PA-15 팀원 초대와 접근 범위 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749265278799) `대기` · 🟠 [PA-53 이번 주 보기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835367445089?thread_ts=1789835367.445089&cid=C0EXAMPLEPRJ) `대기` … |\n\n> 🔴 P1 긴급 · 🟠 P2 높음 · 🟡 P3 보통 · ⚪ P4 낮음 — 상태는 `대기` `진행 중` `보류` `완료`. 사람마다 맡은 일은 5개까지(진행 3 + 대기 2), 나머지는 🙋 담당 없는 일. 💡 = AI 추천 (카드의 **👍 맡을게요** 로 확정)\n\n## 🗓️ 회의록\n\n| 언제 | 회의 | 이슈 | 기록 |\n| --- | --- | --- | --- |\n| 2026-09-21 | [주간 점검](https://x) | PA-10 봇을 재부팅해도 계속 돌게… | 📝 `meetings/t.md` |\n| 2026-09-19 | [결제 알림 중복 건 논의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789779475158899?thread_ts=1789779475.158899&cid=C0EXAMPLEPRJ) | PA-4 결제 실패 알림 중복 발송… | 📝 `meetings/2026-09-19-결제-알림-중복-건-논의.md` |\n\n---\n\n📂 목록 · 규칙 · 조사 자료는 **모아 홈** 버튼에서 (🔴 우선순위별 · 🙋 담당 없는 일 · 🧮 규칙 · 🔍 벤치마킹 …)\n\n_봇이 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_\n",
+        "markdown": "# 📋 프로젝트-예시 작업판\n\n> 👋 **처음 오셨나요?** 프로젝트가 이 한 화면에 있어요. 할 일은 **#팀-대화** 에 🎫 로 시작하는 한 줄 · 현황은 `@Moa 현황` · 쓰는 법은 **Moa 홈 → ❓ 사용법**\n\n## 😣 Pain point\n\n- **도구가 대화 밖에 있다** — 일은 Slack에서 정해지는데 Jira·Linear는 따로 열어 옮겨 적어야 한다 → 안 적으면 흘러가고, 적어도 금방 옛날 정보가 된다\n- **PM이 비서 일을 한다** — 나누기 · 챙기기 · 회의록 · 알림을 사람이 손으로 한다 → 팀이 커질수록 PM이 병목\n- **맥락이 흩어진다** — 결정과 이유가 스레드 · 회의 · 도구에 흩어져 → 이어받으려면 다 읽어야 한다\n- **AI가 팀을 안 굴린다** — 지금 AI는 요약·검색까지 → 나누고 챙기는 협업 일은 여전히 사람 몫\n\n## 🎯 목표\n\n**Slack 안의 AI 프로젝트 비서로, 프로젝트 팀의 협업 생산성을 2배로 올린다.**\n\n| 할 일 | 바뀌는 것 | 진척 | 성공 기준 · 지금 / 목표 |\n| --- | --- | --- | --- |\n| **구체화** | 봇이 물어봐서 완료 조건까지 갖춘 할 일이 된다 | ▓▓▓▓▓▓▓░░░ 기능 2/3 · 만드는 중 1 | 완료 조건을 갖춘 할 일 비율 **-** / 80% 이상 ⏳ |\n| **나눔** | AI가 역할·여유를 보고 추천하고 넘치면 조절한다 | ▓▓▓▓▓▓▓▓▓▓ 기능 2/2 | AI 배정 수락률 **아직 없음** / 70% 이상 ⏳ |\n| **챙김** | 봇이 먼저 알리고 묻는다 | ▓▓▓▓▓░░░░░ 기능 1/2 · 만드는 중 1 | 3일 넘게 멈춘 일 **0건** / 0건 ✅ |\n| **남김** | 회의록·히스토리·결정이 알아서 GitHub 에 쌓인다 | ░░░░░░░░░░ 기능 0/2 · 만드는 중 1 | 인수인계 성공 (#25) **0건** / 1건 ⏳ |\n| 기반 | PoC 전에 있어야 하는 것 (상시 실행·권한·안전) | ░░░░░░░░░░ 기능 0/2 · 만드는 중 2 | 밑바탕 — 2배 목표에 직접 닿지 않아요 |\n\n## 🧩 기능 — 할 일마다 무엇을 만드나 · 연결된 이슈\n\n| 할 일 | 기능 | 상태 | 이슈 |\n| --- | --- | --- | --- |\n| 구체화 | **요청 입구** | ✅ 있음 | [PA-53 이번 주 보기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835367445089?thread_ts=1789835367.445089&cid=C0EXAMPLEPRJ) · [PA-52 제가 할게요 + 할 일…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835331158699?thread_ts=1789835331.158699&cid=C0EXAMPLEPRJ) · [PA-51 분류함](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835289677499?thread_ts=1789835289.677499&cid=C0EXAMPLEPRJ) · [PA-54 #번호 불러오기 · /…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835403671929?thread_ts=1789835403.671929&cid=C0EXAMPLEPRJ) …외 3 · ✅ 2건 끝남 |\n| 구체화 | **질문으로 구체화** | ✅ 있음 | [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) |\n| 구체화 | **할 일 정리·보완** | 🔧 만드는 중 | - |\n| 나눔 | **담당 추천** | ✅ 있음 | - |\n| 나눔 | **우선순위·과부하 조절** | ✅ 있음 | - |\n| 챙김 | **알림·후속** | 🔧 만드는 중 | [PA-36 2배 지표 준비](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794228447349) · [PA-33 뒤로 보냈어요 알림 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792763110749) · [PA-17 아침 알림](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775680992979) · [PA-46 AI 상태 제안](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789795585488129) …외 2 · ✅ 1건 끝남 |\n| 챙김 | **회의 운영** | ✅ 있음 | [PA-42 10/02 판단 회의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794397321529) · [PA-45 팀 일정](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789795150754579) |\n| 남김 | **동기화·기록** | 🔧 만드는 중 | [PA-30 bot.py 나누기 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609) · [PA-23 이슈 md에 히스토리 …](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775743015369) · [PA-22 결정을 남기기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775739678749) |\n| 남김 | **인수인계** | ▫️ 예정 | [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) · [PA-24 인수인계 요약](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775746410959) |\n| 기반 | **보기 (캔버스·홈·카드)** | 🔧 만드는 중 | [PA-38 시험용 메시지 정리](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539) · [PA-37 캔버스 바뀐 칸만 고치…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794260968539) · ✅ 4건 끝남 |\n| 기반 | **기반 (운영·권한·안전)** | 🔧 만드는 중 | [XX-41 PoC 참가자 1~3명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) · [PA-14 Slack 메시지를 명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) · [PA-35 core.py 분리 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) · [PA-40 team.md 확인](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319) …외 8 · ✅ 3건 끝남 |\n\n## 🗺️ 로드맵 — 판단일 2026-10-02 (D-11)\n\n| 단계 | 끝나는 날 | 진행 | 하는 중 |\n| --- | --- | --- | --- |\n| ✅ **기획** | ~9/18 | ✅ 끝남 | Slack + GitHub 로 간다 (Linear 폐기 — 느림·유료) |\n| ✅ **프로토타입** | ~9/19 | ✅ 끝남 | 캔버스 API 갱신 · 카드 · GitHub 이슈·보드 동기화 실측 성공 |\n| ▶ **개발·도그푸딩** | ~9/24 | ▓▓▓░░░░░░░ 30% (10/33) | [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) · [PA-35 core.py 분리 +…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) · [PA-14 Slack 메시지를 명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) |\n| **PoC** | ~10/1 | ░░░░░░░░░░ 0% (0/5) | [XX-41 PoC 참가자 1~3명…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) · [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) |\n| **판단** | ~10/2 | ░░░░░░░░░░ 0% (0/1) | 계속 · 방향 수정 · 중단, 그리고 파일럿으로 갈지 정한다 |\n| **파일럿** | 미정 | - | 외부 팀 1곳의 실제 업무에 범위를 좁혀 시범 운영한다 (판단에서 가기로 할 때만) |\n| 💤 단계 밖 (나중) | | 7건 | 단계가 정해지면 들어가요 |\n\n> 🔒 **앞선 일 기다림** [PA-5 AI가 레포와 회의록을 읽고 …](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) ← #14 · [PA-8 요청을 AI가 이슈 후보로 골…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749224195209) ← #14 · [PA-12 권한 정리 2](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039) ← #14 · [PA-13 봇이 브랜치와 PR까지 올리게…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529) ← #14 · [PA-24 인수인계 요약](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775746410959) ← #22 #23 …외 2건\n> ⏱️ **일정** 김하나 ⚠️ 4.3시간 넘침 · 박두리 ⚠️ 9.6시간 넘침\n\n## 👥 누가 뭘 맡나\n\n| 사람 · 역할 | 맡는 영역 | 맡은 일 (우선순위순) |\n| --- | --- | --- |\n| ![](@U0EXAMPLEPM) · **PM** | 목표·우선순위, 정책·권한 기준, 이슈 정의·완료 조건 승인, 회의 진행·결정 기록, 사용성 검증 | 🔴 [XX-41 PoC 참가자 1~3명 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) `대기` 📅 9/22 💡 · 🔴 [PA-14 Slack 메시지를 명령으…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749261680049) `대기` 📅 9/23 💡 · 🟠 [PA-40 team.md 확인](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794346297319) `대기` 📅 9/21 💡 · 🟠 [PA-25 인수인계 시험](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099) `대기` 📅 9/24 💡 · 🟠 [PA-43 연재](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794427895239) `대기` 📅 9/25 |\n| ![](@U0EXAMPLEDEV) · **개발** | Slack 봇·앱 설정, GitHub·보드 연동, AI 연동, 운영·상시 실행, 자동 보고 | 🔴 [XX-31 질문으로 구체화](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) `진행 중` 📅 9/28 💡 · 🔴 [PA-35 core.py 분리 + 배…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794199942679) `진행 중` 📅 9/21 💡 · 🔴 [PA-30 bot.py 나누기 + 동…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789788787665609) `대기` 📅 9/23 💡 · 🟠 [PA-38 시험용 메시지 정리](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539) `대기` 📅 9/22 💡 · 🟠 [PA-5 AI가 레포와 회의록을 읽…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579) `대기` 📅 9/30 |\n| 디자인 · **빈 역할** | 대행 김하나 (제안 — PM 확정 필요) | - |\n| 🙋 **담당 없는 일** | 자리가 나면 추천 담당에게 | 26건 — 🟠 [PA-36 2배 지표 준비](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794228447349) `대기` · 🟠 [PA-42 10/02 판단 회의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794397321529) `대기` · 🟠 [PA-15 팀원 초대와 접근 범위 정…](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749265278799) `대기` · 🟠 [PA-53 이번 주 보기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789835367445089?thread_ts=1789835367.445089&cid=C0EXAMPLEPRJ) `대기` … |\n\n> 🔴 P1 긴급 · 🟠 P2 높음 · 🟡 P3 보통 · ⚪ P4 낮음 — 상태는 `대기` `진행 중` `보류` `완료`. 사람마다 맡은 일은 5개까지(진행 3 + 대기 2), 나머지는 🙋 담당 없는 일. 💡 = AI 추천 (카드의 **👍 맡을게요** 로 확정)\n\n## 🗓️ 회의록\n\n| 언제 | 회의 | 이슈 | 기록 |\n| --- | --- | --- | --- |\n| 2026-09-21 | [주간 점검](https://x) | PA-10 봇을 재부팅해도 계속 돌게… | 📝 `meetings/t.md` |\n| 2026-09-19 | [결제 알림 중복 건 논의](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789779475158899?thread_ts=1789779475.158899&cid=C0EXAMPLEPRJ) | PA-4 결제 실패 알림 중복 발송… | 📝 `meetings/2026-09-19-결제-알림-중복-건-논의.md` |\n\n---\n\n📂 목록 · 규칙 · 조사 자료는 **모아 홈** 버튼에서 (🔴 우선순위별 · 🙋 담당 없는 일 · 🧮 규칙 · 🔍 벤치마킹 …)\n\n_봇이 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_\n",
         "type": "markdown"
        },
        "operation": "replace"

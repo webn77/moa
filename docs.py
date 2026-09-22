@@ -106,12 +106,21 @@ def okr_of(c):
 
 
 def md_table(path, section=None, cols=None):
-    """md 파일의 표를 행 목록으로. section 을 주면 그 ## 제목 아래 표만."""
+    """md 파일의 표를 행 목록으로. section 을 주면 그 ## 제목 아래 표만.
+
+    **제목은 앞부분만 맞으면 된다** (2026-09-22). 예전에는 글자가 똑같아야 했는데,
+    `## 기능 (상위 이슈)` 를 `## 기능 (여러 할 일을 묶는 칸)` 으로 고치면서 **읽는 쪽 둘이
+    안 따라왔다.** 그래서 `load_features()` 가 **어디서나 빈 값**이었다 —
+    ⚙️ 설정의 「기능」 칸은 고를 것이 0개가 되고, Slack 은 그런 메시지를 통째로 막는다
+    (`invalid_blocks`). 아무도 안 알아챘다: 실패가 로그 한 줄로만 남았다.
+    제목 뒤 괄호는 사람이 읽으라고 붙이는 말이라 자주 바뀐다 — 거기에 매달리지 않는다.
+    """
     p = HERE / path
     out, on = [], section is None
+    head = (section or "").split(" (")[0].strip()
     for line in p.read_text(encoding="utf-8").splitlines() if p.exists() else []:
         if re.match(r"#{2,3} ", line):                # ## · ### 제목에서 구역이 바뀐다
-            on = section is None or line.strip() == section
+            on = section is None or line.strip() == section or line.strip().startswith(head + " ")
         elif on and line.startswith("|"):
             cells = [x.strip() for x in line.strip().strip("|").split("|")]
             if (cols is None or len(cells) == cols) and not cells[0].startswith("---"):

@@ -167,7 +167,13 @@ def ctl_blocks(c):
            {"type": "static_select", "action_id": "set_prio", "options": [popt(k) for k in PLEVEL], "initial_option": popt(plevel(c))},
            due_el,
            {"type": "static_select", "action_id": "set_status", "options": [sopt(k) for k in LABEL], "initial_option": sopt(c["status"])},
-           stage_el, feat_el]
+           stage_el]
+    # **고를 것이 없는 칸은 빼야 한다** — Slack 은 options 가 빈 static_select 를 보면
+    # **메시지 전체를** `invalid_blocks` 로 막는다 (2026-09-22 실측: mju 는 `project.md` 에
+    # 기능 표가 없어서 ⚙️ 설정이 **한 번도 안 올라갔다** — 조용히).
+    # 로드맵 단계는 「나중 (단계 밖)」 이 늘 붙어서 빌 일이 없다
+    if feat_el["options"]:
+        els.append(feat_el)
     ai = []
     if c.get("assign_src") == "ai" and c.get("assignee"):
         ai.append(f"담당 {nm(c['assignee'])} (AI 추천 — {c.get('assign_reason') or '역할 기준'})")
