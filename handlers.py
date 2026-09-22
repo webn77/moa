@@ -131,6 +131,10 @@ async def on_dm(s, e):
         # 「결제 개편」 이 프로젝트 이름인데 검색어로 받으면 대화가 끊긴다 (2026-09-21)
         if await new_project(s, e, q):
             return
+        # **좁은 갈래가 먼저다** — 「깃허브 등록」 이 할 일 등록에 잡혔다 (시뮬레이션이 잡았다).
+        # 「등록」 이라는 낱말을 여러 흐름이 쓰므로, 더 또렷한 것부터 물어본다
+        if await new_repo(s, e, q):           # GitHub 붙이기 — 같은 틀 (2026-09-22)
+            return
         if await new_task(s, e, q):           # 할 일 올리기 — 같은 틀로 한 칸씩 (2026-09-22)
             return
         if await onboard_catch(s, e, q):      # 처음 오신 분의 한 걸음 — 「됐어요」 만 여기서 받는다
@@ -514,6 +518,7 @@ from ai import answer, coach, intent, refine  # noqa: E402,F401
 from flows.onboard import catch as onboard_catch, nudge  # noqa: E402
 from flows.project import maybe as new_project  # noqa: E402
 from flows.task import maybe as new_task  # noqa: E402
+from flows.repo import maybe as new_repo  # noqa: E402
 from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401

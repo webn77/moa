@@ -39,6 +39,11 @@ from store import STATE, save
 # 시작하는 말 — **만드는 낱말이 함께 있어야** 잡는다. 「내 할 일」·「할 일 목록」 은 찾는 말이다
 START = re.compile(r"(할\s*일|이슈|업무|작업)\S*\s*(를|을|로|은|는)?\s*\S{0,4}\s*(등록|만들|추가|올려|생성)"
                    r"|등록\s*(할래|하려|해줘|하자|할게)")
+# **다른 등록과 섞이지 않는다** — 「깃허브 등록 하려고」 가 할 일 등록으로 잡혔다
+# (2026-09-22 시뮬레이션). 갈래 순서로도 막았지만 **순서에 기대지 않는다** —
+# 순서는 나중에 누가 바꿀 수 있고, 그러면 조용히 어긋난다.
+# 「프로젝트」 는 여기 넣지 않는다: 「두 번째 프로젝트에 할일 등록」 은 진짜 할 일이다
+NOT_MINE = re.compile(r"깃허브|깃헙|github|레포|repo|저장소", re.I)
 _HEAD = re.compile(HEAD, re.I)
 # 「제가 할게요」 처럼 문장으로 오기도 하고 「제가」 한 마디로 오기도 한다.
 # **설명할 수 있는 낱말만 둔다** — 뜻 모를 낱말을 방어용으로 끼워 두면 다음 사람이
@@ -304,7 +309,7 @@ async def maybe(s, e, q, force=False):
     user, ch = e.get("user"), e.get("channel")
     st, opened = _asking(user), False
     if st is None:
-        if not (force or START.search(q)):
+        if not (force or (START.search(q) and not NOT_MINE.search(q))):
             return False
         opened = True
         st = {"by": user, "step": "title", "th": e.get("thread_ts") or e.get("ts")}
