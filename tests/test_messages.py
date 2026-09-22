@@ -86,11 +86,27 @@ class MessageRules(unittest.TestCase):
         for k, v in TEXTS.items():
             self.assertIsNone(re.search(r"\{due\}(이|가|예|로|으로|은|는|을|를)", v), k)
 
+    def test_no_particle_after_user_text(self):
+        """**사람이 적은 말이 들어오는 칸 뒤에 조사를 붙이지 않는다** (2026-09-22 시뮬레이션).
+
+        「충전성공」 는 · 「현황」 는 처럼 어긋났다. 끝 글자를 알 수 없으니 은/는 · 이/가 ·
+        로/으로 중 무엇이 맞는지 미리 못 정한다. **줄표(—)로 끊으면** 어떤 말이 와도 맞는다.
+        `{due}` 에 이미 같은 규칙이 있다 (위 시험) — 같은 이유다.
+        """
+        holes = ("word", "title", "name", "goal", "what", "who", "body", "err", "k")
+        # **닫는 낫표·따옴표를 사이에 끼워도 잡아야 한다** — 처음 쓴 규칙은 `{word}` 바로 뒤만
+        # 봐서 「{word}」 는 을 놓쳤다. 이가 없는 시험은 통과해도 아무것도 지키지 않는다
+        JOSA = re.compile(r"\{(" + "|".join(holes) + r")\}[」』\"'`\*]*\s*"
+                          r"(은|는|이|가|을|를|으로|로|와|과|이랑|예요|이에요|이군요)\b")
+        self.assertTrue(JOSA.search("「{word}」 는 번호 앞말로"), "시험에 이가 없다")
+        for k, v in TEXTS.items():
+            self.assertIsNone(JOSA.search(v), f"{k}: 자리표시 뒤에 조사 — 줄표(—)로 끊어 주세요")
+
     def test_placeholders_are_known(self):
         """자리표시는 이 목록 안에서만 — 오타면 실행 중에 KeyError 가 난다."""
         known = {"link", "no", "ref", "what", "bot", "err", "n", "url", "tracker", "path", "who", "body", "plan",
                  "freed", "p", "nobody", "uid", "due", "dc", "next", "why", "done", "refs", "channel", "detail",
-                 "title", "k", "word", "name", "at", "detail", "who"}
+                 "title", "k", "word", "name", "at", "detail", "who", "goal"}
         for k, v in TEXTS.items():
             used = {f for _, f, _, _ in string.Formatter().parse(v) if f}
             self.assertLessEqual(used, known, f"{k}: {used - known}")

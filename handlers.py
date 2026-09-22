@@ -21,6 +21,12 @@ MAKE = re.compile(r"(할\s*일|이슈)(로)?\s*(만들|등록|올려|생성)|등
 # 줄여야 할 때 늘렸다. 🎫 는 손에 익은 분을 위해 남기되 안내에는 쓰지 않는다.
 NEW = re.compile(r"^\s*(?:🎫|:ticket:)\s*(.+)", re.S)
 MERGE = re.compile(r"(?:합치|중복|같은\s*일|묶어)\D*#?(\d{1,4})|#(\d{1,4})\D*(?:합치|중복|같은\s*일|묶어)")
+# **AI 를 부를지 말지 가르는 값싼 울타리** (2026-09-22). 뭘 **만들자는 뜻**이 있을 법한
+# 말에만 `ai.intent` 를 부른다 — 모든 DM 을 AI 에게 보이면 구독 한도가 인사말에도 녹는다.
+#
+# **만드는 낱말만 본다.** 처음에는 「프로젝트」·「할 일」·「이슈」 도 넣었는데 「내 할 일」 이
+# 걸렸다 (시험이 잡았다) — 그건 찾는 말이고, 찾는 말마다 AI 를 부르면 아낀 게 없다.
+ASKISH = re.compile(r"만들|생성|등록|추가|시작|올려|새로|새\s*프로젝트|잡아\s*줘")
 # 백슬래시가 둘이면 「빈칸」 이 아니라 「\ 글자」 를 찾는다 — 그래서 「@PA 이슈 정리」 가 안 먹었다 (2026-09-20 발견)
 TIDY = re.compile(r"^(정리|이슈\s*정리|치우|비우)")     # 「@PA 정리」 — 카드 스레드 밖에서만
 ORDER = re.compile(r"^(순서|선행|앞선\s*일|의존)")      # 「@PA 순서」 — 선행을 한 화면에 모아 고치기 (#68)
@@ -134,6 +140,18 @@ async def on_dm(s, e):
             await propose_issue(s, e, q)
         elif e.get("thread_ts") and await refresh_draft(s, e):
             return
+        elif ASKISH.search(q):
+            # **여기서만 AI 에게 묻는다** — 「무엇을 하려는 말인가」 한 번 (2026-09-22).
+            # 낱말로 안 걸리는 말(「새로 시작하는 일 하나 올려줘」)은 뜻으로 가른다.
+            # 값싼 갈래가 아무것도 못 집었을 때만 온다 — 「현황」·「목록」 은 위에서 끝나고
+            # ASKISH 에 안 걸리는 말(인사·질문)은 AI 를 아예 안 쓴다
+            kind = await intent(q)
+            if kind == "project":
+                await new_project(s, e, q, force=True)
+            elif kind == "task":
+                await propose_issue(s, e, q)
+            else:
+                await find(s, e, q)
         else:
             await find(s, e, q)
 
@@ -489,7 +507,7 @@ async def refresh_ctls(s):
 
 
 # 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다
-from ai import answer, coach, refine  # noqa: E402,F401
+from ai import answer, coach, intent, refine  # noqa: E402,F401
 from flows.onboard import catch as onboard_catch, nudge  # noqa: E402
 from flows.project import maybe as new_project  # noqa: E402
 from flows.find import find  # noqa: E402,F401

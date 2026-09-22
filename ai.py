@@ -70,6 +70,39 @@ async def ask_ai(system, prompt, tries=3):
     raise last
 
 
+# ─── 뜻 고르기 (2026-09-22 사장님 결정) ──────────────────────────────────────
+# **AI 는 갈림길에서 한 번만 부른다.** 하루 전까지는 프로젝트를 만드는 대화마다 AI 에게
+# 칸을 채우게 했다 — 세 마디면 세 번이고, **구독 한도는 그렇게 녹는다**
+# (사장님: 「우리는 구독으로 동작하는데 차라리 하나씩 받아서 하는 건 어때?」).
+#
+# 그래서 일을 나눴다: **무엇을 하려는 말인지**는 AI 가 고르고(한 번),
+# **무엇을 물을지**는 흐름이 정한다(AI 없이). 낱말 목록으로는 「새로 시작하는 일 하나
+# 올려줘」 를 못 잡는데, 그걸 잡으려고 낱말을 늘리면 「프로젝트 현황」 까지 삼킨다.
+INTENT_SYS = (
+    "너는 Slack 에서 팀의 프로젝트를 돕는 비서다. 사람이 한 말이 **무엇을 하려는 것인지**만 고른다. "
+    "셋 중 하나만 그대로 출력한다 — 다른 말은 한 글자도 쓰지 않는다.\n"
+    "project = 프로젝트를 새로 만들거나 올리려는 말\n"
+    "task = 할 일 하나를 만들거나 올리려는 말\n"
+    "other = 그 밖의 모든 것 — 찾기 · 목록 · 현황 · 질문 · 인사 · 이미 있는 것에 대한 이야기"
+)
+
+
+async def intent(q):
+    """이 말이 프로젝트 등록인지 할 일 등록인지 고른다. 못 고르거나 AI 가 안 되면 "other".
+
+    **막히지 않는다** — 못 고르면 찾기로 흘러가고, 거기서도 못 알아들으면 무엇을 할 수 있는지
+    알려 준다. 프로젝트를 잘못 시작하는 것보다 그게 낫다 (되돌릴 수 없는 것을 만드는 길이다).
+    """
+    try:
+        raw = (await ask_ai(INTENT_SYS, (q or "")[:500], tries=2)).strip().lower()
+    except Exception as ex:
+        log(f"뜻 고르기 실패: {type(ex).__name__}: {str(ex)[:80]}")
+        return "other"
+    got = next((k for k in ("project", "task") if k in raw), "other")
+    log(f"뜻: {got} ← {(q or '')[:40]}")
+    return got
+
+
 async def transcript(s, c):
     msgs = (await api(s, "conversations.replies", channel=chan(c), ts=c["card_ts"], limit=200)).get("messages", [])
     lines = [f"[처음 요청] {c['by']}: {c['request']}"]
