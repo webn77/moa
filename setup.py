@@ -377,6 +377,10 @@ def main():
     print(f"  0. (선택) 앱 아이콘 올리기 — api.slack.com/apps/{bot.get('app_id','')}"
           " → Basic Information → Display Information → App icon")
     print(f"     파일: {CODE / 'assets/pa-icon-white-1024.png'}  (512 는 Slack 이 거절한다)")
+    # 채널 캔버스의 탭 이름은 **API 로 못 정한다** (2026-09-22 실측) — 앱 아이콘과 같다
+    if canvas:
+        print(f"  0-2. (선택) #{a.room} 의 작업판 탭 이름 적기 — 지금은 「제목 없음」 이에요")
+        print("     탭을 열고 맨 위 「내 캔버스 제목」 자리에 한 줄 치면 돼요 (API 로는 못 바꿔요)")
     print(f"  1. {data}/project.md · team.md · roadmap.md 를 팀에 맞게 고친다")
     print(f"  2. 실행:  MOA_DATA='{data}' python3 {CODE / 'bot.py'}")
     print(f"  3. #{a.talk} 에 「🎫 첫 요청」 을 써 본다")
