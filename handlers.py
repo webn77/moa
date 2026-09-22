@@ -243,7 +243,9 @@ async def on_event(s, e, me):
         c = STATE["cards"][e["item"]["ts"]]
         status = REACT.get(e.get("reaction"))
         if status:
-            status = resolve(c, status, e.get("user"))
+            want, status = status, resolve(c, status, e.get("user"))
+            if await tell_left(s, c, want, status, e.get("user")):   # 체크리스트가 남았으면 ✅ 를 눌러도 안 닫힌다
+                return
             if status == c["status"]:
                 return
             snap, asnap = decision_snap(), ann_snap(c)
@@ -291,8 +293,11 @@ async def on_view_submit(s, payload):
     vals = v["state"]["values"]
     snap, asnap = decision_snap(), ann_snap(c)
     before = c["status"]
-    new = resolve(c, vals.get("s", {}).get("status", {}).get("selected_option", {}).get("value") or c["status"],
-                  payload.get("user", {}).get("id"))
+    want = vals.get("s", {}).get("status", {}).get("selected_option", {}).get("value") or c["status"]
+    new = resolve(c, want, payload.get("user", {}).get("id"))
+    # 홈 ✏️ 창에서 완료를 골라도 체크리스트가 남았으면 안 닫힌다 — 창은 이미 닫혔으니
+    # 카드 스레드에 남은 것을 알린다 (막은 자리와 알리는 자리가 달라도 카드 하나에 모인다)
+    await tell_left(s, c, want, new, payload.get("user", {}).get("id"))
     if new != c["status"]:
         c["since"] = datetime.date.today().isoformat()
         c["at"] = time.time()                                          # 리드타임·멈춤 계산용
@@ -563,7 +568,7 @@ from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401
 from flows.meeting import apply_meeting_change, finish_meeting, new_meeting, save_meeting  # noqa: E402,F401
-from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_editor, open_take_editor, post_log, record_change, redraw, resolve, save_content, save_take, take_card  # noqa: E402,F401
+from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, save_content, save_take, take_card  # noqa: E402,F401
 from flows.review import review_answer  # noqa: E402,F401
 from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, fill_all as tidy_fill_all, propose as tidy_propose  # noqa: E402,F401
 from views.canvas import render_canvas, render_canvas_now  # noqa: E402,F401

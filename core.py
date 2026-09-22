@@ -90,9 +90,32 @@ def confirmer(c, team):
     return next((u for u, t in team.items() if "PM" in (t.get("role") or "") and u != c.get("assignee")), None)
 
 
+def left_items(c):
+    """아직 체크 안 한 체크리스트 항목. 체크리스트가 없으면 빈 목록 (= 막을 것이 없다)."""
+    done = (c.get("spec") or {}).get("done_criteria") or []
+    return [x for x in done if x not in (c.get("checked") or [])]
+
+
+def blocks_done(c):
+    """**체크리스트가 남아 있으면 완료가 아니다** (2026-09-23 사장님: 「체크리스트 다 완료 되어야 완료야」).
+
+    체크리스트가 아예 없으면 막지 않는다 — 없는 기준으로 막으면 아무도 못 닫는다.
+    **이미 확인 대기면 막지 않는다** — 그 카드는 이 문을 이미 지났다. 확인해 주는 사람까지
+    막으면 남이 못 끝낸 일 때문에 갇힌다.
+    안 할 항목은 **빼면 된다** (📝 설명 쓰기) — 길이 있으니 막아도 갇히지 않는다.
+    """
+    return c["status"] != "review" and bool(left_items(c))
+
+
 def next_status(c, want, user, team, review=True):
     """바꾸려는 상태 → 실제로 갈 상태. 완료는 확인할 사람이 있으면 먼저 「확인 대기」 (Jira·Linear 의 In Review).
-    확인할 사람(요청자·PM)이 직접 완료하면 바로 완료. 확인할 사람이 없으면(혼자 요청·담당) 바로 완료."""
+    확인할 사람(요청자·PM)이 직접 완료하면 바로 완료. 확인할 사람이 없으면(혼자 요청·담당) 바로 완료.
+
+    체크리스트가 남아 있으면 **아무 데도 안 간다** — 지금 상태를 그대로 돌려준다.
+    부른 쪽은 이것을 보고 「아직 n개 남았어요」 를 그 자리에 알린다 (조용히 안 되면 고장처럼 보인다).
+    """
+    if want == "done" and c["status"] != "done" and blocks_done(c):
+        return c["status"]
     if want != "done" or not review or c["status"] == "done":
         return want
     if user in approvers(c, team) or not confirmer(c, team):

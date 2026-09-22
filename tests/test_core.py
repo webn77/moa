@@ -340,6 +340,45 @@ class ReadableTest(unittest.TestCase):
         self.assertEqual(self.r(None), "")
 
 
+class FinishGateTest(unittest.TestCase):
+    """**체크리스트가 남으면 완료가 아니다** (2026-09-23 사장님: 「체크리스트 다 완료 되어야 완료야 할일은」)."""
+    TEAM = {"UPM": {"role": "PM", "max": 3}, "UDEV": {"role": "개발", "max": 3}}
+
+    def card(self, done, checked=(), status="doing"):
+        return {"status": status, "assignee": "UDEV", "by_id": "UREQ",
+                "spec": {"done_criteria": list(done)}, "checked": list(checked)}
+
+    def test_unchecked_work_cannot_be_finished(self):
+        c = self.card(["a", "b"], ["a"])
+        self.assertTrue(core.blocks_done(c))
+        self.assertEqual(core.next_status(c, "done", "UPM", self.TEAM), "doing")   # 그대로
+        self.assertEqual(core.left_items(c), ["b"])
+
+    def test_all_checked_goes_through(self):
+        c = self.card(["a", "b"], ["a", "b"])
+        self.assertFalse(core.blocks_done(c))
+        self.assertEqual(core.next_status(c, "done", "UDEV", self.TEAM), "review")
+        self.assertEqual(core.next_status(c, "done", "UREQ", self.TEAM), "done")
+
+    def test_no_checklist_does_not_block(self):
+        """없는 기준으로 막으면 아무도 못 닫는다."""
+        c = self.card([])
+        self.assertFalse(core.blocks_done(c))
+        self.assertEqual(core.next_status(c, "done", "UREQ", self.TEAM), "done")
+
+    def test_waiting_for_review_is_not_blocked(self):
+        """확인 대기는 이 문을 이미 지났다 — 확인해 주는 사람까지 막으면 남 때문에 갇힌다."""
+        c = self.card(["a", "b"], ["a"], status="review")
+        self.assertFalse(core.blocks_done(c))
+        self.assertEqual(core.next_status(c, "done", "UREQ", self.TEAM), "done")
+
+    def test_other_statuses_are_not_blocked(self):
+        """막는 것은 완료뿐이다 — 진행 중·보류·취소는 그대로 간다."""
+        c = self.card(["a"], [])
+        for want in ("doing", "blocked", "cancelled", "todo"):
+            self.assertEqual(core.next_status(c, want, "UPM", self.TEAM), want, want)
+
+
 class ChecklistItemTest(unittest.TestCase):
     """체크리스트 항목 다듬기 (2026-09-22 사장님: 「체크리스트로 하고 이것도 자동으로 생성」).
 

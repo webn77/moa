@@ -99,6 +99,28 @@ def resolve(c, want, user):
     return core.next_status(c, want, user, load_team(), REVIEW_ON)
 
 
+async def tell_left(s, c, want, got, uid=None):
+    """완료를 막았으면 **왜 막았는지 그 자리에** 한 줄 (2026-09-23 사장님: 「체크리스트 다 완료
+    되어야 완료야」).
+
+    조용히 안 되면 고장처럼 보인다 — 이 저장소가 오늘 하루에 세 번 겪은 모양이다.
+    막기만 하면 갇히므로 **남은 것**과 **빼는 길**을 같이 알려 준다.
+
+    막았으면 True — 부른 쪽은 거기서 멈춘다.
+    """
+    if want != "done" or got != c["status"] or not core.blocks_done(c):
+        return False
+    left = core.left_items(c)
+    k, n = progress(c)
+    await api(s, "chat.postMessage", body={
+        "channel": chan(c), "thread_ts": c["card_ts"], "unfurl_links": False, **mood("부탁"),
+        "text": say("not_done_yet", uid=uid, k=k, n=n,
+                    left="\n".join(f"☐ {x}" for x in left[:5])
+                         + (f"\n…외 {len(left) - 5}개" if len(left) > 5 else ""))})
+    log(f"완료 막음 #{c['no']} — 체크리스트 {k}/{n}")
+    return True
+
+
 async def ensure_ctl(s, c):
     """**더 이상 ⚙️ 를 따로 올리지 않는다** (2026-09-22 사장님: 「알림은 하나가 가도록 해줘」).
 
@@ -444,7 +466,9 @@ async def apply_change(s, c, kind, val, user, how=None, why=None):
     snap, asnap = decision_snap(), ann_snap(c)
     before = c["status"]
     if kind == "set_status":
-        val = resolve(c, val, user)
+        want, val = val, resolve(c, val, user)
+        if await tell_left(s, c, want, val, user):     # 체크리스트가 남았으면 여기서 멈춘다
+            return
     if kind == "set_status" and val != c["status"]:
         c["status"], c["since"], c["at"] = val, datetime.date.today().isoformat(), time.time()
         if val == "doing" and (not c.get("assignee") or c.get("assign_src") == "ai"):
