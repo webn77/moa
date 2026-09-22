@@ -234,3 +234,49 @@ project 로 묶는 이유가 정확히 이것이다.
 (「이게 저것 때문에 막혀 있다」 를 모르면 「다음에 뭘 하죠」 에 답할 수 없다). 이건 #66 과 **다른 일**로 떼어 놓는다.
 
 출처: Atlassian(프로젝트 키 편집·형식·이동 리다이렉트) · GitHub Docs(이슈 이동·자동 링크·sub-issue) · Linear Docs(이슈 편집·생성·Projects·Slack·Teams)
+
+## 🔲 할 일 **안**의 체크 목록 — 다른 곳은 뭐라고 부르나 (2026-09-22 조사)
+
+사장님: 「할일들이 task잖어 이거 안에 체크리스트 뭐 해야 하나 이거 말한 거야」 ·
+「이미 할일은 말이 쓰이고 있는 거 아니야? 액션 아이템 추천해줘」
+
+우리에게는 이미 이 칸이 있다 — 이름이 **「완료 조건」** 이라 「뭘 하나」 로 안 읽힐 뿐이다.
+71건 중 59건에 들어 있고, 그 안에 **할 거리**(「권한 단계 표 문서화」)와
+**통과 조건**(「알림이 1회만 발송된다」)이 섞여 있다.
+
+| 도구 | 작업 **안**의 체크 목록 | 한국어 이름 | 「완료 기준」 을 따로 두나 |
+| --- | --- | --- | --- |
+| **GitHub** | 이슈 본문의 `- [ ]` → 「2 of 5 tasks」 진행률이 목록 화면까지 따라간다 | 작업 목록(tasklist) → 지금은 **하위 이슈** 로 대체 | 안 둔다 |
+| **Jira** | **기본에 없다.** 마켓플레이스 앱이 채운다 (HeroCoders · Railsware) | 하위 작업은 **따로 떨어진 이슈** 다 | 앱이 **이름 붙은 목록 여러 개** 로 — Definition of Done · Acceptance Criteria · TODO |
+| **Linear** | 본문 마크다운 체크박스. 골라서 `Cmd+Shift+O` 로 **하위 이슈로 승격** | 하위 이슈 | 안 둔다 |
+| **Asana · Todoist** | 하위 작업 | **하위 작업** | 안 둔다 |
+| **Notion** | 체크박스 블록 | **할 일 목록** (커뮤니티는 「체크리스트」 로도 부른다) | 안 둔다 |
+
+### 읽은 것 셋
+
+**① 대부분은 목록을 하나만 둔다.** 「완료 기준」 을 따로 가진 곳은 Jira 뿐이고, 그나마
+기본 기능이 아니라 **앱이 파는 것**이다. 그 앱들이 광고하는 용도가 정확히 우리가 섞어 쓰는 셋이다
+— Definition of Done · Acceptance Criteria · TODO. 업계도 **섞이는 것을 문제로 본다**는 뜻이고,
+푸는 방법은 칸을 늘리는 게 아니라 **목록마다 이름을 붙이는** 것이다.
+
+**② 가벼운 건 체크박스, 무거우면 승격.** Linear 도 GitHub 도 「본문 체크박스 → 따로 떼어야 할 만큼
+커지면 하위 이슈」 한 길이다. 우리도 이미 있다 — 체크 항목이 커지면 「할 일로 만들어줘」 하면 카드가 된다.
+
+**③ 이름은 겹치는지로 고른다.** 우리 화면에 이미 있는 말:
+「할 일」(카드 그 자체) · 「액션 아이템」(회의록이 뽑아 카드가 되는 것, `gh_link.py`) ·
+「작업판」·「작업 보드」(캔버스와 보드). 그래서 **할 일 목록 ❌ · 액션 아이템 ❌ · 하위 작업 △**
+(「작업」 이 이미 캔버스 쪽 말이다) — 남는 것이 **체크리스트** 다. 사장님이 먼저 쓰신 말이기도 하고,
+화면에 이미 네모가 그려져 있어 **보이는 것과 이름이 같다.**
+
+### 결론 — 우리가 고를 것
+
+**「완료 조건」 을 「체크리스트」 로 바꾸고, 안에 적는 말을 할 거리로 통일한다.** 칸을 늘리지 않는다 (①).
+GitHub 쪽은 이미 `- [ ]` 로 나가고 있어 진행률이 그대로 뜬다 — 고칠 것이 없다.
+
+출처: [GitHub — About tasklists](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/about-tasklists) ·
+[Smart Checklists for Jira](https://marketplace.atlassian.com/apps/1216451/smart-checklists-for-jira) ·
+[Checklists for Jira (HeroCoders)](https://marketplace.atlassian.com/apps/1213231/checklists-for-jira-pro-by-herocoders) ·
+[Linear — Parent and sub-issues](https://linear.app/docs/parent-and-sub-issues) ·
+[Asana 하위 작업](https://asana.com/ko/guide/help/tasks/subtasks) ·
+[Todoist sub-tasks](https://www.todoist.com/help/todoist/features/use-sub-tasks-kMamDo) ·
+[Notion 할 일 목록](https://www.notion.com/templates/to-do-list)
