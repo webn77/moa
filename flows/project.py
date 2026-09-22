@@ -432,6 +432,24 @@ async def maybe(s, e, q, force=False):
 
     # ④ 기록을 어디에 쌓을까 — **있을 때만 묻는다.** 「안 할래요」 면 이 맥에만 둔다
     if step == "repo":
+        # **번호로 고르신 경우** — 고르는 일과 적는 일을 나눈다 (사장님이 정함).
+        # 2·3번은 주소가 있어야 하니 그때 여쭙는다
+        n = re.fullmatch(r"\s*([1-4])\s*(?:번|번째|요|이요)?[.!~]*\s*", q)
+        if n and not st.get("want"):
+            got = n.group(1)
+            if got == "4":
+                st["repo"], st["rkind"] = "", ""
+                return await _show(s, ch, th, st)
+            if got == "1":
+                who = await _me()
+                if who:
+                    st["repo"], st["rkind"], st["rmake"] = f"{who}/{_repo_name(st['title'])}", "github", True
+                    return await _show(s, ch, th, st)
+                return await _again(s, ch, th, st, say("proj_repo_link"))
+            st["want"] = "github" if got == "2" else "git"
+            save()
+            await _say(s, ch, say("proj_repo_link" if got == "2" else "proj_repo_url"), th)
+            return True
         if NO_REPO.match(q.strip()):
             st["repo"], st["rkind"] = "", ""
             return await _show(s, ch, th, st)
@@ -444,7 +462,10 @@ async def maybe(s, e, q, force=False):
                 st["repo"], st["rkind"], st["rmake"] = f"{who}/{_repo_name(st['title'])}", "github", True
                 return await _show(s, ch, th, st)
         if not target:
-            return await _again(s, ch, th, st, say("proj_repo_bad", word=q.strip()[:30] or "빈 글자"))
+            return await _again(s, ch, th, st,
+                                say("proj_repo_link") if st.get("want") == "github"
+                                else say("proj_repo_url") if st.get("want") == "git"
+                                else say("proj_repo_bad", word=q.strip()[:30] or "빈 글자"))
         st["repo"], st["rkind"] = target, kind
         st["rmake"] = kind == "github" and make
         return await _show(s, ch, th, st)

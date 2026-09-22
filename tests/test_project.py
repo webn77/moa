@@ -263,11 +263,44 @@ class RepoStepTest(Base):
         뒤지는 것이고 사내 서버는 거기 나오지도 않는다.
         """
         self.upto_goal()
-        self.assertIn("이미 레포가 있으면* 그 링크를", self.fake.texts()[-1])
+        self.assertIn("*2.* 이미 있는 GitHub 레포", self.fake.texts()[-1])
+        self.say("2")                                   # 고르면 그때 여쭙는다
+        self.assertIn("링크나", self.fake.texts()[-1])
         self.say("https://github.com/webn77/moa-team")
         self.assertIn("webn77/moa-team", self.fake.texts()[-1])
         self.say("네")
         self.assertEqual(self.attached[0][0], "webn77/moa-team")
+
+    def test_a_number_is_enough(self):
+        """**고르는 일과 적는 일을 나눈다** (2026-09-22 사장님: 「번호 붙여서 선택 하게 해서」)."""
+        self.upto_goal()
+        self.say("1")                                   # 새로 만들어줘
+        self.assertIn("`webn77/충전성공`", self.fake.texts()[-1])
+        self.assertIn("비공개", self.fake.texts()[-1])
+
+    def test_four_means_no(self):
+        self.upto_goal()
+        self.say("4")
+        self.assertIn("밖에 안 쌓아요", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached, [])
+
+    def test_three_asks_for_the_server_address(self):
+        self.upto_goal()
+        self.say("3")
+        self.assertIn("사내 git 서버 주소", self.fake.texts()[-1])
+        self.say("이거 아님")                            # 주소가 아니면 다시 그 자리에서 묻는다
+        self.assertIn("사내 git 서버 주소", self.fake.texts()[-1])
+        self.say("ssh://git@git.company.com/team/moa.git")
+        self.assertIn("밖으로 안 나가요", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached[0][3], "git")
+
+    def test_pasting_an_address_straight_away_still_works(self):
+        """번호를 안 고르고 **바로 붙여넣어도** 된다 — 빠른 길을 막지 않는다."""
+        self.upto_goal()
+        self.say("https://github.com/webn77/moa-team")
+        self.assertIn("webn77/moa-team", self.fake.texts()[-1])
 
     def test_it_does_not_talk_about_the_mac_here(self):
         """지금 정하는 것은 「기록을 어디에」 이지 「봇이 언제 도나」 가 아니다 (사장님 지적).
@@ -287,7 +320,7 @@ class RepoStepTest(Base):
         (사장님: 「이전에 프로젝트로 사용되고 있으면 추천 하면 안될거 같은데」)."""
         self.upto_goal()
         last = self.fake.texts()[-1]
-        self.assertIn("*새로 만들어줘* (추천)", last)
+        self.assertIn("*1.* 새로 만들어줘 (추천)", last)
         self.assertNotIn("(추천) — 번호로", last)
 
     def test_it_does_not_ask_again_once_records_have_a_home(self):
