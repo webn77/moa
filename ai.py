@@ -33,8 +33,11 @@ def model():
     return "sonnet"
 
 
-async def ask_ai(system, prompt):
-    """구독으로 Claude Code 를 부른다. 훅·MCP·도구 없이, 세션을 남기지 않는다."""
+# 잠깐 뒤 되는 오류들 — 여기 걸리면 다시 해 본다 (2026-09-22 실측: 500 이 몇 분 오락가락했다)
+AGAIN = ("500", "502", "503", "504", "overloaded", "rate limit", "timeout", "Connection")
+
+
+async def _once(system, prompt):
     AI_CWD.mkdir(parents=True, exist_ok=True)
     p = await asyncio.create_subprocess_exec(
         "claude", "-p", "--model", model(), "--setting-sources", "project", "--strict-mcp-config",
@@ -45,6 +48,26 @@ async def ask_ai(system, prompt):
     if d.get("is_error"):
         raise RuntimeError(d.get("result"))
     return d.get("result", "")
+
+
+async def ask_ai(system, prompt, tries=3):
+    """구독으로 Claude Code 를 부른다. 훅·MCP·도구 없이, 세션을 남기지 않는다.
+
+    **잠깐 뒤 되는 오류는 다시 해 본다** (2026-09-22 실측). Anthropic 쪽 500 이 몇 분간
+    오락가락했는데, 우리는 한 번 실패하면 그대로 포기했다 — 그러면 사람 눈에는
+    **말이 안 통하는 봇**으로 보인다. 2초 · 4초 쉬고 두 번 더 해 본다.
+    """
+    last = None
+    for i in range(tries):
+        try:
+            return await _once(system, prompt)
+        except Exception as e:
+            last = e
+            if i + 1 >= tries or not any(x.lower() in str(e).lower() for x in AGAIN):
+                raise
+            log(f"AI 다시 해 봅니다 ({i + 1}/{tries - 1}): {str(e)[:80]}")
+            await asyncio.sleep(2 * (i + 1))
+    raise last
 
 
 async def transcript(s, c):

@@ -43,7 +43,7 @@ KEY_OK = re.compile(r"^[A-Za-z][A-Za-z0-9]{1,5}$")
 # **순서가 중요하다** — 「이름은 X」 를 먼저 보면 「…이름이야」 의 「야」 를 이름으로 잡는다
 CALL = re.compile(r"(새\s*)?프로젝트\s*(를)?\s*(하나\s*)?(새로\s*)?(만들|생성|추가|시작)\S*|새\s*프로젝트")
 NAME_CUT = (
-    re.compile(r"(.+?)\s*이게\s*(?:프로젝트\s*)?이름"),               # 「X 이게 프로젝트 이름이야」
+    re.compile(r"(.+?)\s*(?:이게|이|가)\s*(?:프로젝트\s*)?이름"),      # 「X 이게/X이 프로젝트 이름이야」
     re.compile(r"(.+?)\s*(?:이)?라는\s*(?:프로젝트|이름)"),           # 「X 라는 프로젝트」
     re.compile(r"(?:프로젝트\s*)?이름은?\s*[:：]?\s*(\S.{1,})"),      # 「프로젝트 이름은 X」
 )
@@ -57,7 +57,13 @@ def _name_of(text):
     못 고르면 원문을 주고, 다음 줄에서 「…이군요」 로 되읽어 주므로 사람이 바로 안다.
     """
     s = re.sub(r"\s+", " ", (text or "").strip())
+    # 머리말은 이름이 아니다 — 「**오케이** 충전성공으로 …」 를 통째로 받으면 방 이름이 그렇게 된다
+    # (2026-09-22 사장님 실측: 「오케이 충전성공으로」 가 이름이 됐다)
+    s = re.sub(r"^\s*(오케이|오키|okay|ok|그럼|그러면|일단|자|아니|아니야|응|네)[\s,.!~]+", "", s, flags=re.I)
     s = CALL.sub(" ", s).strip(" ,.!~")               # 「프로젝트 하나 만들어줘」 같은 부름말은 뺀다
+    # 꼬리에 붙은 「…으로 만들자」 · 「…로 만들어줘」 도 이름이 아니다
+    s = re.sub(r"\s*(?:으로|로)?\s*(?:만들|생성|추가|시작)\S*\s*$", "", s).strip()
+    s = re.sub(r"(으로|로)\s*$", "", s).strip()        # 「충전성공으로」 → 「충전성공」
     for rx in NAME_CUT:
         m = rx.search(s)
         if m and len(m.group(1).strip(" ,.!~")) >= 2:
@@ -240,6 +246,9 @@ async def maybe(s, e, q):
     # ② 대화 전체에서 칸을 채운다
     got = await _fill(s, st["turns"], taken)
     if got is None:                            # AI 가 죽었으면 옛 방식으로
+        if not st.get("told_ai_down"):         # **한 번은 알린다** — 조용히 바뀌면 고장으로 보인다
+            st["told_ai_down"] = True
+            await _say(s, ch, say("ai_down"), th)
         return await _old_way(s, e, q, st, th, taken)
     st["title"] = got["name"] or st.get("title") or ""
     st["key"] = got["key"] or st.get("key") or ""
