@@ -140,59 +140,10 @@ async def _run(*args):
 # 그건 **내가 그 팀의 사정을 짐작하는 것**이다 — 사내 서버는 애초에 `gh` 로 보이지도 않는다.
 # 그냥 묻고, 주시는 주소를 쓴다.
 
-async def mine(limit=6):
-    """지금 쓸 수 있는 GitHub 레포 — [(이름, 비공개인가, 마지막 올린 날)]. 못 받으면 빈 목록.
-
-    **지어내는 것과 보여 주는 것은 다르다** (2026-09-22 사장님: 「github 링크나 쉽게 안내할
-    방법은 없나? 아니면 컴퓨터에서 찾던가」). 예전에 `webn77/우리팀` 같은 **없는 이름**을
-    예시로 적어서 혼을 났는데, 이건 `gh` 가 주는 **있는 목록**이다. 번호로 고르면 끝난다.
-
-    최근에 올린 순서로 온다 (`gh` 기본) — 요즘 쓰는 것이 위에 온다.
-    """
-    ok, out = await _run("gh", "repo", "list", "--limit", str(limit),
-                         "--json", "nameWithOwner,pushedAt,isPrivate")
-    if not ok:
-        return []
-    try:
-        got = json.loads(out or "[]")
-    except Exception:
-        return []
-    return [(x.get("nameWithOwner", ""), bool(x.get("isPrivate")), (x.get("pushedAt") or "")[:10])
-            for x in got if x.get("nameWithOwner")]
-
-
-def used():
-    """이 팀이 이미 쓰고 있는 레포 — 설정에 적힌 것들."""
-    import config
-    out = {(config.GITHUB.get("repo") or "").strip()}
-    out |= {(p.get("repo") or "").strip() for p in config.projects()}
-    return {x for x in out if x}
-
-
-def repo_lines(repos):
-    """고를 목록 — 번호로 답할 수 있게. 하나도 없으면 주소를 적어 달라고 한다.
-
-    **이미 쓰는 것은 그렇다고 적는다** (2026-09-22 사장님: 「이전에 프로젝트로 사용되고
-    있으면 추천 하면 안될거 같은데」). 고를 수는 있게 두되 — 같은 팀이 한 레포를 같이 쓰는 건
-    흔하다 — **권하지는 않는다.** 그 안에 무엇이 있는지 나는 모른다.
-    """
-    if not repos:
-        return say("repo_none")
-    mine_ = used()
-    return say("repo_head") + "".join(
-        say("repo_used" if r in mine_ else "repo_one",
-            n=i + 1, repo=r, lock="🔒" if priv else "🌐", when=when)
-        for i, (r, priv, when) in enumerate(repos))
-
-
-def pick(text, repos):
-    """번호나 이름으로 고른다. 못 고르면 빈 글자."""
-    s = (text or "").strip()
-    m = re.fullmatch(r"(\d{1,2})\s*(?:번|번째|요|이요)?[.!~]*", s)
-    if m and 1 <= int(m.group(1)) <= len(repos):
-        return repos[int(m.group(1)) - 1][0]
-    return ""
-
+# **찾아 주지 않는다. 링크를 받는다** (2026-09-22 사장님: 「이미 레포가 있다면 레포 링크
+# 달라고 하자고 찾아서 주지 말고」). 한때 `gh repo list` 로 목록을 뽑아 번호로 고르게 했는데,
+# 그건 **내가 그 팀의 레포를 뒤지는 것**이고 사내 서버는 거기 나오지도 않는다.
+# 있으시면 링크를 주시고, 없으면 만들어 드린다 — 그 둘이면 충분하다.
 
 async def ready():
     """무엇이 준비됐나 — **사람이 할 것과 봇이 할 수 있는 것을 가른다.**

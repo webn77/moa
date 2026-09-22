@@ -247,6 +247,16 @@ async def _ask_goal(s, ch, th, st):
     return True
 
 
+async def _me():
+    """`gh` 가 로그인한 계정 — 「새로 만들어줘」 를 이름 없이 하셨을 때 쓴다. 없으면 빈 글자."""
+    try:
+        from flows.repo import ready
+        return (await ready()).get("who") or ""
+    except Exception as ex:
+        log(f"gh 계정 확인 실패: {type(ex).__name__}")
+        return ""
+
+
 def _repo_target(text):
     from flows.repo import target_of
     return target_of(text)
@@ -258,18 +268,8 @@ async def _ask_repo(s, ch, th, st):
     목록은 `gh` 가 준 **있는 레포**다. 못 받으면(로그인 없음·`gh` 없음) 주소를 적어 달라고 한다.
     """
     st["step"] = "repo"
-    try:
-        from flows.repo import mine, repo_lines
-        got = await mine()
-    except Exception as ex:
-        log(f"레포 목록 실패: {type(ex).__name__}")
-        got = []
-    st["repos"] = [r for r, _, _ in got]
-    # 「새로 만들어줘」 를 위해 **올릴 곳**을 기억해 둔다 — 요즘 쓰는 레포의 주인이다
-    st["owner"] = st["repos"][0].split("/")[0] if st["repos"] else ""
     save()
-    from flows.repo import repo_lines as lines
-    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3", list=lines(got)), th)
+    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3"), th)
     return True
 
 
@@ -435,17 +435,14 @@ async def maybe(s, e, q, force=False):
         if NO_REPO.match(q.strip()):
             st["repo"], st["rkind"] = "", ""
             return await _show(s, ch, th, st)
-        from flows.repo import pick
-        picked = pick(q, [(r, 0, 0) for r in st.get("repos") or []])
-        if picked:                          # 번호로 고르셨다 — 가장 쉬운 길
-            st["repo"], st["rkind"], st["rmake"] = picked, "github", False
-            return await _show(s, ch, th, st)
         make = any(x in q for x in ("만들어", "새로", "만들자", "생성"))
         kind, target = _repo_target(q)
-        if not target and make and st.get("owner"):
-            # **이름을 안 주셔도 만든다** — 프로젝트 이름으로 (사장님: 「쉽게 할 방법?」)
-            st["repo"], st["rkind"], st["rmake"] = f"{st['owner']}/{_repo_name(st['title'])}", "github", True
-            return await _show(s, ch, th, st)
+        if not target and make:
+            # **이름을 안 주셔도 만든다** — 프로젝트 이름으로. 올릴 곳은 `gh` 가 아는 계정
+            who = await _me()
+            if who:
+                st["repo"], st["rkind"], st["rmake"] = f"{who}/{_repo_name(st['title'])}", "github", True
+                return await _show(s, ch, th, st)
         if not target:
             return await _again(s, ch, th, st, say("proj_repo_bad", word=q.strip()[:30] or "빈 글자"))
         st["repo"], st["rkind"] = target, kind

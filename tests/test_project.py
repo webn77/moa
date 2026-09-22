@@ -51,15 +51,13 @@ class Base(unittest.TestCase):
         self.saved_cfg = json.loads(config.PATH.read_text(encoding="utf-8")) if config.PATH.exists() else {}
         self.saved_projects = [dict(p) for p in common.PROJECTS]
         STATE.pop("new_project", None)
-        # **밖으로 나가는 것은 시험에서 늘 막는다** — 안 막으면 느려지고(9.5초 → 0.3초),
-        # 그 맥에 무엇이 있느냐에 따라 답이 달라진다. 목록이 필요한 시험은 `self.repos` 를 채운다
-        self.repos = []
-
-        async def fake_mine(limit=6):
-            return self.repos
+        # **밖으로 나가는 것은 시험에서 늘 막는다** — 안 막으면 느려지고, 그 맥의 사정에 따라
+        # 답이 달라진다. 「새로 만들어줘」 가 쓰는 계정만 가짜로 준다
+        async def fake_me():
+            return "webn77"
         self.patches = [mock.patch.object(project, "api", self.fake.api),
                         mock.patch.object(project, "save", lambda: None),
-                        mock.patch("flows.repo.mine", fake_mine),
+                        mock.patch.object(project, "_me", fake_me),
                         # `config.PATH` 통째로 가짜 — Path 인스턴스의 메서드는 갈아 끼울 수 없다.
                         # 진짜 config.json 을 시험이 덮어쓰면 그 팀의 설정이 날아간다
                         mock.patch.object(config, "PATH", mock.MagicMock()),
@@ -196,7 +194,6 @@ class RepoStepTest(Base):
             self.attached.append((repo, pkey, make, kind))
             return ["• 붙였어요\n"], None
 
-        self.repos = [("webn77/moa", True, "2026-09-22"), ("webn77/pa-second", True, "2026-09-20")]
         x = mock.patch("flows.repo.attach", fake_attach)
         x.start()
         self.addCleanup(x.stop)
@@ -215,7 +212,7 @@ class RepoStepTest(Base):
     def test_saying_no_keeps_it_local(self):
         self.upto_goal()
         self.say("안 할래요")
-        self.assertIn("이 컴퓨터에만", self.fake.texts()[-1])
+        self.assertIn("밖에 안 쌓아요", self.fake.texts()[-1])
         self.say("네")
         self.assertEqual(self.attached, [])
         self.assertIn("✅", self.fake.texts()[-1])
@@ -239,15 +236,6 @@ class RepoStepTest(Base):
         self.say("네")
         self.assertTrue(self.attached[0][2])
 
-    def test_picking_by_number_is_the_easy_path(self):
-        """**번호 하나로 끝난다** (2026-09-22 사장님: 「github 링크나 쉽게 안내할 방법은 없나?」)."""
-        self.upto_goal()
-        self.assertIn("1. `webn77/moa`", self.fake.texts()[-1])
-        self.say("2")
-        self.assertIn("webn77/pa-second", self.fake.texts()[-1])
-        self.say("네")
-        self.assertEqual(self.attached[0][0], "webn77/pa-second")
-
     def test_make_one_without_a_name_uses_the_project_name(self):
         """이름을 안 주셔도 만든다 — **글자 수로 자르면** `-사내포털` 이 된다 (시뮬레이션이 잡았다)."""
         self.upto_goal()
@@ -263,10 +251,36 @@ class RepoStepTest(Base):
         (2026-09-22 사장님: 「레포가 뭔지 설명을 해주면 좋을거 같아. private에 대해서도」)."""
         self.upto_goal()
         last = self.fake.texts()[-1]
-        self.assertIn("레포는 GitHub 에 있는 폴더", last)
+        self.assertIn("레포는 GitHub 의 폴더 하나", last)
         self.assertIn("비공개(private)", last)
         self.assertIn("공개(public)", last)
-        self.assertIn("이 맥이 꺼져도 기록이 남고", last)          # 왜 하는지
+        self.assertIn("Slack 밖에서도 열려요", last)              # 왜 하는지
+
+    def test_an_existing_repo_is_given_as_a_link(self):
+        """**찾아 주지 않는다 — 링크를 받는다** (2026-09-22 사장님 지시).
+
+        한때 `gh repo list` 로 목록을 뽑아 번호로 고르게 했는데, 그건 그 팀의 레포를
+        뒤지는 것이고 사내 서버는 거기 나오지도 않는다.
+        """
+        self.upto_goal()
+        self.assertIn("이미 레포가 있으면* 그 링크를", self.fake.texts()[-1])
+        self.say("https://github.com/webn77/moa-team")
+        self.assertIn("webn77/moa-team", self.fake.texts()[-1])
+        self.say("네")
+        self.assertEqual(self.attached[0][0], "webn77/moa-team")
+
+    def test_it_does_not_talk_about_the_mac_here(self):
+        """지금 정하는 것은 「기록을 어디에」 이지 「봇이 언제 도나」 가 아니다 (사장님 지적).
+        그 이야기는 `docs/install.md` 에 있다."""
+        self.upto_goal()
+        self.assertNotIn("맥", self.fake.texts()[-1])
+
+    def test_it_answers_why_bother_when_slack_already_has_it(self):
+        """사장님이 물으셨다 — 「이미 슬랙에 쌓이는데 굳이 깃허브를 하는 이유는?」"""
+        self.upto_goal()
+        last = self.fake.texts()[-1]
+        self.assertIn("Slack 에도 다 남지만", last)
+        self.assertIn("Slack 밖에서도 열려요", last)
 
     def test_the_recommended_one_is_a_new_repo(self):
         """**이미 있는 레포는 권하지 않는다** — 그 안에 무엇이 있는지 나는 모른다
@@ -275,14 +289,6 @@ class RepoStepTest(Base):
         last = self.fake.texts()[-1]
         self.assertIn("*새로 만들어줘* (추천)", last)
         self.assertNotIn("(추천) — 번호로", last)
-
-    def test_a_repo_the_team_already_uses_is_marked(self):
-        self.repos = [("webn77/moa", True, "2026-09-22"),
-                      (common.PROJECTS[1]["repo"], True, "2026-09-20")]
-        self.upto_goal()
-        last = self.fake.texts()[-1]
-        self.assertIn("이 팀이 이미 쓰는 중", last)
-        self.assertEqual(last.count("이 팀이 이미 쓰는 중"), 1)
 
     def test_it_does_not_ask_again_once_records_have_a_home(self):
         """**데이터 폴더의 remote 는 하나뿐이다** — 두 번째 프로젝트에서 다른 곳을 고르면
@@ -295,14 +301,6 @@ class RepoStepTest(Base):
             self.say("네")
         self.assertEqual(self.attached, [])                              # 다시 붙이지 않는다
         self.assertIn("바꾸시려면", self.fake.texts()[-1])
-
-    def test_without_a_list_it_still_asks_for_an_address(self):
-        """`gh` 가 없거나 레포가 없으면 목록이 빈다 — 그때는 주소를 적어 달라고 한다."""
-        self.repos = []
-        self.upto_goal()
-        self.assertIn("`올릴곳/이름`", self.fake.texts()[-1])
-        self.say("webn77/moa-team"); self.say("네")
-        self.assertEqual(self.attached[0][0], "webn77/moa-team")
 
     def test_our_own_server_says_it_does_not_leave(self):
         """**remote 가 GitHub 일 필요는 없다** (사장님: 「내부서버에서 관리할 방법도 있나」)."""
