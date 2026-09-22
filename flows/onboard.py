@@ -71,7 +71,7 @@ def give_up(user):
 def nudge(user=None, head=True):
     """지금 걸음 안내. 다 끝났으면 빈 글자.
 
-    **`channel` 을 늘 넘긴다** — 2·3번 걸음이 「<#…> 에서 하세요」 라고 방을 가리킨다.
+    **`channel` 을 늘 넘긴다** — 2번 걸음이 「<#…> 에서 하세요」 라고 방을 가리킨다.
     안 넘기면 그 자리에서 KeyError 가 나고, 인사 한 줄 때문에 DM 전체가 안 간다.
     """
     n = step(user)
