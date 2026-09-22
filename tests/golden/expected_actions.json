@@ -585,6 +585,21 @@
   "sent": [
    {
     "body": {
+     "users": "U0EXAMPLEDEV"
+    },
+    "method": "conversations.open"
+   },
+   {
+    "body": {
+     "channel": "D0PLEDEV",
+     "icon_url": "https://raw.githubusercontent.com/webn77/pa-icons/main/pa-ask.png",
+     "text": "🙋 맡으실 일이 생겼어요 — <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘>\n• 🗂 <#C0EXAMPLEPRJ>\n• 📅 언제까지는 아직 안 정했어요\n• 🤝 김하나 님이 맡기셨어요\n\n<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|할 일 열기> — 시작하실 때 👀 를 눌러 주시면 돼요",
+     "unfurl_links": false
+    },
+    "method": "chat.postMessage"
+   },
+   {
+    "body": {
      "blocks": [
       {
        "text": {

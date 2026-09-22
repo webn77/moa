@@ -37,6 +37,8 @@ def main():
             return {"user": {"real_name": "요청자", "profile": {}}}
         if method == "users.list":
             return {"members": []}
+        if method == "conversations.open":       # 담당 DM — 진짜 Slack 처럼 방 id 를 준다.
+            return {"ok": True, "channel": {"id": "D0" + (body or {}).get("users", "")[-6:]}}
         return {"ok": True, "ts": f"{len(sent)}.5", "permalink": "https://x"}
 
     async def fake_ai(system, prompt):

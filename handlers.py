@@ -204,6 +204,7 @@ async def on_event(s, e, me):
             hit = re.search(r"담당\s*<@(U[A-Z0-9]+)>", text)
             if hit:
                 c["assignee"], c["assign_src"] = hit.group(1), "human"
+                await tell_assigned(s, c, e.get("user"))       # 맡은 사람 DM 으로 (2026-09-22)
                 await redraw(s, c)
             elif f"<@{me}>" in text:
                 pass                                                  # 호출은 app_mention 이 처리한다
@@ -301,6 +302,7 @@ async def on_view_submit(s, payload):
         c["ai_outcome"] = "changed"                            # 지표: AI 배정을 사람이 바꿈
     if picked:
         c["assignee"], c["assign_src"] = picked, "human"
+        await tell_assigned(s, c, payload.get("user", {}).get("id"))
     ft = (vals.get("f", {}).get("feature", {}).get("selected_option") or {}).get("value")
     if ft:
         c["feature"] = ft
@@ -523,7 +525,7 @@ from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401
 from flows.meeting import apply_meeting_change, finish_meeting, new_meeting, save_meeting  # noqa: E402,F401
-from flows.status import announce, apply_change, balance, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_editor, open_take_editor, post_log, record_change, redraw, resolve, save_content, save_take, take_card  # noqa: E402,F401
+from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_editor, open_take_editor, post_log, record_change, redraw, resolve, save_content, save_take, take_card  # noqa: E402,F401
 from flows.review import review_answer  # noqa: E402,F401
 from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, fill_all as tidy_fill_all, propose as tidy_propose  # noqa: E402,F401
 from views.canvas import render_canvas, render_canvas_now  # noqa: E402,F401

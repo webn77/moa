@@ -425,6 +425,9 @@ async def _build(s, ch, th, st, user):
             err = err or "번호를 못 받았어요"
             break
         made.append(c)
+        if st.get("who") and st["who"] != user:      # 남에게 맡기셨으면 그분 DM 으로
+            from flows.status import tell_assigned
+            await tell_assigned(s, c, user)
     STATE["new_task"].pop(user, None); save()
     if not made:
         await _say(s, ch, say("task_fail", err=err or "번호를 못 받았어요"), th)

@@ -8,6 +8,37 @@ from slack import api, mood, person  # noqa: E402,F401
 from store import STATE, add_log, ann_snap, chan, decision_snap, log_line, open_cards, plan_result, progress, ref, save, tag  # noqa: E402,F401
 
 
+async def tell_assigned(s, c, by=None):
+    """**맡은 사람에게 모아 DM 으로 알린다** (2026-09-22 사장님: 「이게 dm이 기본이 되어야 하는데」).
+
+    모아의 「메시지」 탭은 **사람마다 따로인 1:1 DM** 이다 — 개인에게 할 말은 거기가 자리다.
+    예전에는 카드 스레드의 멘션이 전부였다. 그러면 **그 방에 안 들어온 사람은 아무것도 모른다.**
+
+    **자기가 가져간 일은 안 알린다** (`uid == by`) — 방금 자기가 누른 것을 다시 알리면 시끄럽다.
+    DM 이 막혀도 일을 멈추지 않는다: 카드는 이미 만들어졌고, 못 보낸 것만 로그에 남긴다.
+    """
+    uid = c.get("assignee")
+    if not uid or uid == by:
+        return
+    d = await api(s, "conversations.open", body={"users": uid})
+    ch = (d.get("channel") or {}).get("id")
+    if not ch:
+        log(f"담당 DM 못 엶 {uid}: {d.get('error')}")
+        return
+    link = c.get("permalink") or ""
+    if not link and c.get("card_ts"):
+        link = (await api(s, "chat.getPermalink", channel=chan(c),
+                          message_ts=c["card_ts"])).get("permalink", "")
+    from docs import due_text, load_team as _team
+    team = _team()
+    await api(s, "chat.postMessage", body={"channel": ch, "unfurl_links": False, **mood("부탁"),
+              "text": say("dm_assigned", ref=ref(c["no"], 30), channel=chan(c),
+                          due=due_text(c) or "📅 언제까지는 아직 안 정했어요",
+                          who=team.get(by, {}).get("name") or "누군가",
+                          link=link or "")})
+    log(f"담당 DM → {uid} ({ref(c['no'], 16)})")
+
+
 async def take_card(s, c, who, how="pull_card"):
     """✋ 내가 할게요 — 누른 사람이 맡는다 = 확정 (pull)."""
     snap, asnap = decision_snap(), ann_snap(c)
@@ -397,6 +428,7 @@ async def apply_change(s, c, kind, val, user, how=None, why=None):
             c["ai_outcome"] = "changed"
         c["assignee"], c["assign_src"] = val, "human"
         c.pop("no_auto", None)
+        await tell_assigned(s, c, user)          # 남이 맡겼으면 그 사람 DM 으로
     else:
         return
     for moved_no, _ in balance():                                    # 넘치면 뒤로, 비면 당긴다

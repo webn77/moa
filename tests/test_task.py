@@ -29,6 +29,8 @@ class Fake:
 
     async def api(self, s, method, body=None, **params):
         self.sent.append((method, body or params))
+        if method == "conversations.open":      # 진짜 Slack 처럼 DM 방 id 를 준다
+            return {"ok": True, "channel": {"id": "D0" + (body or {}).get("users", "")[-4:]}}
         return self.answers.get(method, {"ok": True, "ts": "9.9", "permalink": "https://x/p"})
 
     def texts(self):
@@ -49,6 +51,8 @@ class Base(unittest.TestCase):
             return c
         self.patches = [mock.patch.object(task, "api", self.fake.api),
                         mock.patch.object(task, "save", lambda: None),
+                        # 담당 DM 은 `flows.status` 가 보낸다 — 거기도 갈아 끼워야 밖으로 안 나간다
+                        mock.patch("flows.status.api", self.fake.api),
                         mock.patch("flows.intake.add_issue", fake_add)]
         for p in self.patches:
             p.start()
@@ -401,6 +405,37 @@ class YesTest(Base):
         self.say("네 근데 담당은 나중에")
         self.assertEqual(self.made, [], "고치자는 말인데 올려 버렸다")
         self.assertIsNone(STATE["new_task"][ME]["who"])
+
+
+class DmTest(Base):
+    """**개인에게 할 말은 모아 DM 으로** (2026-09-22 사장님: 「이게 dm이 기본이 되어야 하는데」).
+
+    모아의 「메시지」 탭은 사람마다 따로인 1:1 자리다. 예전에는 카드 스레드의 멘션이
+    전부였는데, 그러면 **그 방에 안 들어온 사람은 아무것도 모른다.**
+    """
+
+    def dms(self):
+        """**보낸 글로 가른다** — 방 id 로 가르면 이 흐름 자신의 DM 까지 센다 (시험이 잡았다)."""
+        return [b for m, b in self.fake.sent
+                if m == "chat.postMessage" and "맡으실 일이 생겼어요" in (b.get("text") or "")]
+
+    def test_giving_it_to_someone_else_dms_them(self):
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요")
+        self.say("<@U0OTHER1>"); self.say("나중에"); self.say("네")
+        got = self.dms()
+        self.assertTrue(got, "맡은 사람에게 DM 을 안 보냈다")
+        self.assertIn("맡으실 일이 생겼어요", got[0]["text"])
+
+    def test_taking_it_yourself_does_not_dm_you(self):
+        """방금 자기가 고른 것을 다시 알리면 시끄럽다."""
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요")
+        self.say("1"); self.say("나중에"); self.say("네")
+        self.assertEqual(self.dms(), [])
+
+    def test_nobody_assigned_means_no_dm(self):
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요")
+        self.say("2"); self.say("나중에"); self.say("네")
+        self.assertEqual(self.dms(), [])
 
 
 class AiBudgetTest(Base):
