@@ -508,11 +508,15 @@ CTL_VER = 6          # 카드·⚙️ 모양이 바뀌면 올린다 — 켜질 �
                      #  6: 「완료 조건」 → 「체크리스트」 · 체크할 수 없는 항목을 치운다)
 
 
-async def refresh_ctls(s):
-    if STATE.get("ctl_ver") == CTL_VER:
-        return
-    # **이미 쌓인 것도 한 번 훑는다** — 「미정」 은 영영 못 체크해서 진행률이 4/5 에서 멈춘다.
-    # 앞으로 들어오는 것은 `core.clean_items` 가 받는 쪽에서 막지만, 이미 적힌 것은 안 바뀐다
+def clean_checklists():
+    """**이미 쌓인 체크리스트를 한 번 훑는다** — 「미정」 은 영영 못 체크해서 진행률이
+    4/5 에서 멈춘다. 앞으로 들어오는 것은 `core.clean_items` 가 받는 쪽에서 막지만,
+    이미 적힌 것은 안 바뀐다.
+
+    **`CTL_VER` 에 매달지 않고 켤 때마다 돈다** — 두 번 해도 결과가 같고(같으면 아무것도
+    안 쓴다) 값이 싸다. 판을 올리는 데 매달면 거르는 규칙을 손볼 때마다 카드 71장을
+    다시 그려야 한다.
+    """
     import core
     fixed = 0
     for c in STATE["cards"].values():
@@ -526,6 +530,14 @@ async def refresh_ctls(s):
                 fixed += 1
     if fixed:
         log(f"체크리스트에서 체크할 수 없는 항목 치움 — {fixed}건")
+        save()
+    return fixed
+
+
+async def refresh_ctls(s):
+    clean_checklists()
+    if STATE.get("ctl_ver") == CTL_VER:
+        return
     for c in [x for x in STATE["cards"].values() if x.get("card_ts")]:
         if c.get("ctl_ts"):
             await ensure_ctl(s, c)            # 따로 올려 둔 ⚙️ 를 치운다 (이제 카드 안에 있다)

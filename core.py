@@ -40,7 +40,11 @@ def clean_items(xs):
             if t.startswith(mark):
                 t = t[len(mark):].strip()
         bare = t.strip(" .·-")                 # 「미정.」 · 「- 」 만 남은 줄도 같은 것으로 본다
-        if not bare or bare in ("미정", "TBD", "tbd", "없음"):
+        # **첫 문장이 딱 「미정」 이면 버린다** — AI 가 「미정. 완료 조건이 아직 적혀 있지
+        # 않습니다.」 처럼 한 문장을 덧붙여 놓는다 (실측 3건). 「미정인 날짜 정하기」 는
+        # 진짜 할 거리라 남긴다 — 그래서 **첫 문장 전체**가 그 말일 때만 본다
+        head = bare.split(".")[0].strip()
+        if not bare or head in ("미정", "TBD", "tbd", "없음", "정해지지 않음"):
             continue
         if t not in out:                       # 같은 줄이 두 번 오면 체크가 엉킨다 (값으로 짝짓는다)
             out.append(t)

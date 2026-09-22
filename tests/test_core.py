@@ -351,9 +351,17 @@ class ChecklistItemTest(unittest.TestCase):
         self.assertEqual(core.clean_items(["미정"]), [])
         self.assertEqual(core.clean_items(["미정.", "없음", "-", "TBD", ""]), [])
 
+    def test_it_drops_the_ai_placeholder_sentence(self):
+        """AI 가 「미정.」 뒤에 한 문장을 덧붙여 놓는다 — 실측 3건. 이것도 못 체크한다."""
+        for x in ("미정. 체크리스트가 아직 적혀 있지 않습니다.",
+                  "미정. 체크리스트가 아직 작성되지 않았습니다.",
+                  "미정. 체크리스트가 아직 정해지지 않았습니다."):
+            self.assertEqual(core.clean_items([x]), [], x)
+
     def test_it_keeps_a_real_item_that_mentions_the_word(self):
-        """「미정」 이 **들어간** 문장은 진짜 할 거리일 수 있다 — 딱 그 말일 때만 버린다."""
+        """「미정」 이 **들어간** 문장은 진짜 할 거리일 수 있다 — **첫 문장 전체**가 그 말일 때만 버린다."""
         self.assertEqual(core.clean_items(["미정인 날짜 정하기"]), ["미정인 날짜 정하기"])
+        self.assertEqual(core.clean_items(["미정 날짜 정하기"]), ["미정 날짜 정하기"])
 
     def test_it_strips_markdown_bullets(self):
         """사람이 창에 마크다운 습관으로 붙여 넣는다."""
