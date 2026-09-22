@@ -320,8 +320,24 @@ class RepoStepTest(Base):
         (사장님: 「이전에 프로젝트로 사용되고 있으면 추천 하면 안될거 같은데」)."""
         self.upto_goal()
         last = self.fake.texts()[-1]
-        self.assertIn("*1.* 새로 만들어줘 (추천)", last)
-        self.assertNotIn("(추천) — 번호로", last)
+        self.assertIn("(추천)", last.splitlines()[5])          # 1번 줄에 붙어 있다
+        self.assertIn("*1.* *레포가 없어요*", last)             # 「레포가 아예 없으면?」 에 스스로 답한다
+
+    def test_no_github_login_says_why_and_what_you_can_do(self):
+        """**조용히 막히지 않는다** (2026-09-22 사장님: 「그런데 레포가 아예 없으면?」).
+
+        1번은 레포가 없을 때 고르는 것인데, `gh` 로그인이 없으면 만들 수가 없다.
+        그때 「레포 링크를 붙여넣어 주세요」 라고 하면 **엉뚱한 것을 시키는 것**이다.
+        """
+        async def no_login():
+            return ""
+        with mock.patch.object(project, "_me", no_login):
+            self.upto_goal()
+            self.say("1")
+        last = self.fake.texts()[-1]
+        self.assertIn("gh auth login", last)
+        self.assertIn("*3.*", last)                              # 지금 할 수 있는 것
+        self.assertIn("*4.*", last)
 
     def test_it_does_not_ask_again_once_records_have_a_home(self):
         """**데이터 폴더의 remote 는 하나뿐이다** — 두 번째 프로젝트에서 다른 곳을 고르면

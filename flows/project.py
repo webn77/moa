@@ -445,7 +445,8 @@ async def maybe(s, e, q, force=False):
                 if who:
                     st["repo"], st["rkind"], st["rmake"] = f"{who}/{_repo_name(st['title'])}", "github", True
                     return await _show(s, ch, th, st)
-                return await _again(s, ch, th, st, say("proj_repo_link"))
+                # **조용히 막히지 않는다** — 못 만드는 이유와 지금 할 수 있는 것을 같이 준다
+                return await _again(s, ch, th, st, say("proj_repo_no_gh"))
             st["want"] = "github" if got == "2" else "git"
             save()
             await _say(s, ch, say("proj_repo_link" if got == "2" else "proj_repo_url"), th)

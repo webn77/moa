@@ -324,6 +324,51 @@ class ManyTest(Base):
         self.assertEqual(len(self.made), 2)
 
 
+class NumberTest(Base):
+    """**고를 것이 정해진 칸은 번호로** (2026-09-22 사장님 승낙).
+
+    다른 분을 맡기는 건 `@이름` 이 필요하니 번호로 안 만든다 — 번호로 만들 수 없는 것을
+    번호로 만들면 「3번이 누구지?」 가 된다.
+    """
+
+    def test_who_by_number(self):
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요")
+        self.assertIn("*1.* 제가 할게요", self.last())
+        self.say("1")
+        self.assertIn("언제까지", self.last())
+        self.assertEqual(STATE["new_task"][ME]["who"], ME)
+
+    def test_who_two_means_later(self):
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요"); self.say("2")
+        self.assertIsNone(STATE["new_task"][ME]["who"])
+
+    def test_due_by_number(self):
+        import datetime
+        want = {"1": 0, "2": 1}
+        for pick, days in want.items():
+            STATE.pop("new_task", None)
+            self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요"); self.say("1")
+            self.assertIn("*3.* 이번 주", self.last())
+            self.say(pick)
+            self.assertEqual(STATE["new_task"][ME]["due"],
+                             (datetime.date.today() + datetime.timedelta(days=days)).isoformat())
+
+    def test_due_five_means_later(self):
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요"); self.say("1"); self.say("5")
+        self.assertIsNone(STATE["new_task"][ME]["due"])
+
+    def test_a_date_still_works(self):
+        import datetime
+        self.say("두 번째 프로젝트에 할일 등록"); self.say("알림이 두 번 와요"); self.say("1")
+        self.say("9/30")
+        self.assertEqual(STATE["new_task"][ME]["due"], f"{datetime.date.today().year}-09-30")
+
+    def test_numbers_are_only_read_where_they_are_offered(self):
+        """확인 단계에서 「3」 은 3일을 뜻할 수도 있다 — **묻는 자리에서만** 번호로 읽는다."""
+        self.assertIs(task._due_of("3"), False)          # 그냥 「3」 은 날짜가 아니다
+        self.assertEqual(task._due_pick("3"), task._due_of("이번 주"))
+
+
 class YesTest(Base):
     """**「네」 하나만 딱 쓰지 않는다** (2026-09-22 사장님 실측: 「네! 그러자고」 로 등록이 안 됐다).
 

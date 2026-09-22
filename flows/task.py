@@ -207,6 +207,14 @@ def _due_of(text):
     return False
 
 
+WORD_DUE = {"1": "오늘", "2": "내일", "3": "이번 주", "4": "다음 주", "5": "나중에"}
+
+
+def _due_pick(text):
+    """묻는 자리에서만 — 번호를 말로 바꿔 읽는다. 번호가 아니면 그대로 읽는다."""
+    return _due_of(WORD_DUE.get((text or "").strip(), text))
+
+
 def _due_text(iso):
     if not iso:
         return "정하지 않았어요"
@@ -358,17 +366,18 @@ async def maybe(s, e, q, force=False):
         st["pkey"] = hit.get("key") or ""
         return await _ask(s, ch, th, st, "who")
 
-    # ③ 누가
+    # ③ 누가 — 번호로도 받는다 (사장님 승낙 2026-09-22)
     if step == "who":
-        who = _who_of(q, st["by"])
+        who = {"1": st["by"], "2": None}.get(q.strip()) if q.strip() in ("1", "2") else _who_of(q, st["by"])
         if who is False:
             return await _again(s, ch, th, st, say("task_ask_who", step=_keycap(_where(st)[0])))
         st["who"] = who
         return await _ask(s, ch, th, st, "due")
 
-    # ④ 언제까지
+    # ④ 언제까지 — 번호로도 받는다. **번호 풀이는 묻는 자리에서만** 한다:
+    # 확인 단계에서 「3」 은 3일을 뜻할 수도 있어 여기서만 골라 준다
     if step == "due":
-        due = _due_of(q)
+        due = _due_pick(q)
         if due is False:
             return await _again(s, ch, th, st, say("task_due_bad"))
         st["due"] = due
