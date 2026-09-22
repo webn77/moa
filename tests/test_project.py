@@ -51,37 +51,31 @@ class Base(unittest.TestCase):
         self.saved_cfg = json.loads(config.PATH.read_text(encoding="utf-8")) if config.PATH.exists() else {}
         self.saved_projects = [dict(p) for p in common.PROJECTS]
         STATE.pop("new_project", None)
-        # **진짜 `gh` 를 부르지 않는다** — 시험이 25초씩 걸렸다 (2026-09-22). 기본은 「없다」:
-        # 4번째 칸(기록 쌓을 곳)은 `RepoStepTest` 가 따로 켜서 본다
-        self.ask_repo = False
-
-        async def fake_ready():
-            return self.ask_repo
         self.patches = [mock.patch.object(project, "api", self.fake.api),
                         mock.patch.object(project, "save", lambda: None),
-                        mock.patch.object(project, "_repo_ready", fake_ready),
                         # `config.PATH` 통째로 가짜 — Path 인스턴스의 메서드는 갈아 끼울 수 없다.
                         # 진짜 config.json 을 시험이 덮어쓰면 그 팀의 설정이 날아간다
                         mock.patch.object(config, "PATH", mock.MagicMock()),
                         mock.patch.object(project, "reload_projects", lambda: common.PROJECTS)]
+        # **`addCleanup` 으로 건다** — `setUp` 이 뒤에서 깨지면 unittest 는 `tearDown` 을
+        # 부르지 않는다. 그러면 이미 시작한 패치가 **안 풀리고**, `config.PATH` 가 가짜인 채로
+        # 남아 **뒤에 도는 시험 30개가 함께 무너진다** (2026-09-22 실제로 그랬다).
         for p in self.patches:
             p.start()
-
-    def tearDown(self):
-        for p in self.patches:
-            p.stop()
-        STATE.pop("new_project", None)
-        common.PROJECTS[:] = self.saved_projects
+            self.addCleanup(p.stop)
+        self.addCleanup(lambda: STATE.pop("new_project", None))
+        self.addCleanup(lambda: common.PROJECTS.__setitem__(slice(None), self.saved_projects))
 
     def say(self, q):
         return run(project.maybe(None, DM, q))
 
-    def make(self, name="결제 개편", key="네", goal="결제 실패를 절반으로 줄인다"):
-        """①이름 ②앞말 ③목표 ④확인 — 만들어지는 가장 짧은 길."""
+    def make(self, name="결제 개편", key="네", goal="결제 실패를 절반으로 줄인다", where="안 할래요"):
+        """①이름 ②앞말 ③목표 ④기록 쌓을 곳 → 확인 — 만들어지는 가장 짧은 길."""
         self.say("프로젝트 만들기")
         self.say(name)
         self.say(key)
         self.say(goal)
+        self.say(where)
         self.say("네")
 
 
@@ -136,6 +130,8 @@ class ConversationTest(Base):
         self.say("네")
         self.assertIn("이루려고", self.fake.texts()[-1])
         self.say("결제 실패를 절반으로 줄인다")
+        self.assertIn("어디에 쌓을까요", self.fake.texts()[-1])
+        self.say("안 할래요")
         self.assertIn("이렇게 만들까요", self.fake.texts()[-1])
 
     def test_name_is_not_taken_as_a_search(self):
@@ -152,7 +148,7 @@ class ConversationTest(Base):
     def test_nothing_is_made_before_you_say_yes(self):
         """**되돌릴 수 없는 일 앞에는 늘 확인이 있다** — Slack 은 채널 삭제가 없다."""
         self.say("프로젝트 만들기"); self.say("결제 개편"); self.say("네")
-        self.say("결제 실패를 절반으로 줄인다")
+        self.say("결제 실패를 절반으로 줄인다"); self.say("안 할래요")
         self.assertNotIn("conversations.create", [m for m, _ in self.fake.sent])
         self.say("네")
         self.assertIn("conversations.create", [m for m, _ in self.fake.sent])
@@ -187,25 +183,16 @@ class RepoStepTest(Base):
 
     def setUp(self):
         super().setUp()
-        self.ask_repo = True
         self.attached = []
 
         async def fake_attach(repo, pkey, make=False, kind="github"):
             self.attached.append((repo, pkey, make, kind))
             return ["• 붙였어요\n"], None
 
-        async def fake_owners():
-            return "• 👤 `webn77/…` — 개인 계정 (그 계정에 묶여요)\n"
-        # **진짜 `gh api` 를 부르지 않는다** — 시험이 7초 걸렸다 (2026-09-22 두 번째로 같은 일)
-        self.att = [mock.patch("flows.repo.attach", fake_attach),
-                    mock.patch.object(project, "_owners", fake_owners)]
-        for x in self.att:
-            x.start()
-
-    def tearDown(self):
-        for x in self.att:
-            x.stop()
-        super().tearDown()
+        # 목록을 긁어 오지 않으므로 갈아 끼울 것은 `attach` 하나다 (2026-09-22)
+        x = mock.patch("flows.repo.attach", fake_attach)
+        x.start()
+        self.addCleanup(x.stop)
 
     def upto_goal(self):
         self.say("프로젝트 만들기"); self.say("충전성공"); self.say("네")
@@ -263,15 +250,6 @@ class RepoStepTest(Base):
         self.say("안 할래요"); self.say("네")
         self.assertIn("✅", self.fake.texts()[-1])
 
-    def test_without_gh_it_never_asks_and_says_the_way_back(self):
-        """**막다른 길로 두지 않는다** — 못 물은 이유와 나중 길을 한 줄로 알려 준다."""
-        self.ask_repo = False
-        self.upto_goal()
-        self.assertIn("이렇게 만들까요", self.fake.texts()[-1])     # 4번째 칸을 안 묻는다
-        self.say("네")
-        self.assertIn("gh auth login", self.fake.texts()[-1])
-        self.assertEqual(self.attached, [])
-
 
 class GoalTest(Base):
     """③번째로 묻는 것은 **목표 한 줄**이다 (2026-09-22 사장님이 정한 세 질문의 마지막).
@@ -300,7 +278,7 @@ class GoalTest(Base):
     def test_saying_later_does_not_get_you_stuck(self):
         """지금 못 정할 수도 있다 — **묻는 칸 때문에 갇히면 안 된다** (이 파일이 두 번 겪은 일)."""
         self.say("프로젝트 만들기"); self.say("결제 개편"); self.say("네")
-        self.say("나중에 정할게요")
+        self.say("나중에 정할게요"); self.say("안 할래요")
         self.assertIn("이렇게 만들까요", self.fake.texts()[-1])
         self.say("네")
         self.assertIn("✅", self.fake.texts()[-1])
@@ -322,7 +300,7 @@ class ConfirmTest(Base):
 
     def ready(self):
         self.say("프로젝트 만들기"); self.say("충전성공"); self.say("네")
-        self.say("충전 실패를 절반으로 줄인다")
+        self.say("충전 실패를 절반으로 줄인다"); self.say("안 할래요")
 
     def test_fixing_the_key(self):
         self.ready()
@@ -371,7 +349,7 @@ class NotStuckTest(Base):
             (["프로젝트 만들기"], "🎉🎉"),                                   # ①이름
             (["프로젝트 만들기", "충전성공"], "이건 앞말이 아니라 문장이에요"),   # ②앞말
             (["프로젝트 만들기", "충전성공", "네"], "음"),                     # ③목표
-            (["프로젝트 만들기", "충전성공", "네", "충전 실패를 줄인다"], "아니 그게 아니고"),   # ④확인
+            (["프로젝트 만들기", "충전성공", "네", "충전 실패를 줄인다", "안 할래요"], "아니 그게 아니고"),   # ④확인
         ):
             STATE.pop("new_project", None)
             for q in setup:
@@ -379,13 +357,13 @@ class NotStuckTest(Base):
             self.say(bad)
             self.assertIn("프로젝트 등록", self.where(), bad)
             self.assertIn("취소", self.where(), bad)
-            self.assertIn("/3 단계", self.where(), bad)
+            self.assertIn("/4 단계", self.where(), bad)
 
     def test_it_says_which_step_you_are_on(self):
         self.say("프로젝트 만들기"); self.say("🎉🎉")
-        self.assertIn("1/3 단계", self.where())
+        self.assertIn("1/4 단계", self.where())
         self.say("충전성공"); self.say("이건 문장이에요")
-        self.assertIn("2/3 단계", self.where())
+        self.assertIn("2/4 단계", self.where())
 
     def test_a_command_does_not_become_the_project_name(self):
         """「현황」 이 프로젝트 이름이 되면 그 방은 그 이름으로 남는다 (채널 삭제가 없다)."""

@@ -185,7 +185,10 @@ STEP_WHAT = {"title": "프로젝트 이름", "key": "번호 앞말", "goal": "�
 
 
 def _steps(st):
-    return ["title", "key", "goal"] + (["repo"] if st.get("ask_repo") else [])
+    # **늘 넷이다** (2026-09-22 사장님: 「고객에게 github주소를 물어보고 연결하는거 까지 하면
+    # 되는거 아님?」). 예전에는 `gh` 가 있는지 보고 물을지 말지를 정했는데, 그러면 칸 수가
+    # 맥마다 달라지고 **사내 서버는 `gh` 로 보이지도 않는다.** 그냥 묻고, 주시는 대로 쓴다
+    return ["title", "key", "goal", "repo"]
 
 
 def _where(st):
@@ -223,29 +226,6 @@ async def _ask_goal(s, ch, th, st):
     return True
 
 
-async def _repo_ready():
-    """기록 쌓을 곳을 물어봐도 되나 — `gh` 가 있고 로그인돼 있을 때만."""
-    try:
-        from flows.repo import ready
-        got = await ready()
-        return bool(got.get("gh") and got.get("auth"))
-    except Exception as ex:
-        log(f"gh 확인 실패: {type(ex).__name__}")
-        return False
-
-
-async def _owners():
-    """**올릴 수 있는 곳을 물어서 보여 준다** — 예시를 지어내면 개인 계정을 팀 레포로 권하게 된다
-    (2026-09-22 사장님: 「webn77 이거는 개인 레포잖어!」)."""
-    try:
-        from flows.repo import owner_lines, owners
-        me, orgs = await owners()
-        return owner_lines(me, orgs)
-    except Exception as ex:
-        log(f"올릴 곳 확인 실패: {type(ex).__name__}")
-        return ""
-
-
 def _repo_target(text):
     from flows.repo import target_of
     return target_of(text)
@@ -254,8 +234,7 @@ def _repo_target(text):
 async def _ask_repo(s, ch, th, st):
     st["step"] = "repo"
     save()
-    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3",
-                          list=await _owners()), th)
+    await _say(s, ch, say("proj_ask_repo", step=f"{_where(st)[0]}\ufe0f\u20e3"), th)
     return True
 
 
@@ -347,7 +326,6 @@ async def maybe(s, e, q, force=False):
         # **4번째 칸을 물을 수 있나** — `gh` 가 없거나 로그인이 안 되어 있으면 묻지 않는다.
         # 물어 놓고 마지막에 「gh 가 없어요」 라고 하면 헛일을 시킨 것이다.
         # 여는 자리에서 한 번만 본다 — 칸 수를 세어 「n/4」 라고 말해야 하니까
-        st["ask_repo"], st["owners"] = await _repo_ready(), ""
         STATE.setdefault("new_project", {})[user] = st
         save()
     # **연 스레드 안에서 이어 간다.** 사람이 맨 위에 답을 써도 (thread_ts 없이) 답은 이
@@ -410,9 +388,7 @@ async def maybe(s, e, q, force=False):
             return await _again(s, ch, th, st, say("proj_goal_bad"))
         else:
             st["goal"] = w[:120]
-        if st.get("ask_repo"):
-            return await _ask_repo(s, ch, th, st)
-        return await _show(s, ch, th, st)
+        return await _ask_repo(s, ch, th, st)
 
     # ④ 기록을 어디에 쌓을까 — **있을 때만 묻는다.** 「안 할래요」 면 이 맥에만 둔다
     if step == "repo":
@@ -466,8 +442,8 @@ async def _build(s, ch, th, st, user):
         lines, err = await attach(st["repo"], st["key"], st.get("rmake"), st.get("rkind") or "github")
         detail += "".join(lines) if lines else ""
         detail += say("proj_repo_fail", err=str(err)[:120]) if err else ""
-    elif st.get("ask_repo") is False:
-        detail += say("proj_repo_later")          # gh 가 없어서 못 물었다 — 나중 길을 알려 준다
+    else:
+        detail += say("proj_repo_no_done")        # 이 맥에만 둔다 — 그게 무슨 뜻인지 말한다
     await _say(s, ch, head + say("proj_done", title=st["title"], channel=got["channel"],
                                  n=got["people"], k=st["key"], detail=detail), th)
     return True
