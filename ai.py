@@ -116,8 +116,14 @@ async def transcript(s, c):
 async def refine(s, c, thread_ts):
     await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": thread_ts, "text": say("refining"), **mood("생각")})
     system = ("너는 Slack 이슈를 정리하는 PM 보조다. 대화에 있는 사실만 쓴다. 추측은 쓰지 않고 모르면 '미정'이라고 쓴다. "
-              "반드시 JSON 한 개만 출력한다. 키: title(40자 이내), why, change, expect, not_doing, done_criteria(문자열 배열, 1~4개). "
-              "모든 값은 한국어 한두 문장.")
+              "반드시 JSON 한 개만 출력한다. 키: title(40자 이내), why, change, expect, not_doing, done_criteria. "
+              # **체크리스트는 「할 거리」 다** (2026-09-22 사장님: 「이거 안에 체크리스트 뭐 해야 하나」).
+              # 예전에는 「끝났다고 볼 조건」 이라고만 시켜서 「알림이 1회만 발송된다」 같은 **통과 조건**이
+              # 섞여 들어왔다. 읽는 사람은 「그래서 뭘 하지」 를 알 수 없다. 그리고 「미정」 은 항목이 아니다 —
+              # 체크할 수 없는 것을 체크 목록에 넣으면 진행률이 거짓말을 한다 (실제로 5건이 그랬다)
+              "done_criteria 는 **해야 할 일**을 2~5개, 한 줄에 하나씩, 「…하기」 로 끝나는 짧은 동사구로 쓴다 "
+              "(예: 「권한 단계 표 쓰기」 · 「안 쓰는 항목 빼기」). 「…된다」 같은 상태 서술이나 「미정」 은 넣지 않는다 — "
+              "쓸 것이 없으면 빈 배열로 둔다. 모든 값은 한국어 한두 문장.")
     try:
         raw = await ask_ai(system, "다음 이슈 스레드를 이슈 정의로 정리해줘.\n\n" + await transcript(s, c))
         spec = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
@@ -128,6 +134,8 @@ async def refine(s, c, thread_ts):
         return
     old_title, old_spec = c["title"], dict(c.get("spec") or {})
     c["title"] = spec.get("title") or c["title"]
+    # 「미정」·글머리표를 받는 쪽에서 거른다 — 시키는 것만으로는 못 막는다 (core.clean_items)
+    spec["done_criteria"] = core.clean_items(spec.get("done_criteria"))
     c["spec"] = spec
     if old_spec:                                           # 처음 정리는 이력이 아니다
         await record_change(s, c, None, old_title, old_spec, "스레드 대화를 다시 정리 (@정리)", how="AI 정리")
@@ -139,7 +147,8 @@ async def refine(s, c, thread_ts):
 
 COACH = ("너는 팀의 프로젝트 비서다. 카드 스레드에서 사람과 짧게 대화하며 이슈를 구체화한다. "
          "이슈 정의는 5칸: why(누가 무엇 때문에 곤란한가), change(무엇이 바뀌나), expect(기대와 확인 방법), "
-         "not_doing(이번에 하지 않을 것), done_criteria(끝났다고 볼 조건, 1~4개). "
+         "not_doing(이번에 하지 않을 것), done_criteria(**해야 할 일** 2~5개 — 「…하기」 로 끝나는 짧은 동사구. "
+         "「…된다」 같은 상태 서술이나 「미정」 은 넣지 않고, 쓸 것이 없으면 빈 배열). "
          "규칙: 대화나 지금 정의에 이미 있는 것은 묻지 않는다. 한 번에 최대 2개만, 한 줄씩 짧게 묻는다. "
          "사람이 질문하면 먼저 답한다 (모르면 모른다고). 양식을 채우라고 하지 않는다 — 말로 묻는다. "
          "5칸을 쓸 만큼 모였으면 ready=true 로 spec 을 채운다. 대화에 없는 사실은 지어내지 않고 모르는 칸은 '미정'. "
@@ -200,7 +209,7 @@ async def coach(s, c, trigger):
     if spec and (r.get("ready") or trigger == "new" or c["coach_rounds"] >= 3):
         c["spec_draft"] = spec
         lines = [f"*{label}*  {spec.get(k) or '미정'}" for k, label in SPEC_KEYS]
-        lines.append("*완료 조건*\n" + ("\n".join(f"☐ {x}" for x in spec.get("done_criteria") or []) or "미정"))
+        lines.append("*체크리스트*\n" + ("\n".join(f"☐ {x}" for x in spec.get("done_criteria") or []) or "아직 없어요"))
         d = await api(s, "chat.postMessage", body={"channel": chan(c), "thread_ts": c["card_ts"], "text": "정리안",
             "blocks": [{"type": "section", "text": {"type": "mrkdwn", "text": "📝 *이렇게 정리했어요* — 맞으면 👍, 다르면 고쳐 주세요"}},
                        {"type": "section", "text": {"type": "mrkdwn", "text": "\n".join(lines)[:2900]}},

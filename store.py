@@ -15,7 +15,7 @@ def save():
 
 
 def progress(c):
-    """완료 조건 몇 개 중 몇 개 체크했나 — (k, n). 조건 문구가 바뀌면 없어진 체크는 세지 않는다."""
+    """체크리스트 몇 개 중 몇 개 체크했나 — (k, n). 조건 문구가 바뀌면 없어진 체크는 세지 않는다."""
     dc = (c.get("spec") or {}).get("done_criteria") or []
     return sum(1 for x in dc if x in (c.get("checked") or [])), len(dc)
 

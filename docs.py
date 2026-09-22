@@ -214,7 +214,7 @@ def metrics():
     return {"리드타임": (f"중앙값 {med}일 ({len(lt)}건)" if lt else "아직 없음", False),
             "PM 조율 시간": ("아직 없음 (매주 PM에게 물어요)", False),
             "3일 넘게 멈춘 일": (f"{stalled}건", stalled == 0),
-            "완료 조건을 갖춘 이슈 비율": (f"{pct(spec, len(live))}% ({spec}/{len(live)})", pct(spec, len(live)) >= 80),
+            "체크리스트를 갖춘 할 일 비율": (f"{pct(spec, len(live))}% ({spec}/{len(live)})", pct(spec, len(live)) >= 80),
             "AI 배정 수락률": (f"{pct(ok, ok + no)}% ({ok}/{ok + no})" if ok + no else "아직 없음",
                            bool(ok + no) and pct(ok, ok + no) >= 70),
             "인수인계 성공 (#25)": (f"{handoff}건", handoff >= 1)}

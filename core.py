@@ -24,9 +24,32 @@ def plevel(c):
     return 2 if s >= 7 else 3 if s >= 4 else 4
 
 
+def clean_items(xs):
+    """체크리스트 항목 다듬기 — **체크할 수 없는 것은 넣지 않는다** (2026-09-22).
+
+    「미정」 이 항목으로 들어오면 진행률이 거짓말을 한다 — 영영 못 체크하니 4/5 에서 멈춘다.
+    실제로 71건 중 5건이 「미정」 **한 줄만** 들고 있었다. AI 에게 쓰지 말라고 시키는 것만으로는
+    못 막는다 (이 저장소가 여러 번 겪었다) — 받는 쪽에서 거른다.
+
+    앞의 글머리표(`- [ ]` · `☐` · `*`)도 떼어 낸다. 사람이 마크다운 습관으로 붙여 온다.
+    """
+    out = []
+    for x in xs or []:
+        t = str(x).strip()
+        for mark in ("- [ ]", "- [x]", "- [X]", "☐", "☑", "- ", "* ", "• "):
+            if t.startswith(mark):
+                t = t[len(mark):].strip()
+        bare = t.strip(" .·-")                 # 「미정.」 · 「- 」 만 남은 줄도 같은 것으로 본다
+        if not bare or bare in ("미정", "TBD", "tbd", "없음"):
+            continue
+        if t not in out:                       # 같은 줄이 두 번 오면 체크가 엉킨다 (값으로 짝짓는다)
+            out.append(t)
+    return out[:10]
+
+
 def spec_diff(old_title, old, new_title, new, labels):
     """요구사항이 어떻게 바뀌었나 — [(칸 이름, 전, 후)]. 안 바뀐 칸은 뺀다.
-    labels = [(키, 이름)] — 제목·완료 조건은 따로 본다."""
+    labels = [(키, 이름)] — 제목·체크리스트는 따로 본다."""
     old, new = old or {}, new or {}
     out = []
     if (old_title or "") != (new_title or ""):
@@ -39,8 +62,8 @@ def spec_diff(old_title, old, new_title, new, labels):
     if a != b:
         gone = [x for x in a if x not in b]
         added = [x for x in b if x not in a]
-        out.append(("완료 조건", " / ".join(gone), " / ".join(added)) if gone or added
-                   else ("완료 조건", "순서", "바뀜"))
+        out.append(("체크리스트", " / ".join(gone), " / ".join(added)) if gone or added
+                   else ("체크리스트", "순서", "바뀜"))
     return out
 
 
@@ -326,7 +349,7 @@ def check_card(c, cards=(), when="number", today=None, stage_names=()):
         if not any((spec.get(k) or "").strip() for k in SPEC_KEYS):
             block.append("이슈 정의가 비어 있어요 — 왜 · 바뀌는 것 · 기대와 확인 중 하나는 있어야 해요")
         if not done:
-            block.append("완료 조건이 없어요 — 끝났다고 볼 조건을 한두 줄 적어 주세요")
+            block.append("체크리스트가 없어요 — 뭘 해야 하는지 한두 줄 적어 주세요")
         # cards 는 이 카드를 포함한 판 전체다. 같은 번호가 둘 이상이면 화면이 어느 것을 가리키는지 모른다
         if sum(1 for x in cards if x.get("no") == c.get("no")) > 1:
             block.append(f"#{c.get('no')} 번을 다른 이슈가 쓰고 있어요")
@@ -347,11 +370,11 @@ def check_card(c, cards=(), when="number", today=None, stage_names=()):
 
     elif when == "doing":
         if not done:
-            warn.append("끝났다고 볼 조건을 한두 줄 알려 주세요")
+            warn.append("뭘 해야 하는지 한두 줄 알려 주세요")
 
     elif when == "done":
         if done and len(checked) < len(done):
-            warn.append(f"완료 조건이 {len(checked)}/{len(done)} 만 체크돼 있어요")
+            warn.append(f"체크리스트가 {len(checked)}/{len(done)} 만 체크돼 있어요")
         late = days_late(c, today)
         if late:
             warn.append(f"목표일보다 {late}일 늦었어요")

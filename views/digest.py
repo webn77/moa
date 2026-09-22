@@ -193,7 +193,7 @@ def daily_md(day=None):
     quiet = sum(1 for _, e in rows if e.get("icon") == "☑"
                 or (e.get("icon") == "🔄" and e.get("by") in (None, "ai")))
     if quiet:
-        out.append(f"_그 밖에 완료 조건 체크·AI 자동 조정 {quiet}건_")
+        out.append(f"_그 밖에 체크리스트 체크·AI 자동 조정 {quiet}건_")
     return "\n".join(out).rstrip() + "\n"
 
 

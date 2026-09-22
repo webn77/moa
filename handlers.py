@@ -399,7 +399,7 @@ async def act_pull(s, p, a):                   # ✋ 내가 할게요 — 맡기
         await open_take_editor(s, p["trigger_id"], c, _user(p))
 
 
-async def act_check(s, p, a):                  # 완료 조건 체크박스
+async def act_check(s, p, a):                  # 체크리스트 체크박스
     c = _card(a, True)
     if c:
         await check_criteria(s, c, a.get("selected_options") or [], _user(p))
@@ -502,14 +502,30 @@ async def act_card_menu(s, p, a):              # 예전 카드의 「⋯」 메�
         await f(s, p, {"action_id": {"edit": "edit_card", "detail": "show_md", "pull": "pull_card"}[kind], "value": ts_})
 
 
-CTL_VER = 5          # 카드·⚙️ 모양이 바뀌면 올린다 — 켜질 때 한 번, 천천히 새로 그린다
+CTL_VER = 6          # 카드·⚙️ 모양이 바뀌면 올린다 — 켜질 때 한 번, 천천히 새로 그린다
                      # (3: 끝난 일 취소선 · 4: ⚙️ 를 카드 안으로 넣고 따로 올린 것은 치운다
-                     #  5: 단계·기능 드롭다운을 빼고 「📝 설명 쓰기」 단추를 넣는다)
+                     #  5: 단계·기능 드롭다운을 빼고 「📝 설명 쓰기」 단추를 넣는다
+                     #  6: 「완료 조건」 → 「체크리스트」 · 체크할 수 없는 항목을 치운다)
 
 
 async def refresh_ctls(s):
     if STATE.get("ctl_ver") == CTL_VER:
         return
+    # **이미 쌓인 것도 한 번 훑는다** — 「미정」 은 영영 못 체크해서 진행률이 4/5 에서 멈춘다.
+    # 앞으로 들어오는 것은 `core.clean_items` 가 받는 쪽에서 막지만, 이미 적힌 것은 안 바뀐다
+    import core
+    fixed = 0
+    for c in STATE["cards"].values():
+        sp = c.get("spec") or {}
+        was = sp.get("done_criteria")
+        if was:
+            now = core.clean_items(was)
+            if now != was:
+                sp["done_criteria"] = now
+                c["checked"] = [x for x in (c.get("checked") or []) if x in now]
+                fixed += 1
+    if fixed:
+        log(f"체크리스트에서 체크할 수 없는 항목 치움 — {fixed}건")
     for c in [x for x in STATE["cards"].values() if x.get("card_ts")]:
         if c.get("ctl_ts"):
             await ensure_ctl(s, c)            # 따로 올려 둔 ⚙️ 를 치운다 (이제 카드 안에 있다)

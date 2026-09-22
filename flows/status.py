@@ -58,13 +58,13 @@ async def take_card(s, c, who, how="pull_card"):
 
 
 async def check_criteria(s, c, options, who, why=None):
-    """완료 조건 체크 — 카드에 2/4, 한 줄 기록. 다 체크하면 확인 대기(확인할 사람이 있으면) 또는 닫을지 묻기."""
+    """체크리스트 체크 — 카드에 2/4, 한 줄 기록. 다 체크하면 확인 대기(확인할 사람이 있으면) 또는 닫을지 묻기."""
     dc = (c.get("spec") or {}).get("done_criteria") or []
     before_k, _ = progress(c)
     c["checked"] = [dc[int(o["value"])] for o in options if int(o["value"]) < len(dc)]
     k, n = progress(c)
     if k != before_k:                                  # 한 줄 기록 — 채널에는 올리지 않는다
-        await post_log(s, c, add_log(c, f"완료 조건 {k}/{n}", load_team().get(who, {}).get("name", who or "누군가"), why, icon="☑"))
+        await post_log(s, c, add_log(c, f"체크리스트 {k}/{n}", load_team().get(who, {}).get("name", who or "누군가"), why, icon="☑"))
     if n and k == n > before_k and c["status"] not in ("done", "review", "cancelled"):
         if resolve(c, "done", who) == "review":                     # 확인할 사람이 있으면 → 확인 대기
             await apply_change(s, c, "set_status", "done", who)
@@ -83,7 +83,7 @@ async def check_criteria(s, c, options, who, why=None):
         await ensure_ctl(s, c)
     save()
     asyncio.create_task(render_canvas(s))
-    log(f"완료 조건 체크 #{c['no']} {k}/{n}")
+    log(f"체크리스트 체크 #{c['no']} {k}/{n}")
 
 
 async def close_done(s, c, who, msg_ts=None):
@@ -224,7 +224,7 @@ async def save_take(s, payload):
 
 
 # 창에서 **사람이 고치는** 칸 (2026-09-22 사장님: 「너무 칸이 많어 쓰기 싫어지게 생기긴 했어」).
-# 여덟 칸이었다 — 제목·왜·바뀌는 것·기대와 확인·하지 않는 것·완료 조건·먼저 끝나야 할 일·바꾼 이유.
+# 여덟 칸이었다 — 제목·왜·바뀌는 것·기대와 확인·하지 않는 것·체크리스트·먼저 끝나야 할 일·바꾼 이유.
 # 다섯으로 줄였다. 뺀 셋은 **없앤 게 아니라 제 자리로 보냈다**:
 #   · 하지 않는 것 — AI 가 채우고 📄 상세가 보여 준다. `core.py` 의 「정의가 있나」 판정도
 #     원래 이걸 안 센다 (거기 SPEC_KEYS 는 왜·바뀌는 것·기대와 확인 셋뿐이다)
@@ -246,7 +246,8 @@ async def open_content_editor(s, trigger, c, push=False):
             "submit": {"type": "plain_text", "text": "저장"}, "close": {"type": "plain_text", "text": "닫기"},
             "blocks": [field("title", "제목", c["title"], False)]
             + [field(k, label, sp.get(k)) for k, label in FORM_KEYS]
-            + [field("done_criteria", "완료 조건", "\n".join(sp.get("done_criteria") or []), hint="한 줄에 하나씩"),
+            + [field("done_criteria", "체크리스트", "\n".join(sp.get("done_criteria") or []),
+                   hint="한 줄에 하나씩 · 「권한 표 쓰기」 처럼 할 거리로"),
                {"type": "context", "elements": [{"type": "mrkdwn",
                 "text": "순서(먼저 끝나야 할 일)는 「순서」 라고 쓰시면 한 화면에서 고칠 수 있어요"}]}]}
     await api(s, "views.push" if push else "views.open", body={"trigger_id": trigger, "view": view})
@@ -267,7 +268,7 @@ async def save_content(s, payload):
         if k in vals:
             sp[k] = vals[k].strip()
     if "done_criteria" in vals:
-        sp["done_criteria"] = [x.strip("-☐ ").strip() for x in vals["done_criteria"].splitlines() if x.strip()]
+        sp["done_criteria"] = core.clean_items(vals["done_criteria"].splitlines())
     c["spec"] = sp if any(sp.values()) else None
     c["spec_src"], c["coach"] = "human", "done"
     c.pop("spec_draft", None)
@@ -391,8 +392,8 @@ async def record_change(s, c, user, old_title, old_spec, reason, how="직접 고
     if not diff:
         return
     who = load_team().get(user, {}).get("name", "누군가") if user else "AI"
-    what = ", ".join(f"완료 조건 " + " ".join(x for x in [a and f"−{short(a, 20)}", b and f"+{short(b, 20)}"] if x)
-                     if k == "완료 조건" else f"{k} 수정" for k, a, b in diff)
+    what = ", ".join(f"체크리스트 " + " ".join(x for x in [a and f"−{short(a, 20)}", b and f"+{short(b, 20)}"] if x)
+                     if k == "체크리스트" else f"{k} 수정" for k, a, b in diff)
     by_ = who if how == "직접 고침" else f"{how}·{who}" if user else how
     e = add_log(c, what, by_, reason or None, kind="spec", icon="📝", fields=[d[0] for d in diff], by=user)
     await post_log(s, c, e, user if not reason and user else None)

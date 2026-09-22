@@ -103,11 +103,11 @@ LABELS = [("why", "왜"), ("change", "바뀌는 것")]
 
 class SpecDiffTest(unittest.TestCase):
     def test_only_changed_fields(self):
-        """바뀐 칸만 나온다 — 제목 · 본문 칸 · 완료 조건(추가·삭제)."""
+        """바뀐 칸만 나온다 — 제목 · 본문 칸 · 체크리스트(추가·삭제)."""
         old = {"why": "A", "change": "B", "done_criteria": ["x", "y"]}
         new = {"why": "A", "change": "B2", "done_criteria": ["y", "z"]}
         d = core.spec_diff("t", old, "t2", new, LABELS)
-        self.assertEqual(d, [("제목", "t", "t2"), ("바뀌는 것", "B", "B2"), ("완료 조건", "x", "z")])
+        self.assertEqual(d, [("제목", "t", "t2"), ("바뀌는 것", "B", "B2"), ("체크리스트", "x", "z")])
 
     def test_no_change_is_empty(self):
         """안 바뀌면 이력을 남기지 않는다 — 공백 차이도 무시."""
@@ -181,7 +181,7 @@ class CheckTest(unittest.TestCase):
     def test_empty_spec_blocks(self):
         """제목만 있는 이슈는 올리지 않는다 — 이게 21건 새는 자리였다."""
         block, _ = core.check_card({"no": 1, "title": "제목"}, [], "number")
-        self.assertEqual(len(block), 2)                       # 정의 없음 + 완료 조건 없음
+        self.assertEqual(len(block), 2)                       # 정의 없음 + 체크리스트 없음
 
     def test_missing_only_warns(self):
         """목표일·단계·기능이 없는 건 막지 않는다 — 모자란 것은 거절 사유가 아니다."""
@@ -338,6 +338,34 @@ class ReadableTest(unittest.TestCase):
 
     def test_empty(self):
         self.assertEqual(self.r(None), "")
+
+
+class ChecklistItemTest(unittest.TestCase):
+    """체크리스트 항목 다듬기 (2026-09-22 사장님: 「체크리스트로 하고 이것도 자동으로 생성」).
+
+    **체크할 수 없는 것은 넣지 않는다.** 「미정」 이 항목이면 영영 못 체크해서 진행률이
+    4/5 에서 멈춘다 — 실제로 71건 중 5건이 「미정」 한 줄만 들고 있었다.
+    """
+
+    def test_it_drops_what_cannot_be_checked(self):
+        self.assertEqual(core.clean_items(["미정"]), [])
+        self.assertEqual(core.clean_items(["미정.", "없음", "-", "TBD", ""]), [])
+
+    def test_it_keeps_a_real_item_that_mentions_the_word(self):
+        """「미정」 이 **들어간** 문장은 진짜 할 거리일 수 있다 — 딱 그 말일 때만 버린다."""
+        self.assertEqual(core.clean_items(["미정인 날짜 정하기"]), ["미정인 날짜 정하기"])
+
+    def test_it_strips_markdown_bullets(self):
+        """사람이 창에 마크다운 습관으로 붙여 넣는다."""
+        self.assertEqual(core.clean_items(["- [ ] 표 쓰기", "☐ 항목 빼기", "- 확인하기"]),
+                         ["표 쓰기", "항목 빼기", "확인하기"])
+
+    def test_the_same_line_twice_is_one(self):
+        """체크는 **값으로** 짝짓는다 — 같은 줄이 둘이면 하나를 체크해도 둘 다 켜진다."""
+        self.assertEqual(core.clean_items(["표 쓰기", "표 쓰기"]), ["표 쓰기"])
+
+    def test_it_stops_at_ten(self):
+        self.assertEqual(len(core.clean_items([f"{i} 하기" for i in range(20)])), 10)
 
 
 class PlanTest(unittest.TestCase):
@@ -515,9 +543,9 @@ class DailyTest(unittest.TestCase):
         self.assertNotIn("우선순위 P3→P4", md)
 
     def test_checks_are_only_counted(self):
-        """완료 조건 체크는 근거가 달려 있어도 **진행**이지 **결정**이 아니다 — 이슈별 기록에 그대로 있다."""
+        """체크리스트 체크는 근거가 달려 있어도 **진행**이지 **결정**이 아니다 — 이슈별 기록에 그대로 있다."""
         md = self.md([self.card(1, self.e("☑", "1번 체크")), self.card(2, self.e("✅"))])
-        self.assertIn("완료 조건 체크", md)
+        self.assertIn("체크리스트 체크", md)
         self.assertNotIn("1번 체크", md)
 
     def test_reason_wins_over_what(self):

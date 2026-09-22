@@ -1,4 +1,4 @@
-"""카드 · ⚙️ 설정 · 완료 조건 체크박스 · 📄 상세 — 화면만 만든다 (#30 에서 bot.py 를 나눔)."""
+"""카드 · ⚙️ 설정 · 체크리스트 체크박스 · 📄 상세 — 화면만 만든다 (#30 에서 bot.py 를 나눔)."""
 import re
 import core
 from messages import say
@@ -109,7 +109,7 @@ def rough_blocks(spec):
     done = [x for x in (spec.get("done_criteria") or []) if "미정" not in x]
     rows = [f"*{label}*  {fill(spec.get(k))}" for k, label in
             (("why", "왜"), ("change", "바뀌는 것"), ("expect", "기대와 확인"))]
-    rows.append("*완료 조건*  " + (" / ".join(done) if done else "❓"))
+    rows.append("*체크리스트*  " + (" / ".join(done) if done else "❓"))
     return [{"type": "section", "text": {"type": "mrkdwn", "text": say("rough_head")}},
             {"type": "section", "text": {"type": "mrkdwn", "text": "\n".join(rows)[:2900]}},
             {"type": "context", "elements": [{"type": "mrkdwn", "text": say("rough_tail")}]}]
@@ -123,7 +123,7 @@ def draft_blocks(key, spec):
         f"*왜* {spec.get('why', '-')}", f"*바뀌는 것* {spec.get('change', '-')}",
         f"*기대와 확인* {spec.get('expect', '-')}",
         f"*하지 않는 것* {spec.get('not_doing', '-')}",
-        "*완료 조건*\n" + "\n".join(f"☐ {x}" for x in done) if done else ""] if x)
+        "*체크리스트*\n" + "\n".join(f"☐ {x}" for x in done) if done else ""] if x)
     # 프로젝트가 여럿이면 **만들기 전에** 고르게 한다 (#70, 사장님 지적 9/21).
     # 팀 대화방은 프로젝트들이 함께 쓰는 자리라 방만 보고는 어느 프로젝트인지 알 수 없다.
     # 만든 뒤에 바꾸는 길은 두지 않는다 — 카드 메시지가 이미 그 방에 올라가 있어서 옮길 수가 없다.
@@ -200,10 +200,10 @@ def ctl_blocks(c):
 
 
 def checklist_blocks(c):
-    """완료 조건 체크박스 — 스레드 ⚙️ 설정과 📄 상세가 같이 쓴다. 체크하면 카드에 2/4, 다 체크하면 확인 대기."""
+    """체크리스트 체크박스 — 스레드 ⚙️ 설정과 📄 상세가 같이 쓴다. 체크하면 카드에 2/4, 다 체크하면 확인 대기."""
     done = ((c.get("spec") or {}).get("done_criteria") or [])[:10]
     if not done:
-        return [{"type": "context", "elements": [{"type": "mrkdwn", "text": "*완료 조건* 아직 없어요 — 스레드에 한두 줄 알려 주시면 정리해 둘게요"}]}]
+        return [{"type": "context", "elements": [{"type": "mrkdwn", "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요"}]}]
     k, n = progress(c)
     opts = [{"text": {"type": "mrkdwn", "text": x[:150]}, "value": str(i)} for i, x in enumerate(done)]
     el = {"type": "checkboxes", "action_id": "check_dc", "options": opts}
@@ -211,7 +211,7 @@ def checklist_blocks(c):
     if got:
         el["initial_options"] = got
     return [{"type": "section", "text": {"type": "mrkdwn",
-             "text": f"*{bar(k, n)} 완료 조건 {k}/{n}* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요"}},
+             "text": f"*{bar(k, n)} 체크리스트 {k}/{n}* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요"}},
             {"type": "actions", "block_id": f"dc:{c.get('card_ts') or '-'}", "elements": [el]}]
 
 
@@ -253,7 +253,7 @@ def card_detail_blocks(c):
           "accessory": {"type": "button", "text": {"type": "plain_text", "text": "✏️ 내용 수정"},
                         "action_id": "edit_content", "value": c.get("card_ts") or "-"}},
          # 분류는 작은 글씨 두 줄로 — 칸을 쓰지 않는다. 「할 일·성공 기준」 은 뺐다 (사장님 결정 9/20):
-         # 성공 기준은 할 일 전체의 지표라 이 이슈 것이 아니고, 아래 「기대와 확인」·「완료 조건」 과
+         # 성공 기준은 할 일 전체의 지표라 이 이슈 것이 아니고, 아래 「기대와 확인」·「체크리스트」 와
          # 같은 물음에 답해서 세 번 읽힌다. 할 일 단위 지표는 캔버스 맨 위 표가 이미 보여 준다
          ctx(f"{PLEVEL[plevel(c)]} {PNAME[plevel(c)]} · {LABEL[c['status']]} · 담당 {nm(c.get('assignee'))}"
              + (f" · {due_text(c)}" if due_text(c) else "")
@@ -279,7 +279,7 @@ def card_detail_blocks(c):
     if c["status"] == "done":
         rows.insert(0, f"결과: {next((e['what'] for e in reversed(c.get('edits') or []) if e.get('icon') == '✅'), '완료')}")
     elif c.get("due"):
-        rows.insert(0, f"계획: 목표일 {mday(c['due'])}" + (f" · 완료 조건 {progress(c)[0]}/{progress(c)[1]}" if progress(c)[1] else ""))
+        rows.insert(0, f"계획: 목표일 {mday(c['due'])}" + (f" · 체크리스트 {progress(c)[0]}/{progress(c)[1]}" if progress(c)[1] else ""))
     b.append(sec("\n".join(rows)[:2900]))
     b.append(head("🧮 순서와 담당 — 왜 이렇게 됐나"))
     why = [f"{'💡 AI' if c.get('prio_src') == 'ai' else '✋ 사람'}: {c.get('prio_reason') or '-'}"

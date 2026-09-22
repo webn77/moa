@@ -290,7 +290,7 @@ class ReconcileTest(unittest.TestCase):
 
 
 class NoRepoTest(unittest.IsolatedAsyncioTestCase):
-    """GitHub 을 안 쓰는 팀 — 번호는 예전처럼 봇 안의 카운터로, 봇은 그대로 돈다 (#60 완료 조건 5)."""
+    """GitHub 을 안 쓰는 팀 — 번호는 예전처럼 봇 안의 카운터로, 봇은 그대로 돈다 (#60 체크리스트 5)."""
 
     def setUp(self):
         import flows.intake as intake

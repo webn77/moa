@@ -21,7 +21,7 @@ async def request_review(s, c, user, who=None):
     who = who or core.confirmer(c, team)
     c["review_by"], c["review_day"] = who, datetime.date.today().isoformat()
     k, n = progress(c)
-    detail = " · ".join(x for x in [f"완료 조건 {k}/{n}" if n else "", plan_result(c)] if x)
+    detail = " · ".join(x for x in [f"체크리스트 {k}/{n}" if n else "", plan_result(c)] if x)
     text = say("review_ask", uid=who, ref=ref(c["no"], 30), detail=detail)
     body = {"channel": who, "text": text, "blocks": review_blocks(c, text), "unfurl_links": False}
     d = await api(s, "chat.postMessage", body={**body, **mood("부탁")})

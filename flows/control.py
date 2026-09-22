@@ -3,7 +3,7 @@
 데이터 폴더의 `ask.jsonl` 에 한 줄씩 쓰면 봇이 10초마다 읽어서 처리하고, 처리한 줄은 `ask.done.jsonl` 로 옮긴다.
 봇이 상태를 메모리에 들고 있어서 밖에서 cards.json 을 직접 고치면 엇갈린다 — 그래서 통로가 하나 필요하다.
 
-  {"do": "check", "no": 51, "item": 2, "why": "커밋 abc1234"}   완료 조건 2번을 체크 (why 는 근거)
+  {"do": "check", "no": 51, "item": 2, "why": "커밋 abc1234"}   체크리스트 2번을 체크 (why 는 근거)
   {"do": "note",  "no": 51, "text": "…"}                        카드 스레드에 한 줄 남기기
   {"do": "issue", "title": "…", "why": "…", "done": ["…"]}      새 이슈 (담당 없이 등록 · project 로 프로젝트 고름)
   {"do": "spec", "no": 59, "title": "…", "why": "…", "force": true}  정의·제목 고치기
@@ -34,7 +34,7 @@ def _card(no):
 
 
 async def do_check(s, r):
-    """완료 조건 하나를 체크한다. 근거(why)를 기록에 함께 남긴다. 다 체크되면 확인 대기로."""
+    """체크리스트 하나를 체크한다. 근거(why)를 기록에 함께 남긴다. 다 체크되면 확인 대기로."""
     c = _card(r.get("no"))
     dc = ((c or {}).get("spec") or {}).get("done_criteria") or []
     i = int(r.get("item", 0)) - 1

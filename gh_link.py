@@ -4,7 +4,7 @@
 방향은 한쪽이다 — 카드·파일 → GitHub. GitHub 의 제목·본문·열림/닫힘만 덮어쓴다.
 그래서 합칠 일이 없고 충돌 해소 코드가 없다 (moduflow2 gh.py 와 같은 규칙).
 
-  issues/012-….md   정본. frontmatter + 왜/바뀌는 것/기대와 확인/하지 않는 것/완료 조건
+  issues/012-….md   정본. frontmatter + 왜/바뀌는 것/기대와 확인/하지 않는 것/체크리스트
   GitHub Issue      같은 내용 + Slack 스레드 링크. 상태가 done 이면 닫는다
 """
 import json, logging, re, subprocess, pathlib, datetime
@@ -208,8 +208,8 @@ def body_md(c, permalink):
 ## 하지 않는 것
 {spec.get('not_doing', '-')}
 
-## 완료 조건
-{chr(10).join(f"- [{'x' if x in (c.get('checked') or []) else ' '}] {x}" for x in done) or '- [ ] 미정'}
+## 체크리스트
+{chr(10).join(f"- [{'x' if x in (c.get('checked') or []) else ' '}] {x}" for x in done) or '아직 없어요.'}
 {history_md(c)}
 ---
 정본: `issues/{c['file']}` · 상태: {LABEL[c['status']]} · Slack 스레드: {permalink}

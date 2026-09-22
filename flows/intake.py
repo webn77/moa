@@ -15,7 +15,7 @@ async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=T
     `project` 를 주면 그 프로젝트로 (#70). 안 주면 첫 프로젝트 — 프로젝트가 하나면 늘 그것이다.
     `assignee`·`due` 는 **사람이 이미 말한 것**이다 (DM 등록의 ③④번 칸). 주면 AI 에게 다시
     묻지 않는다 — 물어서 받은 답을 두고 AI 에게 추천을 시키면 그게 더 이상하다.
-    `ask=False` 면 카드를 만든 뒤 AI 가 이어서 캐묻지 않는다 (완료 조건은 카드 버튼으로 —
+    `ask=False` 면 카드를 만든 뒤 AI 가 이어서 캐묻지 않는다 (체크리스트는 카드 버튼으로 —
     2026-09-22 사장님이 정함).
     만든 카드를 돌려준다 (못 만들었으면 None).
     """
@@ -86,7 +86,7 @@ async def new_card(s, m, origin_channel=None, spec=None, number=None, assignee=N
     if ask:                                   # 이어서 빠진 것만 묻는다 (#31).
         # **한 칸씩 물어 올린 할 일에는 캐묻지 않는다** (2026-09-22 사장님이 정함) — 방금
         # 세 가지를 답하셨는데 AI 가 또 물으면 같은 대화를 두 번 하는 셈이다.
-        # 완료 조건은 그 할 일의 [✨ 정리해 줘] 를 누를 때 채운다
+        # 체크리스트는 그 할 일의 [✨ 정리해 줘] 를 누를 때 채운다
         asyncio.create_task(coach(s, c, "new"))
     await render_canvas(s)
     save()
@@ -328,6 +328,7 @@ async def show_md(s, c, thread_ts):
 async def confirm_spec(s, c, user):
     """정리안 [👍 이대로] — 이슈 정의로 확정. 있던 정의가 바뀌면 변경 이력."""
     sp = c.pop("spec_draft")
+    sp["done_criteria"] = core.clean_items(sp.get("done_criteria"))
     old_title, old_spec = c["title"], dict(c.get("spec") or {})
     c["title"] = (sp.get("title") or c["title"])[:80]
     if old_spec:                                   # 처음 정리는 이력이 아니다 — 있던 정의가 바뀔 때만

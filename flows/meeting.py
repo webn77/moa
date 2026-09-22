@@ -102,8 +102,8 @@ async def finish_meeting(s, m, user):
     system = ("너는 회의록을 정리하는 서기다. 대화에 있는 사실만 쓴다. 정해지지 않은 것은 '미정'. "
               "이슈 번호는 대화에 나오거나 아래 이슈 목록과 분명히 같은 일일 때만 쓴다. "
               "issue_changes 는 회의에서 **정한** 변경만 (논의만 한 것은 넣지 않는다). field 는 "
-              "담당|우선순위|목표일|단계|상태|완료 조건 중 하나, to 는 담당=팀원 이름, 우선순위=P1~P4, 목표일=YYYY-MM-DD, "
-              "상태=대기|진행 중|보류|완료|취소, 완료 조건=추가할 조건 한 줄. reason 은 회의에서 나온 이유 한 줄. "
+              "담당|우선순위|목표일|단계|상태|체크리스트 중 하나, to 는 담당=팀원 이름, 우선순위=P1~P4, 목표일=YYYY-MM-DD, "
+              "상태=대기|진행 중|보류|완료|취소, 체크리스트=추가할 조건 한 줄. reason 은 회의에서 나온 이유 한 줄. "
               "JSON 한 개만 출력: {\"agenda_results\":[{\"item\":\"\",\"discussion\":\"\",\"decision\":\"\"}],"
               "\"decisions\":[\"\"],\"action_items\":[{\"what\":\"\",\"owner\":\"\",\"due\":\"\",\"issue\":null}],"
               "\"issue_changes\":[{\"issue\":번호,\"field\":\"\",\"to\":\"\",\"reason\":\"\"}],"
@@ -150,7 +150,7 @@ def meeting_change_value(ch):
         return to if to in {x["name"] for x in load_stages()} else None
     if f == "상태":
         return next((k for k, v in LABEL.items() if v == to), None)
-    if f == "완료 조건":
+    if f == "체크리스트":
         return to or None
     return None
 
@@ -219,7 +219,7 @@ async def apply_meeting_change(s, cid, user, msg):
     if not ch or not c or ch.get("done"):
         return
     how, why = f"회의 {m['id']} 결정", ch.get("reason") or m["title"]
-    if ch["field"] == "완료 조건":
+    if ch["field"] == "체크리스트":
         old_title, old_spec = c["title"], dict(c.get("spec") or {})
         sp = dict(old_spec)
         sp["done_criteria"] = (sp.get("done_criteria") or []) + [ch["val"]]
