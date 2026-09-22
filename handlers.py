@@ -472,6 +472,8 @@ async def act_canvas_now(s, p, a):          # 앱 홈 「🔄 작업판 새로�
 
 
 ACTIONS = {
+    # set_stage · set_feature 는 카드에서 뺐지만 **지우면 안 된다** — 회의록 적용 단추가
+    # 이것을 쏘고(`flows/meeting.py` MFIELD), 아직 안 다시 그려진 옛 카드에도 드롭다운이 남아 있다
     **{k: act_set for k in ("set_status", "set_prio", "set_due", "set_assignee", "set_stage", "set_feature")},
     "risk_fix": act_risk_fix, "spec_ok": act_spec_ok, "edit_content": act_edit_content, "edit_card": act_edit_card,
     "pull_card": act_pull, "accept_assign": act_pull,       # accept_assign — 예전 카드에 남은 버튼
@@ -495,8 +497,9 @@ async def act_card_menu(s, p, a):              # 예전 카드의 「⋯」 메�
         await f(s, p, {"action_id": {"edit": "edit_card", "detail": "show_md", "pull": "pull_card"}[kind], "value": ts_})
 
 
-CTL_VER = 4          # 카드·⚙️ 모양이 바뀌면 올린다 — 켜질 때 한 번, 천천히 새로 그린다
-                     # (3: 끝난 일 취소선 · 4: ⚙️ 를 카드 안으로 넣고 따로 올린 것은 치운다)
+CTL_VER = 5          # 카드·⚙️ 모양이 바뀌면 올린다 — 켜질 때 한 번, 천천히 새로 그린다
+                     # (3: 끝난 일 취소선 · 4: ⚙️ 를 카드 안으로 넣고 따로 올린 것은 치운다
+                     #  5: 단계·기능 드롭다운을 빼고 「📝 설명 쓰기」 단추를 넣는다)
 
 
 async def refresh_ctls(s):

@@ -3,7 +3,7 @@ import re
 import core
 from messages import say
 from common import AI_LABEL, HANDLE, LABEL, PLEVEL, PNAME, PROJECTS, SICON, SPEC_KEYS, mday, plevel  # noqa: E402,F401
-from docs import due_text, load_features, load_stages, load_team, need_hours, okr_of  # noqa: E402,F401
+from docs import due_text, load_team, need_hours, okr_of  # noqa: E402,F401
 from store import STATE, bar, progress, ref, tag, timeline  # noqa: E402,F401
 
 
@@ -63,6 +63,14 @@ def card_blocks(c):
     if open_ and (not c.get("assignee") or c.get("assign_src") == "ai"):   # 아직 사람이 확정하지 않았을 때만
         btns.append({"type": "button", "text": {"type": "plain_text", "text": "✋ 내가 할게요"},
                      "action_id": "pull_card", "value": ts})
+    if open_:
+        # **설명을 쓰는 자리가 카드에 있어야 한다** (2026-09-22 사장님). 전에는 📄 상세 →
+        # ✏️ 내용 수정 으로 **창이 두 겹**이라 아무도 못 찾았다. Jira·Linear 도 제목 다음이 본문이다.
+        # 메시지 안에 직접 타자 치는 칸은 두지 않는다 — 카드가 다시 그려지면(우선순위 재계산 ·
+        # 담당 배정) 치던 글자가 날아간다. 그래서 단추 → 창이다
+        wrote = any((c.get("spec") or {}).get(k) for k, _ in SPEC_KEYS)
+        btns.append({"type": "button", "text": {"type": "plain_text", "text": "✏️ 설명 고치기" if wrote else "📝 설명 쓰기"},
+                     "action_id": "edit_content", "value": ts})
     btns.append({"type": "button", "text": {"type": "plain_text", "text": "📄 상세"}, "action_id": "show_md", "value": ts})
     out = [{"type": "section", "text": {"type": "mrkdwn", "text": f"{PLEVEL[plevel(c)].split()[0]} *{title}*"}},
            {"type": "context", "elements": [{"type": "mrkdwn", "text": line or " "}]},
@@ -147,22 +155,23 @@ def peek_blocks(c):
 
 
 def ctl_blocks(c):
-    """카드 스레드 첫 메시지 「⚙️ 이 이슈 설정」 — AI가 먼저 채우고, 사람은 담당을 정하고 필요하면 고친다."""
+    """카드 안의 「⚙️ 이 이슈 설정」 — AI가 먼저 채우고, 사람은 담당을 정하고 필요하면 고친다.
+
+    **단계·기능은 여기 없다** (2026-09-22 사장님: 「이건 지금하고 안 맞는 거 같은데」).
+    둘 다 **사람이 고를 칸이 아니다** — 단계는 만들 때 지금 단계로 자동, 기능은 AI가 붙인다.
+    새 팀에서는 고를 것이 하나뿐이라(로드맵 세 줄 · 기능 표 한 줄) 칸만 차지했다.
+    값은 그대로 살아 있고 — 현황판 로드맵 진행률 · 🧩 기능 표 · 자동 배정 문지기가 쓴다 —
+    고치는 길은 앱 홈 ✏️ 창과 회의록 적용에 남겨 뒀다. Jira·Linear 도 Epic·Project 를 접어 둔다.
+
+    고를 것이 없는 칸은 애초에 넣지 않는다 — Slack 은 options 가 빈 static_select 를 보면
+    **메시지 전체를** `invalid_blocks` 로 막는다 (2026-09-22 실측: mju 는 기능 표가 비어서
+    ⚙️ 설정이 한 번도 안 올라갔다 — 조용히).
+    """
     team = load_team()
     nm = lambda u: team.get(u, {}).get("name", "미정")
     ts = c.get("card_ts") or "-"
     sopt = lambda k: {"text": {"type": "plain_text", "text": f"{SICON[k]} {LABEL[k]}", "emoji": True}, "value": k}
     popt = lambda k: {"text": {"type": "plain_text", "text": f"{PLEVEL[k]} {PNAME[k]}", "emoji": True}, "value": str(k)}
-    vopt = lambda k: {"text": {"type": "plain_text", "text": k[:75]}, "value": k[:75]}
-    stages = [x["name"] for x in load_stages()] + ["나중 (단계 밖)"]
-    stage_el = {"type": "static_select", "action_id": "set_stage", "placeholder": {"type": "plain_text", "text": "로드맵 단계"},
-                "options": [vopt(x) for x in stages]}
-    if c.get("stage") in stages:
-        stage_el["initial_option"] = vopt(c["stage"])
-    feat_el = {"type": "static_select", "action_id": "set_feature", "placeholder": {"type": "plain_text", "text": "기능"},
-               "options": [vopt(x) for x in load_features()]}
-    if c.get("feature") in load_features():
-        feat_el["initial_option"] = vopt(c["feature"])
     who_el = {"type": "users_select", "action_id": "set_assignee", "placeholder": {"type": "plain_text", "text": "누가 맡을까요?"}}
     if c.get("assignee"):
         who_el["initial_user"] = c["assignee"]
@@ -172,14 +181,7 @@ def ctl_blocks(c):
     els = [who_el,
            {"type": "static_select", "action_id": "set_prio", "options": [popt(k) for k in PLEVEL], "initial_option": popt(plevel(c))},
            due_el,
-           {"type": "static_select", "action_id": "set_status", "options": [sopt(k) for k in LABEL], "initial_option": sopt(c["status"])},
-           stage_el]
-    # **고를 것이 없는 칸은 빼야 한다** — Slack 은 options 가 빈 static_select 를 보면
-    # **메시지 전체를** `invalid_blocks` 로 막는다 (2026-09-22 실측: mju 는 `project.md` 에
-    # 기능 표가 없어서 ⚙️ 설정이 **한 번도 안 올라갔다** — 조용히).
-    # 로드맵 단계는 「나중 (단계 밖)」 이 늘 붙어서 빌 일이 없다
-    if feat_el["options"]:
-        els.append(feat_el)
+           {"type": "static_select", "action_id": "set_status", "options": [sopt(k) for k in LABEL], "initial_option": sopt(c["status"])}]
     ai = []
     if c.get("assign_src") == "ai" and c.get("assignee"):
         ai.append(f"담당 {nm(c['assignee'])} (AI 추천 — {c.get('assign_reason') or '역할 기준'})")
@@ -189,7 +191,7 @@ def ctl_blocks(c):
         ai.append(f"우선순위 {PLEVEL[plevel(c)]} (AI — {c.get('prio_reason') or '점수 기준'})")
     if c.get("due_src") == "ai":
         ai.append("목표일은 예상 시간으로 계산한 제안")
-    out = [{"type": "section", "text": {"type": "mrkdwn", "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태 · 단계 · 기능, 다르면 고쳐 주세요"}},
+    out = [{"type": "section", "text": {"type": "mrkdwn", "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태, 다르면 고쳐 주세요"}},
            {"type": "actions", "block_id": f"card:{ts}", "elements": els},
            {"type": "context", "elements": [{"type": "mrkdwn", "text": " · ".join(ai) or "사람이 정한 값이에요"}]}]
     if c["status"] == "review" and c.get("review_by"):

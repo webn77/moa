@@ -1,4 +1,8 @@
-"""배정 계산 테스트 (#35) — `python3 -m unittest discover -s tests -v`
+"""배정 계산 테스트 (#35) — `python3 -m unittest discover -s tests -t .`
+
+**`-t .` 를 빼면 안 된다.** 빼면 `tests/__init__.py` 가 안 불려서 `MOA_DATA` 가 비고,
+데이터 폴더가 **코드 폴더**가 된다 — 시험이 진짜 `cards.json` 을 덮어쓴다
+(2026-09-22 실측: 71건이 5건으로 줄었다. 돌던 봇의 기억으로만 살아남았다).
 
 배정 계산은 2026-09-19 하루에 여러 번 깨졌다 (사람 배정 유실, 전부 배정, 내려놓기 즉시 재배정, 과부하 증가).
 그 자리를 테스트로 고정한다.
@@ -333,6 +337,42 @@ class ReadableTest(unittest.TestCase):
 
     def test_empty(self):
         self.assertEqual(self.r(None), "")
+
+
+class CardButtonsTest(unittest.TestCase):
+    """카드에 무엇을 두고 무엇을 뺐나 (2026-09-22 사장님: 「단계 기능 이건 지금하고 안 맞는 거 같은데」).
+
+    단계·기능은 **사람이 고를 칸이 아니다** — 단계는 만들 때 자동, 기능은 AI가 붙인다.
+    새 팀에서는 고를 것이 하나뿐이라 칸만 차지했다. 값은 그대로 살아서 현황판이 쓴다.
+    """
+
+    def blocks(self, **kw):
+        from views.card import card_blocks
+        return card_blocks({"no": 1, "title": "권한 정리", "status": "todo", "card_ts": "1.0",
+                            "stage": "개발·도그푸딩", "feature": "요청 입구", **kw})
+
+    def ids(self, bs):
+        return [e.get("action_id") for b in bs if b["type"] == "actions" for e in b["elements"]]
+
+    def labels(self, bs):
+        return [e["text"]["text"] for b in bs if b["type"] == "actions"
+                for e in b["elements"] if e["type"] == "button"]
+
+    def test_the_card_has_a_place_to_write_the_description(self):
+        """전에는 📄 상세 → ✏️ 내용 수정 으로 창이 두 겹이라 아무도 못 찾았다."""
+        self.assertIn("edit_content", self.ids(self.blocks()))
+
+    def test_stage_and_feature_are_not_on_the_card(self):
+        got = self.ids(self.blocks())
+        self.assertNotIn("set_stage", got)
+        self.assertNotIn("set_feature", got)
+
+    def test_a_finished_card_has_no_description_button(self):
+        self.assertNotIn("edit_content", self.ids(self.blocks(status="done")))
+
+    def test_the_label_says_write_when_empty_and_fix_when_written(self):
+        self.assertIn("📝 설명 쓰기", self.labels(self.blocks()))
+        self.assertIn("✏️ 설명 고치기", self.labels(self.blocks(spec={"why": "권한이 샌다"})))
 
 
 class DailyTest(unittest.TestCase):
