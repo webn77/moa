@@ -331,9 +331,13 @@ async def _create(s, e, st):
     # 이 작업판은 봇이 10분마다 그리는 본 작업판과 다르다 (그건 팀 하나에 하나뿐이다).
     # 그래서 여기에 **사람이 방금 한 말**을 적어 둔다 — 열면 무엇을 이루려는 방인지 바로 안다
     goal = (st.get("goal") or "").strip()
-    head = (f"# 📋 {st['title']} 작업판\n\n"
-            + (f"## 🎯 목표\n\n**{goal}**\n\n" if goal else "")
-            + f"할 일은 `{st['key']}-1` 부터 번호가 붙어요. 이 방에 「🎫 무슨 일」 이라고 한 줄 쓰시면 돼요.\n")
+    # **처음부터 「팀이 적는 칸」 이 있는 문서로 만든다** (2026-09-22 사장님: 「캔버스 사람도
+    # 수정할 수 있게」). 봇은 맨 위 세 칸만 갖고, 그 아래는 안 건드린다
+    from views.canvas import _first_md
+    from docs import load_team
+    head = _first_md({"key": st["key"], "name": st["title"], "goal": goal,
+                      "repo": st.get("repo") if st.get("rkind") == "github" else None},
+                     [], load_team())
     cv = await api(s, "conversations.canvases.create", body={
         "channel_id": ch, "document_content": {"type": "markdown", "markdown": head}})
     canvas = cv.get("canvas_id")

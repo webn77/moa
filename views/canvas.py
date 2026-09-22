@@ -85,66 +85,105 @@ async def render_canvas_now(s):
     await _render_canvas(s)
 
 
-def _proj_md(p, cards, team):
-    """**프로젝트 하나의 작업판** (2026-09-22 사장님 지시).
+# ─── 프로젝트 캔버스 = **사람도 쓰는 문서** (2026-09-22 사장님 결정) ──────────────
+# 사장님: 「캔버스 사람도 수정할 수 있게 해주는게 좋을거 같은데」
+#        「캔버스가 현황판이 아니자나 현황판은 하나가 맞어」
+#        「프로젝트의 기록을 같이 관리해야 할거 같고 언제 새로고침 했는지도」
+#
+# **현황판은 팀에 하나다** (첫 캔버스). 프로젝트 캔버스는 그 프로젝트의 **문서**이고,
+# 봇은 맨 위 세 칸만 갖는다 — 나머지는 팀이 쓴다.
+#
+# **통째로 덮어쓰면 사람 글이 사라진다** (2026-09-22 실측):
+#     섹션만 replace  → 사람이 쓴 줄 남음 ✅
+#     통째로 replace  → 사람이 쓴 줄 사라짐 ❌
+# 그래서 봇은 **자기 세 칸만** 갈아 끼운다. `delete`·`insert_after` 도 실측으로 확인했다.
+HEAD_MARK = "지금 할 일"          # 봇 제목 칸을 찾는 말
+TABLE_MARK = "목표일"             # 봇 표의 머리줄에만 있는 말
+FOOT_MARK = "마지막으로 바뀐 때"   # 봇 꼬리 칸
+MINE = "\n\n## 📝 팀이 적는 칸\n\n여기부터는 팀이 씁니다 — 회의에서 정한 것 · 링크 · 규칙.\n모아는 이 아래를 건드리지 않아요.\n"
 
-    봇은 오랫동안 **팀에 캔버스 하나**만 그렸다 (`common.CANVAS`). 그런데 온보딩은
-    「프로젝트 하나에 채널 하나와 현황판 하나」 라고 **약속한다** — 둘째 프로젝트부터는
-    만들 때 쓴 글이 그대로 멈춰 있었다 (사장님이 충전성공·황금거위에서 보셨다).
 
-    여기는 **그 프로젝트 것만** 담는다: 목표 · 레포 · 누가 뭘 · 할 일.
-    팀 전체 이야기(Pain point · 기능 · 지표 · 로드맵)는 첫 작업판에 그대로 둔다 —
-    프로젝트마다 베껴 두면 고칠 때 어긋난다.
+def _proj_parts(p, cards, team):
+    """프로젝트 캔버스에서 **봇이 갖는 세 칸** — (제목, 표, 꼬리).
+
+    세 칸으로 나눈 이유: 섹션 하나는 블록 하나라, 제목만 바꾸면 표가 옛것으로 남는다
+    (2026-09-22 실측). 칸마다 찾아서 갈아 끼운다.
     """
-    key, name = p.get("key") or "", _short(p.get("name"))
+    key = p.get("key") or ""
     mine = [c for c in cards if (c.get("project") or "") == key]
     open_ = [c for c in mine if c["status"] not in ("done", "cancelled")]
     done_ = [c for c in mine if c["status"] == "done"]
-    goal = (p.get("goal") or "").strip()
-    repo = p.get("repo")
     rows = []
     for c in sorted(open_, key=lambda c: (plevel(c), c.get("rank", 99))):
         who = team.get(c.get("assignee"), {}).get("name") or "🙋 아직 없음"
-        # 번호 칸에는 **번호만** — 옆 칸에 제목이 이미 있다 (`ref` 는 제목까지 붙여 준다)
         no = f"`{key}-{c['no']}`" if key else f"`#{c['no']}`"
         rows.append(f"| {no} | {link_of(c, text=c['title'][:40])} | `{LABEL[c['status']]}` "
                     f"| {who} | {due_text(c) or '-'} |")
-    return f"""# 📋 {name} 작업판
+    goal, repo = (p.get("goal") or "").strip(), p.get("repo")
+    head = (f"## 🎫 {HEAD_MARK} — 열린 것 {len(open_)}건 · 끝난 것 {len(done_)}건")
+    table = ("| 번호 | 할 일 | 상태 | 담당 | 목표일 |\n| --- | --- | --- | --- | --- |\n"
+             + (chr(10).join(rows) or "| - | _아직 없어요 — " + BOT + " 에게 「할 일 등록」_ | - | - | - |"))
+    bits = ([f"🎯 {goal}"] if goal else []) + \
+           ([f"📦 [{repo}](https://github.com/{repo})"] if repo else []) + \
+           [f"_{FOOT_MARK}: {datetime.datetime.now():%-m/%-d %H:%M}_"]
+    foot = "> " + "  ·  ".join(bits)
+    return head, table, foot
 
-{"🎯 **" + goal + "**" if goal else "_🎯 목표가 아직 비어 있어요 — 「프로젝트 만들기」 에서 여쭙는 칸이에요_"}
-{"📦 기록·할 일 → [" + repo + "](https://github.com/" + repo + ")" if repo else ""}
 
-## 🎫 할 일 — 열린 것 {len(open_)}건 · 끝난 것 {len(done_)}건
+def _first_md(p, cards, team):
+    """캔버스를 **처음 만들 때** 쓰는 글 — 봇 칸 + 팀이 적는 칸."""
+    head, table, foot = _proj_parts(p, cards, team)
+    return f"# 📘 {_short(p.get('name'))}\n\n{head}\n\n{table}\n\n{foot}\n{MINE}"
 
-| 번호 | 할 일 | 상태 | 담당 | 목표일 |
-| --- | --- | --- | --- | --- |
-{chr(10).join(rows) or "| - | _아직 없어요 — 이 방에 「🎫 무슨 일」 이라고 쓰시거나 " + BOT + " 에게 「할 일 등록」_ | - | - | - |"}
 
----
-
-_{BOT} 가 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_
-"""
+async def _look(s, cv, text):
+    d = await api(s, "canvases.sections.lookup",
+                  body={"canvas_id": cv, "criteria": {"contains_text": text}})
+    got = d.get("sections") or []
+    return got[0]["id"] if got else None
 
 
 async def _render_projects(s, cards, team):
-    """첫 작업판 말고 **나머지 프로젝트**의 작업판을 그린다. 지문은 캔버스마다 따로 둔다."""
+    """첫 캔버스(팀 현황판) 말고 **프로젝트 캔버스**를 고친다 — 봇 칸만.
+
+    지문은 캔버스마다 따로 둔다. 꼬리의 시각은 지문에 안 넣는다 — 넣으면 바뀐 게 없어도
+    매번 다시 쓰게 되고, 그러면 「언제 바뀌었나」 가 「지금」 만 가리킨다.
+    """
     from common import CANVAS, PROJECTS
     marks = STATE.setdefault("proj_hash", {})
     for p in PROJECTS:
         cv = p.get("canvas")
-        if not cv or cv == CANVAS:                 # 첫 작업판은 팀 전체용이라 위에서 그린다
+        if not cv or cv == CANVAS:
             continue
-        md = _proj_md(p, cards, team)
-        digest_ = hashlib.sha1(md.encode("utf-8")).hexdigest()
+        head, table, foot = _proj_parts(p, cards, team)
+        digest_ = hashlib.sha1((head + table).encode("utf-8")).hexdigest()
         if marks.get(cv) == digest_:
             continue
-        r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": [
-            {"operation": "replace", "document_content": {"type": "markdown", "markdown": md}}]})
+        where = await _look(s, cv, HEAD_MARK)
+        if not where:
+            # 봇 칸이 아직 없다 — 맨 위에 넣는다. 사람이 쓴 것은 그대로 아래 남는다
+            r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": [
+                {"operation": "insert_at_start",
+                 "document_content": {"type": "markdown", "markdown": f"{head}\n\n{table}\n\n{foot}"}}]})
+        else:
+            old_tbl, old_foot = await _look(s, cv, TABLE_MARK), await _look(s, cv, FOOT_MARK)
+            ch = [{"operation": "replace", "section_id": where,
+                   "document_content": {"type": "markdown", "markdown": head}}]
+            if old_tbl:
+                ch.append({"operation": "replace", "section_id": old_tbl,
+                           "document_content": {"type": "markdown", "markdown": table}})
+            else:
+                ch.append({"operation": "insert_after", "section_id": where,
+                           "document_content": {"type": "markdown", "markdown": table}})
+            if old_foot:
+                ch.append({"operation": "replace", "section_id": old_foot,
+                           "document_content": {"type": "markdown", "markdown": foot}})
+            r = await api(s, "canvases.edit", body={"canvas_id": cv, "changes": ch})
         if r.get("ok"):
             marks[cv] = digest_
-            log(f"작업판 다시 그림 — {_short(p.get('name'))}")
+            log(f"프로젝트 캔버스 고침 — {_short(p.get('name'))}")
         else:
-            log(f"작업판 실패 {_short(p.get('name'))}: {r.get('error')}")
+            log(f"프로젝트 캔버스 실패 {_short(p.get('name'))}: {r.get('error')}")
     save()
 
 

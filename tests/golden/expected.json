@@ -5,10 +5,10 @@
    "changes": [
     {
      "document_content": {
-      "markdown": "# 📋 두 번째 프로젝트 작업판\n\n_🎯 목표가 아직 비어 있어요 — 「프로젝트 만들기」 에서 여쭙는 칸이에요_\n📦 기록·할 일 → [webn77/second-repo](https://github.com/webn77/second-repo)\n\n## 🎫 할 일 — 열린 것 3건 · 끝난 것 0건\n\n| 번호 | 할 일 | 상태 | 담당 | 목표일 |\n| --- | --- | --- | --- | --- |\n| `XX-41` | [PoC 참가자 1~3명 정하고 첫날 안내하기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) | `대기` | 김하나 | 📅 9/22 💡 |\n| `XX-11` | [AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309) | `대기` | 김하나 | 📅 9/23 💡 |\n| `XX-31` | [질문으로 구체화 — 요청이 들어오면 봇이 빠진 것만 스레드에서 물어보고 ](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) | `진행 중` | 박두리 | 📅 9/28 💡 |\n\n---\n\n_모아 가 자동으로 채웁니다 · 바뀐 게 있을 때만 다시 그려요_\n",
+      "markdown": "## 🎫 지금 할 일 — 열린 것 3건 · 끝난 것 0건\n\n| 번호 | 할 일 | 상태 | 담당 | 목표일 |\n| --- | --- | --- | --- | --- |\n| `XX-41` | [PoC 참가자 1~3명 정하고 첫날 안내하기](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794371164169) | `대기` | 김하나 | 📅 9/22 💡 |\n| `XX-11` | [AI에게 허용할 권한 단계와 기준 정하기 (읽기·쓰기·승인 게이트)](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309) | `대기` | 김하나 | 📅 9/23 💡 |\n| `XX-31` | [질문으로 구체화 — 요청이 들어오면 봇이 빠진 것만 스레드에서 물어보고 ](https://example.slack.com/archives/C0EXAMPLEPRJ/p1789792132701589) | `진행 중` | 박두리 | 📅 9/28 💡 |\n\n> 📦 [webn77/second-repo](https://github.com/webn77/second-repo)  ·  _마지막으로 바뀐 때: 9/21 09:30_",
       "type": "markdown"
      },
-     "operation": "replace"
+     "operation": "insert_at_start"
     }
    ]
   },
