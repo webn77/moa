@@ -381,7 +381,17 @@ async def maybe(s, e, q, force=False):
     # **연 스레드 안에서 이어 간다.** 사람이 맨 위에 답을 써도 (thread_ts 없이) 답은 이
     # 스레드에 모인다 — 대여섯 마디가 한 덩이로 남아야 나중에 읽을 수 있다.
     # 다른 스레드에서 말했으면 그 스레드에 답한다 — 그건 사람이 만든 덩이다
-    th = e.get("thread_ts") or st.get("th")
+    # **시작한 스레드 안에서만 이어 간다** (2026-09-23 사장님: 「스레드 안에서 시작한 건
+    # 거기에서 이야기가 맞어」). 밖에 쓴 말은 등록과 무관한 말로 보고 평소 갈래로 보낸다 —
+    # 조용히 스레드로 빨려 들어가면 대화가 두 곳으로 쪼개져 헷갈린다.
+    # 다시 시작하는 말이면 그 자리에서 새로 시작한다 (`flows/task.py` 와 같은 규칙).
+    th = st.get("th") or e.get("thread_ts") or e.get("ts")
+    if not opened and e.get("thread_ts") != th:
+        if START.search(q):
+            STATE["new_project"].pop(user, None)
+            save()
+            return await maybe(s, e, q, force=force)
+        return False
     if opened:
         # **뜻으로 들어온 말에서는 이름을 줍지 않는다** (2026-09-22 시뮬레이션이 잡았다).
         # 「새로 시작하는 일 하나 올려줘」 가 통째로 프로젝트 이름이 됐다 — AI 는 「프로젝트를

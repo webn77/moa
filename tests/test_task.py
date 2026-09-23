@@ -75,7 +75,12 @@ class Base(unittest.TestCase):
         STATE.pop("new_task", None)
 
     def say(self, q):
-        return run(task.maybe(None, DM, q))
+        """**스레드 안에서 답하는 사람**을 흉내 낸다 (2026-09-23 사장님: 「스레드 안에서
+        시작한 건 거기에서 이야기가 맞어」). 등록이 열려 있으면 그 스레드에 쓴 것으로 본다 —
+        밖에 쓴 말은 등록과 무관한 말이고, 그건 `ThreadTest` 가 따로 본다."""
+        st = (STATE.get("new_task") or {}).get(ME)
+        e = dict(DM, **({"thread_ts": st["th"]} if st else {}))
+        return run(task.maybe(None, e, q))
 
     def last(self):
         return self.fake.texts()[-1]
@@ -642,13 +647,24 @@ class ThreadTest(Base):
         posts = [b for m, b in self.fake.sent if m == "chat.postMessage"]
         self.assertEqual({b.get("thread_ts") for b in posts}, {"111.1"})
 
-    def test_an_answer_outside_the_thread_is_answered_there(self):
+    def test_a_word_outside_the_thread_is_not_an_answer(self):
+        """밖에 쓴 말은 **등록과 무관한 말**이다 — 조용히 스레드로 빨려 들어가면 헷갈린다.
+        평소 갈래(찾기·현황)로 가도록 `False` 를 돌려준다."""
         run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "111.1"}, "할 일 등록"))
         self.fake.sent.clear()
-        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "222.2"}, "알림이 두 번 와요"))
+        got = run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "222.2"}, "알림이 두 번 와요"))
+        self.assertFalse(got, "밖에 쓴 말을 등록 답으로 받았다")
+        self.assertEqual(self.fake.texts(), [], "밖에 쓴 말에 스레드로 답했다")
+        self.assertIsNone(STATE["new_task"][ME].get("titles"))
+
+    def test_starting_again_outside_starts_there(self):
+        """밖에서 다시 부르면 **거기서 새로** 시작한다 — 옛 스레드에 갇히지 않는다."""
+        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "111.1"}, "할 일 등록"))
+        self.fake.sent.clear()
+        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "333.3"}, "할 일 등록"))
+        self.assertEqual(STATE["new_task"][ME]["th"], "333.3")
         posts = [b for m, b in self.fake.sent if m == "chat.postMessage"]
-        self.assertEqual({b.get("thread_ts") for b in posts}, {"222.2"},
-                         "밖에 쓰셨는데 옛 스레드로 답했다")
+        self.assertEqual({b.get("thread_ts") for b in posts}, {"333.3"})
 
 
 if __name__ == "__main__":

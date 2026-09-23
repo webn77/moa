@@ -380,10 +380,23 @@ async def maybe(s, e, q, force=False):
             st["pkey"], st["pkey_known"] = hit.get("key") or "", True
         STATE.setdefault("new_task", {})[user] = st
         save()
-    # **답은 사람이 쓴 자리로 간다** (2026-09-23 사장님: 「스레드에 안 적고 그냥 채팅에
-    # 적었는데 스레드 답변으로 들어가네」). 예전에는 처음 시작한 스레드로만 답해서,
-    # 바깥에 쓰면 답이 **다른 데서** 나왔다 — 쓴 사람 눈에는 아무 말이 없는 것과 같다.
-    th = e.get("thread_ts") or e.get("ts") or st.get("th")
+    # **시작한 스레드 안에서만 이어 간다** (2026-09-23 사장님: 「스레드 안에서 시작한 건
+    # 거기에서 이야기가 맞어」).
+    #
+    # 같은 날 오전에 한 번 「쓴 자리로 답하기」 로 바꿨다가 되돌린다. 그게 더 헷갈렸다 —
+    # 대화 한 벌이 스레드와 바깥으로 **쪼개져서** 나중에 무엇에 대한 답인지 알 수 없다.
+    # 등록 상태는 **사람**에 붙어 있어서(`STATE["new_task"][user]`) 어디에 쓰든 답으로
+    # 받고 있었는데, 그게 놀라움의 원인이었다: 바깥에 쓴 말이 조용히 스레드로 빨려 들어갔다.
+    #
+    # 이제 **그 스레드 밖의 말은 등록과 무관한 말로 본다** — 찾기·현황 같은 평소 갈래로 간다.
+    # 다시 시작하는 말(「할 일 등록」)이면 그 자리에서 새로 시작한다.
+    th = st.get("th") or e.get("thread_ts") or e.get("ts")
+    if not opened and e.get("thread_ts") != th:
+        if START.search(q) and not NOT_MINE.search(q):
+            STATE["new_task"].pop(user, None)        # 밖에서 다시 부르면 거기서 새로 시작한다
+            save()
+            return await maybe(s, e, q, force=force)
+        return False
     if opened:
         name = _title_of(q)                 # 「제목은 X」 처럼 또렷이 말했을 때만 줍는다
         if _titleable(name):

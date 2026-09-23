@@ -213,7 +213,17 @@ async def maybe(s, e, q, force=False):
             st["pkey"], st["pkey_known"] = hit.get("key") or "", True
         STATE.setdefault("new_repo", {})[user] = st
         save()
-    th = e.get("thread_ts") or st.get("th")
+    # **시작한 스레드 안에서만 이어 간다** (2026-09-23 사장님: 「스레드 안에서 시작한 건
+    # 거기에서 이야기가 맞어」). 밖에 쓴 말은 등록과 무관한 말로 보고 평소 갈래로 보낸다 —
+    # 조용히 스레드로 빨려 들어가면 대화가 두 곳으로 쪼개져 헷갈린다.
+    # 다시 시작하는 말이면 그 자리에서 새로 시작한다 (`flows/task.py` 와 같은 규칙).
+    th = st.get("th") or e.get("thread_ts") or e.get("ts")
+    if not opened and e.get("thread_ts") != th:
+        if START.search(q):
+            STATE["new_repo"].pop(user, None)
+            save()
+            return await maybe(s, e, q)
+        return False
     if opened:
         got = await ready()
         # **못 하는 것은 먼저 말한다** — 물어 놓고 마지막에 막히면 헛일을 시킨 것이다

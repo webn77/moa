@@ -72,7 +72,11 @@ class Base(unittest.TestCase):
         self.addCleanup(lambda: common.PROJECTS.__setitem__(slice(None), self.saved_projects))
 
     def say(self, q):
-        return run(project.maybe(None, DM, q))
+        """**스레드 안에서 답하는 사람**을 흉내 낸다 (2026-09-23 사장님: 「스레드 안에서
+        시작한 건 거기에서 이야기가 맞어」). 밖에 쓴 말은 이 흐름의 답이 아니다."""
+        st = (STATE.get("new_project") or {}).get(ME)
+        e = dict(DM, **({"thread_ts": st["th"]} if st else {}))
+        return run(project.maybe(None, e, q))
 
     def make(self, name="결제 개편", key="네", goal="결제 실패를 절반으로 줄인다", where="안 할래요"):
         """①이름 ②앞말 ③목표 ④기록 쌓을 곳 → 확인 — 만들어지는 가장 짧은 길."""
@@ -741,13 +745,20 @@ class ThreadReplyTest(unittest.TestCase):
         오전에 DM 전체에서 스레드를 끊었는데, 그건 **묻지 않은 답**이 접혀 숨었기 때문이다.
         등록은 물어서 주고받는 대여섯 마디라 **한 덩이로 묶여야** 읽을 수 있고, 사람이
         스레드를 열고 기다리는 중이라 숨지도 않는다.
+
+        **그 스레드 밖의 말은 이 대화의 답이 아니다** (2026-09-23 사장님: 「스레드 안에서
+        시작한 건 거기에서 이야기가 맞어」). 예전에는 맨 위에 쓴 말도 답으로 받아 스레드로
+        답했는데, 그러면 대화가 두 곳으로 쪼개져 **쓴 사람 눈에는 답이 없는 것**과 같다.
         """
         fake = Fake()
         STATE.pop("new_project", None)
         with mock.patch.object(project, "api", fake.api), mock.patch.object(project, "save", lambda: None):
             run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "333.3"}, "프로젝트 만들기"))
-            # 사람이 **맨 위에** 답을 써도 (thread_ts 없이) 답은 그 스레드에 모인다
-            run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "444.4"}, "충전성공"))
+            in_thread = {"user": ME, "channel": "D0TEST", "ts": "444.4", "thread_ts": "333.3"}
+            run(project.maybe(None, in_thread, "충전성공"))
+            # 스레드 **밖에** 쓴 말은 이 대화의 답이 아니다 — 평소 갈래로 보낸다
+            out = run(project.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "555.5"}, "아무 말"))
+            self.assertFalse(out, "스레드 밖의 말을 등록 답으로 받았다")
         STATE.pop("new_project", None)
         posts = [b for m, b in fake.sent if m == "chat.postMessage"]
         self.assertEqual([b.get("thread_ts") for b in posts], ["333.3", "333.3"],

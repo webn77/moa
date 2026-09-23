@@ -78,7 +78,11 @@ class Base(unittest.TestCase):
         STATE.pop("new_repo", None)
 
     def say(self, q):
-        return run(repo.maybe(None, DM, q))
+        """**스레드 안에서 답하는 사람**을 흉내 낸다 (2026-09-23 사장님: 「스레드 안에서
+        시작한 건 거기에서 이야기가 맞어」). 밖에 쓴 말은 이 흐름의 답이 아니다."""
+        st = (STATE.get("new_repo") or {}).get(ME)
+        e = dict(DM, **({"thread_ts": st["th"]} if st else {}))
+        return run(repo.maybe(None, e, q))
 
     def last(self):
         return self.fake.texts()[-1]
