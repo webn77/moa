@@ -716,3 +716,45 @@ class ThreadTest(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SpacingAndTyposTest(unittest.TestCase):
+    """**띄어쓰기·오타를 낱말마다 고치지 않는다** (2026-09-23 사장님: 「띄어쓰기 문제들도
+    지속적으로 나오는데 해결방법은」).
+
+    같은 모양으로 네 번 고쳤다 — 「내 할일」 · 「체크 리스트」 · 「두번째 프로젝트」 · 「할일등록」.
+    맞춰 보는 자리에 한 겹(`flows/ask.py` 의 `norm`·`loose`·`near`)을 깔아 한 번에 끝낸다.
+    """
+
+    def test_spacing_never_matters(self):
+        from flows.ask import norm
+        self.assertEqual(norm("내 할 일"), norm("내할일"))
+        self.assertEqual(norm("체크 리스트"), norm("체크리스트"))
+        self.assertEqual(norm("GitHub"), norm("git hub"))
+
+    def test_a_word_can_be_written_apart(self):
+        from flows.task import LIST_IN, TITLE_IN, DUE_WORD, WHO_IN
+        self.assertTrue(LIST_IN.search("체크 리스트에 하나 더"))
+        self.assertTrue(TITLE_IN.search("제 목은 알림 고치기"))
+        self.assertTrue(DUE_WORD.search("목표 일은 금요일"))
+        self.assertTrue(WHO_IN.search("담 당은 제가"))
+
+    def test_a_typo_in_a_command_word_still_lands(self):
+        from flows.ask import command
+        self.assertTrue(command("도움마"))          # 도움말
+        self.assertTrue(command("캔버수"))          # 캔버스
+
+    def test_a_real_name_that_starts_like_a_command_is_not_swallowed(self):
+        """**길이가 비슷한 것만 본다** — 이게 없으면 「도움말 개선」 이 명령으로 막힌다."""
+        from flows.ask import command
+        for q in ("도움말 개선", "현황판 개편", "캔버스 다시 그리기", "정리 자동화"):
+            self.assertFalse(command(q), q)
+
+    def test_cancelling_never_guesses(self):
+        """취소는 되돌릴 수 없다 — 닮은 말로 짐작하면 사람이 쓴 것을 잃는다.
+        빈칸만 봐주고 오타는 안 봐준다 (「안 할래요」 는 프로젝트 등록의 **답**이다)."""
+        from flows.ask import cancelled
+        self.assertTrue(cancelled("안할래"))
+        self.assertTrue(cancelled("안 할래"))
+        self.assertFalse(cancelled("안 할래요"))
+        self.assertFalse(cancelled("안할레"))

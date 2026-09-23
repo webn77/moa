@@ -31,7 +31,7 @@ import re
 
 import core
 from common import PROJECTS, log
-from flows.ask import CANCEL, COMMANDS, HEAD, LATER, cancelled, command, later, yes as _yes
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, cancelled, command, later, loose, norm, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save
@@ -54,9 +54,12 @@ DUE_IN = re.compile(r"(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})\s*/\s*(\d{1,2})|(\d{
 # 확인 단계에서 무엇을 고치려는 말인지 가른다
 # **「일」 을 넣으면 안 된다** — 「할**일** 등록 하려고」 의 「일」 에 걸려서 제목이
 # 「등록 하려고」 가 됐다 (2026-09-22 시뮬레이션이 잡았다). 짧은 낱말은 우연히 걸린다
-TITLE_IN = re.compile(r"(?:제목|이름)\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
-WHO_IN = re.compile(r"담당\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
-DUE_WORD = re.compile(r"(?:언제까지|기한|목표일|마감)\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
+# **낱말 안의 빈칸을 허락한다** (`loose`) — 「목표 일은 금요일」 처럼 띄어 쓰셔도 걸린다.
+# 규칙마다 손으로 `\s*` 를 끼우던 것을 한 곳에서 한다 (2026-09-23)
+TITLE_IN = re.compile(rf"(?:{loose('제목')}|{loose('이름')})\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
+WHO_IN = re.compile(loose("담당") + r"\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
+DUE_WORD = re.compile(rf"(?:{loose('언제까지')}|{loose('기한')}|{loose('목표일')}|{loose('마감')})"
+                      r"\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
 # 확인 화면에서 **체크리스트를 그 자리에서 더한다** (2026-09-23 사장님: 「체크리스트 추가
 # 하거나 수정 할 수 있는거지」). AI 가 낸 것은 **추천**이므로 사람이 손댈 자리가 있어야 한다.
 # 더하기와 지우기 **둘만** 둔다 — 「2번을 이렇게 고쳐」 까지 받으려면 번호를 세고 되읽어 줘야
@@ -64,7 +67,7 @@ DUE_WORD = re.compile(r"(?:언제까지|기한|목표일|마감)\s*(?:은|는|�
 # **「체크 리스트」 처럼 띄어 써도 받는다** (2026-09-23 사장님 실사용: 「체크 리스트도
 # 채워줘봐」 를 못 알아들었다). 한국어는 띄어쓰기가 흔들린다 — 이 저장소가 「내 할일」 로
 # 한 번 겪은 것과 같은 모양이다
-LIST_IN = re.compile(r"체크\s*리스트\s*(?:에|는|은|을|를|이|가|도)?\s*[:：]?\s*(.*)", re.S)
+LIST_IN = re.compile(loose("체크리스트") + r"\s*(?:에|는|은|을|를|이|가|도)?\s*[:：]?\s*(.*)", re.S)
 LIST_OFF = ("없이", "없음", "지워", "빼", "비워", "필요 없", "안 할")
 # **「채워줘」 는 더하자는 말이 아니라 다시 만들자는 말이다** — AI 를 한 번 더 부른다.
 # 제목만으로 모를 때는 빈 채로 두는데(지어내지 않는다), 그때 사람이 「그래도 해 봐」 할 자리다

@@ -39,7 +39,7 @@ import re
 from common import log, reload_projects
 # 「네」·「취소」·「나중에」 같은 대꾸와 막을 낱말은 **틀에서 가져온다** — 등록 흐름이 둘이
 # 되었으니 (프로젝트·할 일) 이 낱말이 두 곳에서 갈라지면 안 된다 (2026-09-22)
-from flows.ask import CANCEL, COMMANDS, HEAD, LATER, cancelled, command, later, yes as _yes
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, cancelled, command, later, loose, norm, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save

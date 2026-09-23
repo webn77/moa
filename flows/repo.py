@@ -24,7 +24,7 @@ import re
 import shutil
 
 from common import HERE, PROJECTS, log
-from flows.ask import CANCEL, COMMANDS, HEAD, cancelled, command, yes as _yes
+from flows.ask import CANCEL, COMMANDS, HEAD, cancelled, command, loose, norm, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save

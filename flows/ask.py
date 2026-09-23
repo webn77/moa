@@ -36,6 +36,53 @@ COMMANDS = ("현황", "목록", "도움말", "도움", "정리", "내 할 일", 
 HEAD = r"^\s*(오케이|오키|okay|ok|그럼|그러면|일단|자|아니|아니야|응|네)[\s,.!~]+"
 
 
+# ── 맞춰 보기 전에 한 겹 (2026-09-23 사장님: 「띄어쓰기 문제들도 지속적으로 나오는데 해결방법은」) ──
+#
+# 한국어는 띄어쓰기가 흔들리고 오타가 난다. 그때마다 규칙을 하나씩 고치면 끝이 없다 —
+# 이 저장소가 같은 모양으로 네 번 고쳤다: 「내 할일」 · 「체크 리스트」 · 「두번째 프로젝트」 ·
+# 「할일등록」. **낱말마다 고치지 말고 맞춰 보는 자리에 한 겹을 깐다.**
+#
+# 셋으로 나눠 둔다. 섞으면 어디까지 봐주는지 알 수 없어진다:
+#   norm   빈칸·대소문자 — **늘 한다.** 잃을 것이 없다
+#   loose  낱말 **안**의 빈칸 — 정규식에 쓴다 (「체크리스트」 가 「체크 리스트」 도 잡게)
+#   near   오타 — **고정된 짧은 낱말 목록에만.** 자유롭게 쓰면 엉뚱한 것을 집는다
+
+
+def norm(s):
+    """빈칸을 지우고 소문자로 — 「내 할일」·「내할일」·「내 할 일」 은 같은 말이다.
+
+    **양쪽에 똑같이 해야 한다.** 한쪽만 하면 빈칸이 든 낱말이 영영 안 걸린다 (#71 에서 겪음).
+    """
+    return re.sub(r"\s+", "", s or "").lower()
+
+
+def loose(word):
+    """낱말 **안**에 빈칸이 있어도 걸리는 정규식 조각 — `loose("체크리스트")` 가 「체크 리스트」 도 잡는다.
+
+    정규식은 잡은 자리를 돌려줘야 해서(`group(1)`) `norm` 을 못 쓴다. 대신 글자 사이마다
+    빈칸을 허락한다. 쓰는 쪽이 `re.escape` 를 따로 안 해도 되게 여기서 한다.
+    """
+    return r"\s*".join(map(re.escape, word))
+
+
+def near(word, keys, cut=0.66):
+    """오타까지 봐준다 — **고정된 짧은 낱말 목록에만.** 맞으면 그 낱말, 아니면 None.
+
+    두 글자는 안 본다: 「취소」 와 「취조」 가 절반이나 닮아서, 봐주기 시작하면 엉뚱한 것을 집는다.
+
+    **길이가 비슷한 것만 본다** — 이게 없으면 「도움말 개선」(진짜 할 일 이름)이 「도움말」 과
+    4분의 3 닮아서 명령으로 막힌다. 오타는 글자 수를 거의 안 바꾼다: 한 글자 차이까지만.
+    """
+    import difflib
+    w = norm(word)
+    same = [k for k in keys if norm(k) == w]
+    if same or len(w) < 3:
+        return same[0] if same else None
+    near_len = [k for k in keys if abs(len(norm(k)) - len(w)) <= 1 and len(norm(k)) >= 3]
+    hit = difflib.get_close_matches(w, [norm(k) for k in near_len], n=1, cutoff=cut)
+    return next((k for k in near_len if norm(k) == hit[0]), None) if hit else None
+
+
 def yes(text):
     """맞다는 뜻인가 — **맨 앞 한 낱말**로 본다. 뒤에 무슨 말이 붙어도 된다."""
     return bool(YES_HEAD.match(text or ""))
@@ -43,8 +90,14 @@ def yes(text):
 
 def cancelled(text):
     """그만두자는 말인가. **세 흐름이 이걸 쓴다** — 2026-09-23 까지는 저마다
-    `q.strip() in CANCEL` 을 베껴 써서, 한 곳만 고치면 조용히 갈라질 자리였다."""
-    return (text or "").strip() in CANCEL
+    `q.strip() in CANCEL` 을 베껴 써서, 한 곳만 고치면 조용히 갈라질 자리였다.
+
+    **빈칸만 봐주고 오타는 안 봐준다** — 「안 할래」·「안할래」 는 받고, 「안 할래요」 는 안 받는다.
+    취소는 되돌릴 수 없다(하던 대화가 통째로 날아간다). 닮은 말로 짐작해서 취소하면
+    사람이 쓴 것을 잃는다 — 실제로 `near` 를 쓰자마자 프로젝트 등록의 「안 할래요」(기록 쌓을 곳을
+    안 하겠다는 **답**)가 취소로 먹혔다 (2026-09-23 시험이 잡았다).
+    """
+    return norm(text) in {norm(x) for x in CANCEL}
 
 
 def later(text):
@@ -53,5 +106,8 @@ def later(text):
 
 
 def command(text):
-    """이미 뜻이 있는 말인가 — 「현황」 이 프로젝트 이름이 되면 그 방은 그 이름으로 남는다."""
-    return (text or "").strip() in COMMANDS
+    """이미 뜻이 있는 말인가 — 「현황」 이 프로젝트 이름이 되면 그 방은 그 이름으로 남는다.
+
+    **딱 그 말일 때만** 막는다 — 「현황판 개편」 은 진짜 이름일 수 있다 (그래서 `in` 이 아니다).
+    """
+    return bool(near((text or "").strip(), COMMANDS))
