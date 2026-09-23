@@ -267,7 +267,28 @@ def _titles(st):
 
 
 def _numbered(st):
-    return "\n".join(f"  {i + 1}. {x}" for i, x in enumerate(_titles(st)))
+    """번호 붙인 제목 — **체크리스트가 있으면 그 아래 붙인다** (2026-09-23 사장님:
+    「체크리스트 만드는건 할일만들때」). 확인 화면에서 한눈에 보고 「네」 하면 그대로 올라간다."""
+    dc = st.get("dc") or {}
+    rows = []
+    for i, x in enumerate(_titles(st)):
+        rows.append(f"  {i + 1}. {x}")
+        rows += [f"       ☐ {y}" for y in dc.get(x, [])]
+    return "\n".join(rows)
+
+
+async def _make_lists(s, st):
+    """확인 직전에 **체크리스트를 미리 만들어 둔다.** AI 한 번으로 제목 전부를 처리한다.
+
+    묻지 않는다 — 방금 세 가지를 답하셨는데 또 물으면 같은 대화를 두 번 하는 셈이다.
+    보여 주고 「네」 면 그대로 간다. 고치실 것은 올린 뒤 📝 설명 쓰기 에서.
+    **실패해도 그냥 간다** — 등록이 AI 때문에 막히면 안 된다.
+    """
+    if st.get("dc") is not None:
+        return
+    from ai import checklists
+    st["dc"] = await checklists(_titles(st))
+    save()
 
 
 def _read_back(st):
@@ -299,8 +320,11 @@ async def _show(s, ch, th, st):
     name = _short(next((p.get("name") for p in PROJECTS if p.get("key") == st.get("pkey")), "")) or "프로젝트"
     whom = (load_team().get(who, {}).get("name") or f"<@{who}>") if who else "아직 없어요"
     got = _titles(st)
+    await _make_lists(s, st)
+    items = (st.get("dc") or {}).get(got[0]) if got else None
     if len(got) == 1:
-        text = say("task_confirm", title=got[0], name=name, who=whom, due=_due_text(st.get("due")))
+        text = say("task_confirm", title=got[0], name=name, who=whom, due=_due_text(st.get("due")),
+                   dc=("\n".join(f"    ☐ {x}" for x in items) if items else "    아직 없어요 — 올린 뒤 채우셔도 돼요"))
     else:
         text = say("task_confirm_many", n=len(got), list=_numbered(st), name=name,
                    who=whom, due=_due_text(st.get("due")))
@@ -415,9 +439,11 @@ async def _build(s, ch, th, st, user):
     got, made, err = _titles(st), [], None
     for i, title in enumerate(got):
         try:
+            items = (st.get("dc") or {}).get(title)
             c = await add_issue(s, title, user, project=st.get("pkey"),
                                 assignee=st.get("who"), due=st.get("due"), ask=False,
-                                score=(i == len(got) - 1))
+                                score=(i == len(got) - 1),
+                                spec={"done_criteria": items} if items else None)
         except Exception as ex:
             c, err = None, f"{type(ex).__name__}"
             log(f"할 일 올리기 실패: {type(ex).__name__}: {ex}")

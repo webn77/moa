@@ -14,6 +14,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import common  # noqa: E402
 from flows import task  # noqa: E402
 from store import STATE  # noqa: E402
+import ai as _ai  # noqa: E402
+
+# **진짜 함수를 미리 붙잡아 둔다** — Base 가 `ai.checklists` 를 가짜로 갈아 끼운 뒤에는
+# `ai.checklists` 라고 써도 가짜가 나온다. 진짜를 돌려 보는 시험은 이 이름을 쓴다
+REAL_CHECKLISTS = _ai.checklists
 
 ME = "U0EXAMPLEPM"
 DM = {"user": ME, "channel": "D0TEST", "ts": "1.0"}
@@ -43,13 +48,20 @@ class Base(unittest.TestCase):
         self.made = []
         STATE.pop("new_task", None)
 
-        async def fake_add(s, title, user, project=None, assignee=None, due=None, ask=True, score=True):
+        async def fake_add(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None):
             """카드 만들기는 이미 다른 시험이 본다 — 여기서는 **무엇을 넘겼는지**만 본다."""
             c = {"no": 90 + len(self.made), "title": title, "card_ts": f"8.{len(self.made)}",
-                 "project": project, "assignee": assignee, "due": due, "ask": ask, "score": score}
+                 "project": project, "assignee": assignee, "due": due, "ask": ask, "score": score, "spec": spec}
             self.made.append(c)
             return c
+
+        async def fake_lists(titles):
+            """**진짜 AI 를 부르지 않는다.** 안 갈아 끼우면 시험이 네트워크를 타고 4초씩 걸린다
+            (2026-09-23 실측). 체크리스트를 무엇으로 채우는지는 `checklists` 가 따로 본다."""
+            return {t: [f"{t} 준비하기"] for t in titles}
+        self.lists = fake_lists
         self.patches = [mock.patch.object(task, "api", self.fake.api),
+                        mock.patch("ai.checklists", fake_lists),
                         mock.patch.object(task, "save", lambda: None),
                         # 담당 DM 은 `flows.status` 가 보낸다 — 거기도 갈아 끼워야 밖으로 안 나간다
                         mock.patch("flows.status.api", self.fake.api),
@@ -314,7 +326,7 @@ class ManyTest(Base):
         """번호를 받다 막히면 **거기까지만** 올라간다 — 안 한 일을 했다고 말하지 않는다."""
         calls = []
 
-        async def flaky(s, title, user, project=None, assignee=None, due=None, ask=True, score=True):
+        async def flaky(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None):
             calls.append(title)
             if len(calls) > 2:
                 return None                    # 세 번째에서 번호를 못 받았다
@@ -439,23 +451,54 @@ class DmTest(Base):
 
 
 class AiBudgetTest(Base):
-    """**이 흐름도 AI 를 한 번도 안 부른다** — 프로젝트 등록과 같은 약속이다."""
+    """**묻는 대화는 AI 를 안 쓴다. 체크리스트만 한 번** (2026-09-23 사장님: 「체크리스트
+    만드는건 할일만들때」).
 
-    def test_the_conversation_calls_the_ai_zero_times(self):
+    9/22 에는 이 흐름이 AI 를 **한 번도** 안 불렀다. 이제 확인 직전에 딱 한 번 부른다 —
+    제목 열 개를 올려도 **한 번**이다. 묻는 칸(제목·프로젝트·담당·기한)은 여전히 AI 없이 돈다:
+    구독 한도가 인사말에 녹으면 안 되고, AI 가 죽어도 등록은 돼야 한다.
+    """
+
+    def calls_for(self, *says):
         import ai
         calls = []
 
         async def counted(system, prompt, tries=3):
             calls.append(prompt)
-            return "{}"
-        with mock.patch.object(ai, "ask_ai", counted):
-            self.say("두 번째 프로젝트에 할일 등록")
-            self.say("알림이 두 번 와요")
-            self.say("제가")
-            self.say("이번 주")
-            self.say("네")
+            return '{"lists":[]}'
+        with mock.patch.object(ai, "ask_ai", counted), mock.patch("ai.checklists", REAL_CHECKLISTS):
+            for q in says:
+                self.say(q)
+        return calls
+
+    def test_the_questions_call_the_ai_zero_times(self):
+        calls = self.calls_for("두 번째 프로젝트에 할일 등록", "알림이 두 번 와요", "제가")
+        self.assertEqual(calls, [], "묻는 칸에서 AI 를 불렀다")
+
+    def test_the_checklist_costs_exactly_one_call(self):
+        calls = self.calls_for("두 번째 프로젝트에 할일 등록", "알림이 두 번 와요", "제가", "이번 주", "네")
         self.assertEqual(len(self.made), 1)
-        self.assertEqual(calls, [], "AI 를 불렀다 — 이 흐름은 AI 없이 돌아야 한다")
+        self.assertEqual(len(calls), 1, "체크리스트는 한 번이어야 한다")
+
+    def test_ten_at_once_is_still_one_call(self):
+        """열 개를 올리면 열 번 부르면 안 된다."""
+        calls = self.calls_for("두 번째 프로젝트에 할일 등록",
+                               "\n".join(f"{i}번 일 고치기" for i in range(1, 6)),
+                               "제가", "이번 주", "네")
+        self.assertEqual(len(self.made), 5)
+        self.assertEqual(len(calls), 1)
+
+    def test_a_dead_ai_does_not_stop_the_registration(self):
+        """AI 가 죽어도 카드는 올라간다 — 체크리스트만 비어 있고 카드가 그렇게 말해 준다."""
+        import ai
+
+        async def dead(system, prompt, tries=3):
+            raise RuntimeError("Anthropic 500")
+        with mock.patch.object(ai, "ask_ai", dead), mock.patch("ai.checklists", REAL_CHECKLISTS):
+            for q in ("두 번째 프로젝트에 할일 등록", "알림이 두 번 와요", "제가", "이번 주", "네"):
+                self.say(q)
+        self.assertEqual(len(self.made), 1)
+        self.assertIsNone(self.made[0]["spec"])
 
 
 class ThreadTest(Base):

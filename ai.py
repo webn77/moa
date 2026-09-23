@@ -356,3 +356,36 @@ async def fill_after():
 # 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다
 from flows.github import write_backlog  # noqa: E402,F401
 from flows.status import place, record_change, redraw  # noqa: E402,F401
+
+
+# ── 등록할 때 체크리스트를 미리 만들어 둔다 (2026-09-23 사장님: 「체크리스트 만드는건 할일만들때」) ──
+CHECK_SYS = ("너는 팀의 프로젝트 비서다. 할 일 제목들을 받아 **각각 무엇을 해야 하는지** 체크리스트를 쓴다. "
+             "항목은 「…하기」 로 끝나는 짧은 동사구로 2~4개. 제목에 없는 사실은 지어내지 않는다 — "
+             "제목만으로 모르겠으면 그 제목의 items 를 빈 배열로 둔다. 「미정」 같은 못 체크할 말은 쓰지 않는다. "
+             "반드시 JSON 한 개만 출력한다: {\"lists\":[{\"title\":\"받은 제목 그대로\",\"items\":[\"…하기\"]}]}")
+
+
+async def checklists(titles):
+    """제목들 → {제목: [할 거리]}. **한 번만 부른다** — 열 개를 올리면 열 번 부르면 안 된다.
+
+    실패하면 빈 사전을 돌려준다. 등록이 AI 때문에 막히면 안 된다 (이 저장소의 약속) —
+    체크리스트가 없어도 카드는 올라가고, 카드에 「✍️ 남은 것: 체크리스트」 라고 뜬다.
+    """
+    want = [t for t in (titles or []) if (t or "").strip()][:10]
+    if not want:
+        return {}
+    try:
+        raw = await ask_ai(CHECK_SYS, "다음 할 일마다 체크리스트를 써 줘.\n" + "\n".join(f"- {t}" for t in want))
+        got = json.loads(re.search(r"\{.*\}", raw, re.S).group(0)).get("lists") or []
+    except Exception as e:
+        log(f"체크리스트 만들기 실패: {type(e).__name__}: {e}")
+        return {}
+    out, left = {}, list(want)
+    for row in got:
+        t = (row.get("title") or "").strip()
+        hit = t if t in left else next((x for x in left if x.startswith(t[:12]) or t.startswith(x[:12])), None)
+        items = core.clean_items(row.get("items"))[:4]     # 「미정」·글머리표는 여기서도 거른다
+        if hit and items:
+            out[hit] = items
+            left.remove(hit)
+    return out

@@ -9,7 +9,7 @@ from slack import Step, api, mood, name_of  # noqa: E402,F401
 from store import STATE, chan, project_for, add_log, decision_snap, ref, save  # noqa: E402,F401
 
 
-async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=True, score=True):
+async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None):
     """요청 메시지 없이 할 일 카드만 만든다 — DM 등록·관리자·봇이 직접 올릴 때.
 
     `project` 를 주면 그 프로젝트로 (#70). 안 주면 첫 프로젝트 — 프로젝트가 하나면 늘 그것이다.
@@ -20,7 +20,7 @@ async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=T
     만든 카드를 돌려준다 (못 만들었으면 None).
     """
     room = next((p.get("channel") for p in PROJECTS if p.get("key") == project), CHANNEL) if project else CHANNEL
-    return await new_card(s, {"text": title, "user": user}, room, assignee=assignee, due=due,
+    return await new_card(s, {"text": title, "user": user}, room, spec=spec, assignee=assignee, due=due,
                           ask=ask, score=score)
 
 
