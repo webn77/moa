@@ -20,17 +20,18 @@ def model():
     「정리 실패」 만 띄우기 때문에, 받은 사람 눈에는 **Slack 에 붙고 카드도 생기는데 생각만 안 하는**
     봇으로 보인다. 설치한 사람이 제일 알아채기 어려운 고장 모양이라 여기서 막는다.
 
-    `MOA_MODEL` 로 덮어쓸 수 있다 — 다른 모델을 쓰고 싶은 팀을 위해.
+    **별칭(`sonnet`)을 쓴다** (2026-09-23 사장님: 「소네트로 해서 두자고」).
+    예전에는 `~/projects/config.sh` 의 `MODEL_SONNET` 에 박힌 **전체 이름**(`claude-sonnet-5`)을
+    읽었다. 그러면 새 판이 나와도 **안 따라간다** — 9/22 에 Opus 5.5 가 나왔고 Sonnet 5.5 도
+    곧 나온다는데, 그날 이 봇만 옛 판에 묶여 있게 된다.
+
+    전체 이름은 **API 를 직접 부르는 쪽**에 필요하다 (별칭을 안 받는다). 우리는 `claude` CLI 를
+    부르고, CLI 의 별칭은 **늘 그 계열의 최신**을 가리킨다. 그래서 여기서는 별칭이 맞고,
+    `config.sh` 를 안 읽는 편이 **받는 사람 맥에서도 안전하다** (그 파일은 만든 사람 것이다).
+
+    `MOA_MODEL` 로 덮어쓸 수 있다 — 다른 모델을 쓰고 싶은 팀을 위해 (`opus`·`fable` 도 별칭이다).
     """
-    if os.environ.get("MOA_MODEL"):
-        return os.environ["MOA_MODEL"]
-    try:
-        for line in (pathlib.Path.home() / "projects/config.sh").read_text().splitlines()[::-1]:
-            if line.startswith("export MODEL_SONNET="):
-                return line.split('"')[1]
-    except Exception:
-        pass
-    return "sonnet"
+    return os.environ.get("MOA_MODEL") or "sonnet"
 
 
 # 잠깐 뒤 되는 오류들 — 여기 걸리면 다시 해 본다 (2026-09-22 실측: 500 이 몇 분 오락가락했다)
