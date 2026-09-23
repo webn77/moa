@@ -99,6 +99,9 @@ def main():
         ("이유 답글 #5", lambda: bot.on_event(None, {"type": "message", "channel": bot.CHANNEL, "thread_ts": ts(5),
                                                     "user": PM, "text": "고객 일정 때문"}, "UBOT")),
         ("⚙️ 담당 #6", lambda: act("set_assignee", PM, block_id=f"card:{ts(6)}", selected_user=DEV)),
+        # 맡은 사람이 돌려보낸다 (2026-09-23) — 카드는 남고 담당만 빈다. 맡긴 PM 에게 DM 이 가고,
+        # `no_auto` 가 붙어 자리 계산이 같은 사람에게 되돌리지 않는다
+        ("↩️ 못 받아요 #6", lambda: act("decline_card", DEV, value=ts(6))),
         ("⚙️ 단계 #6", lambda: act("set_stage", PM, block_id=f"card:{ts(6)}", selected_option={"value": "PoC"})),
         ("👀 #10", lambda: react("eyes", 10, DEV)),
         ("체크 1개 #10", lambda: act("check_dc", DEV, block_id=f"dc:{ts(10)}", selected_options=[{"value": "0"}])),

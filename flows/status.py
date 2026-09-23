@@ -20,6 +20,7 @@ async def tell_assigned(s, c, by=None):
     uid = c.get("assignee")
     if not uid or uid == by:
         return
+    c["assign_by"] = by          # 되돌릴 자리 — 거절하면 **맡긴 사람에게** 알려야 한다
     d = await api(s, "conversations.open", body={"users": uid})
     ch = (d.get("channel") or {}).get("id")
     if not ch:
@@ -31,12 +32,61 @@ async def tell_assigned(s, c, by=None):
                           message_ts=c["card_ts"])).get("permalink", "")
     from docs import due_text, load_team as _team
     team = _team()
-    await api(s, "chat.postMessage", body={"channel": ch, "unfurl_links": False, **mood("부탁"),
-              "text": say("dm_assigned", ref=ref(c["no"], 30), channel=chan(c),
-                          due=due_text(c) or "📅 언제까지는 아직 안 정했어요",
-                          who=team.get(by, {}).get("name") or "누군가",
-                          link=link or "")})
+    text = say("dm_assigned", ref=ref(c["no"], 30), channel=chan(c),
+               due=due_text(c) or "📅 언제까지는 아직 안 정했어요",
+               who=team.get(by, {}).get("name") or "누군가", link=link or "")
+    # **받는 쪽에 선택지를 준다** (2026-09-23 사장님: 「받는쪽 선택지 이거 없는거 문제일 거 같다」).
+    # 예전에는 읽고 링크를 누르는 것뿐이었다 — 맡긴 사람이 다 정하고 **통보**하는 모양이다.
+    # 못 받겠다는 말을 할 자리가 없으면 그 일은 말없이 멈춘다 (아무도 그걸 모른다).
+    await api(s, "chat.postMessage", body={
+        "channel": ch, "unfurl_links": False, **mood("부탁"), "text": text,
+        "blocks": [{"type": "section", "text": {"type": "mrkdwn", "text": text}},
+                   {"type": "actions", "elements": [
+                       {"type": "button", "text": {"type": "plain_text", "text": "✋ 받을게요"},
+                        "style": "primary", "action_id": "pull_card", "value": c["card_ts"]},
+                       {"type": "button", "text": {"type": "plain_text", "text": "↩️ 못 받아요"},
+                        "action_id": "decline_card", "value": c["card_ts"]},
+                       {"type": "button", "text": {"type": "plain_text", "text": "📄 상세"},
+                        "action_id": "show_md", "value": c["card_ts"]}]}]})
     log(f"담당 DM → {uid} ({ref(c['no'], 16)})")
+
+
+async def decline_card(s, c, who, msg=None):
+    """**↩️ 못 받아요** — 맡은 사람이 돌려보낸다 (2026-09-23 사장님 지시).
+
+    카드를 지우지 않는다. 일은 그대로 있고 **담당만 빈다** — 요청이 사라지면 아무도
+    그 일이 있었다는 걸 모른다 (그래서 「받을 때까지 카드를 안 만든다」 로는 가지 않았다).
+
+    `no_auto` 를 붙여 **AI 가 곧바로 같은 사람에게 다시 안 준다.** 안 붙이면 거절하자마자
+    자리 계산이 돌아 같은 사람에게 되돌아간다 — 거절이 아무 뜻이 없어진다.
+    누구든 ✋ 로 가져가면 그때 풀린다.
+
+    **맡긴 사람에게 알린다** — 거절이 조용하면 맡긴 사람은 되고 있는 줄 안다.
+    """
+    from docs import load_team as _team
+    was_by = c.get("assign_by") or c.get("by_id")
+    c["assignee"], c["no_auto"] = None, True
+    c.pop("assign_src", None)
+    c.pop("suggested", None)                 # 추천으로도 다시 올리지 않는다
+    if c.get("due_src") == "ai":
+        c.pop("due", None), c.pop("due_src", None)
+    team = _team()
+    name = team.get(who, {}).get("name") or "담당자"
+    await post_log(s, c, add_log(c, "못 받겠다고 하셨어요", name, None, icon="↩️"))
+    if was_by and was_by != who:
+        d = await api(s, "conversations.open", body={"users": was_by})
+        to = (d.get("channel") or {}).get("id")
+        if to:
+            await api(s, "chat.postMessage", body={
+                "channel": to, "unfurl_links": False, **mood("막힘"),
+                "text": say("dm_declined", who=name, ref=ref(c["no"], 30), channel=chan(c))})
+    if msg:                                   # 누른 자리는 결과로 바꾼다 — 버튼이 남아 있으면 또 누른다
+        await api(s, "chat.update", body={"channel": msg[0], "ts": msg[1], "text": "못 받는다고 전했어요",
+                  "blocks": [{"type": "context", "elements": [{"type": "mrkdwn",
+                              "text": f"↩️ *{ref(c['no'], 30)}* — 못 받는다고 전해 드렸어요. 담당이 비었어요"}]}]})
+    balance()
+    await redraw(s, c)
+    log(f"담당 거절 #{c['no']} ← {who}")
 
 
 async def take_card(s, c, who, how="pull_card"):

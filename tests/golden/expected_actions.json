@@ -1001,6 +1001,74 @@
   ],
   "trail": []
  },
+ "↩️ 못 받아요 #6": {
+  "sent": [
+   {
+    "body": {
+     "channel": "C0EXAMPLEPRJ",
+     "text": "↩️ 9/21 못 받겠다고 하셨어요 · 박두리",
+     "thread_ts": "1789749217.167879"
+    },
+    "method": "chat.postMessage"
+   },
+   {
+    "body": {
+     "users": "U0EXAMPLEPM"
+    },
+    "method": "conversations.open"
+   },
+   {
+    "body": {
+     "channel": "D0MPLEPM",
+     "icon_url": "https://raw.githubusercontent.com/webn77/pa-icons/main/pa-stuck.png",
+     "text": "↩️ 박두리 님이 지금은 어렵다고 하셨어요 — <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘>\n• 🗂 <#C0EXAMPLEPRJ>\n• 담당이 비었어요 — 다른 분이 *✋ 내가 할게요* 로 가져가실 수 있어요\n\n왜 어려운지는 그 할 일 스레드에서 여쭤보시면 돼요.",
+     "unfurl_links": false
+    },
+    "method": "chat.postMessage"
+   },
+   {
+    "body": {
+     "blocks": [
+      {
+       "text": {
+        "text": "⚪ *~PA-6 @봇 찾아줘 — 이슈·회의록 검색~*",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "elements": [
+        {
+         "text": "❌ 취소 — 벤치마킹: 범용 요약·검색은 만들지 않는다 (Slackbot·Claude가 이미 함)  ·  🧩 인수인계",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "action_id": "show_md",
+         "text": {
+          "text": "📄 상세",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749217.167879"
+        }
+       ],
+       "type": "actions"
+      }
+     ],
+     "channel": "C0EXAMPLEPRJ",
+     "text": "🎫 #6 @봇 찾아줘 — 이슈·회의록 검색",
+     "ts": "1789749217.167879"
+    },
+    "method": "chat.update"
+   }
+  ],
+  "trail": []
+ },
  "⚙️ 단계 #6": {
   "sent": [
    {
@@ -1056,9 +1124,51 @@
    },
    {
     "body": {
+     "blocks": [
+      {
+       "text": {
+        "text": "🙋 맡으실 일이 생겼어요 — <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘>\n• 🗂 <#C0EXAMPLEPRJ>\n• 📅 언제까지는 아직 안 정했어요\n• 🤝 김하나 님이 맡기셨어요\n\n<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|할 일 열기>\n\n받으시면 언제까지 하실지만 여쭤볼게요. 지금 어려우시면 *↩️ 못 받아요* 를 눌러 주세요 — 맡기신 분께 전해 드릴게요.",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "elements": [
+        {
+         "action_id": "pull_card",
+         "style": "primary",
+         "text": {
+          "text": "✋ 받을게요",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749217.167879"
+        },
+        {
+         "action_id": "decline_card",
+         "text": {
+          "text": "↩️ 못 받아요",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749217.167879"
+        },
+        {
+         "action_id": "show_md",
+         "text": {
+          "text": "📄 상세",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749217.167879"
+        }
+       ],
+       "type": "actions"
+      }
+     ],
      "channel": "D0PLEDEV",
      "icon_url": "https://raw.githubusercontent.com/webn77/pa-icons/main/pa-ask.png",
-     "text": "🙋 맡으실 일이 생겼어요 — <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘>\n• 🗂 <#C0EXAMPLEPRJ>\n• 📅 언제까지는 아직 안 정했어요\n• 🤝 김하나 님이 맡기셨어요\n\n<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|할 일 열기> — 시작하실 때 👀 를 눌러 주시면 돼요",
+     "text": "🙋 맡으실 일이 생겼어요 — <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘>\n• 🗂 <#C0EXAMPLEPRJ>\n• 📅 언제까지는 아직 안 정했어요\n• 🤝 김하나 님이 맡기셨어요\n\n<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|할 일 열기>\n\n받으시면 언제까지 하실지만 여쭤볼게요. 지금 어려우시면 *↩️ 못 받아요* 를 눌러 주세요 — 맡기신 분께 전해 드릴게요.",
      "unfurl_links": false
     },
     "method": "chat.postMessage"
@@ -3841,22 +3951,12 @@
    "due_src": "human",
    "edits": [
     {
-     "at": 1790000008.0,
+     "at": 1790000009.0,
      "date": "2026-09-21",
      "icon": "👀",
      "kind": "event",
      "reason": null,
      "what": "시작",
-     "who": "박두리"
-    },
-    {
-     "at": 1790000009.0,
-     "date": "2026-09-21",
-     "icon": "☑",
-     "kind": "event",
-     "reason": null,
-     "ts": "1.5",
-     "what": "체크리스트 1/3",
      "who": "박두리"
     },
     {
@@ -3866,11 +3966,21 @@
      "kind": "event",
      "reason": null,
      "ts": "1.5",
+     "what": "체크리스트 1/3",
+     "who": "박두리"
+    },
+    {
+     "at": 1790000011.0,
+     "date": "2026-09-21",
+     "icon": "☑",
+     "kind": "event",
+     "reason": null,
+     "ts": "1.5",
      "what": "체크리스트 3/3",
      "who": "박두리"
     },
     {
-     "at": 1790000012.0,
+     "at": 1790000013.0,
      "date": "2026-09-21",
      "icon": "🔍",
      "kind": "event",
@@ -3879,7 +3989,7 @@
      "who": "박두리"
     },
     {
-     "at": 1790000014.0,
+     "at": 1790000015.0,
      "date": "2026-09-21",
      "icon": "✅",
      "kind": "event",
@@ -3888,7 +3998,7 @@
      "who": "박두리"
     },
     {
-     "at": 1790000022.0,
+     "at": 1790000023.0,
      "date": "2026-09-21",
      "icon": "🗓️",
      "kind": "meeting",
@@ -3931,7 +4041,7 @@
    "due_src": "ai",
    "edits": [
     {
-     "at": 1790000016.0,
+     "at": 1790000017.0,
      "date": "2026-09-21",
      "icon": "⛔",
      "kind": "event",
@@ -3970,7 +4080,7 @@
    "due_src": null,
    "edits": [
     {
-     "at": 1790000017.0,
+     "at": 1790000018.0,
      "by": "U0EXAMPLEPM",
      "date": "2026-09-21",
      "fields": [
@@ -3989,7 +4099,7 @@
      "who": "대화로 정리 → 👍·김하나"
     },
     {
-     "at": 1790000018.0,
+     "at": 1790000019.0,
      "by": "U0EXAMPLEPM",
      "date": "2026-09-21",
      "fields": [
@@ -4037,7 +4147,7 @@
    "due_src": "human",
    "edits": [
     {
-     "at": 1790000020.0,
+     "at": 1790000021.0,
      "date": "2026-09-21",
      "icon": "👀",
      "kind": "event",
@@ -4046,7 +4156,7 @@
      "who": "김하나"
     },
     {
-     "at": 1790000021.0,
+     "at": 1790000022.0,
      "by": "U0EXAMPLEPM",
      "date": "2026-09-21",
      "fields": [
@@ -5374,12 +5484,23 @@
    "title": "산출물 저장 + 완료 요청 — 외부 LLM 결과도 Slack 에 붙이면 기록된다"
   },
   "#6": {
-   "assign_src": "human",
-   "assignee": "U0EXAMPLEDEV",
+   "assign_src": null,
+   "assignee": null,
    "checked": null,
    "due": null,
    "due_src": null,
-   "edits": null,
+   "edits": [
+    {
+     "at": 1790000007.0,
+     "date": "2026-09-21",
+     "icon": "↩️",
+     "kind": "event",
+     "reason": null,
+     "ts": "1.5",
+     "what": "못 받겠다고 하셨어요",
+     "who": "박두리"
+    }
+   ],
    "finished": null,
    "plevel": null,
    "plevel_src": null,
@@ -5476,7 +5597,7 @@
        },
        {
         "text": {
-         "text": "🗓️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 회의 M9에서 다룸 · 주간 점검\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 목표일 없음→9/24 · 일정 위험 추천 적용·김하나 (<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게…> 목표일을 9/24로 미뤘어요)\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 시작 · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 체크리스트 −b +c · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 체크리스트 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n⛔ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 보류 · 박두리\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 — 계획대로 (목표일 9/21) · 박두리\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 3/3 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 1/3 · 박두리\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 시작 · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 목표일 9/25→9/30 · 김하나 (고객 일정 때문)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 우선순위 P4→P2 · 김하나\n🗺️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 이렇게 할게요 · 박두리 (먼저 재현부터 해 볼게요)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 박두리→없음, 목표일 9/21→없음 · AI 자동 조정 (지금·다음 자리가 차서 백로그 · 배정이 풀려 제안 날짜도 뺌)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험> — 담당 없음→김하나, 목표일 없음→9/24 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 담당 없음→박두리 · 박두리\n",
+         "text": "🗓️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 회의 M9에서 다룸 · 주간 점검\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 목표일 없음→9/24 · 일정 위험 추천 적용·김하나 (<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게…> 목표일을 9/24로 미뤘어요)\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 시작 · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 체크리스트 −b +c · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 체크리스트 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n⛔ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 보류 · 박두리\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 — 계획대로 (목표일 9/21) · 박두리\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 3/3 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 1/3 · 박두리\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 시작 · 박두리\n↩️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘> — 못 받겠다고 하셨어요 · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 목표일 9/25→9/30 · 김하나 (고객 일정 때문)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 우선순위 P4→P2 · 김하나\n🗺️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 이렇게 할게요 · 박두리 (먼저 재현부터 해 볼게요)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 박두리→없음, 목표일 9/21→없음 · AI 자동 조정 (지금·다음 자리가 차서 백로그 · 배정이 풀려 제안 날짜도 뺌)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험> — 담당 없음→김하나, 목표일 없음→9/24 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 담당 없음→박두리 · 박두리\n",
          "type": "mrkdwn"
         },
         "type": "section"

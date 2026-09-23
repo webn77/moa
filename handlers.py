@@ -398,6 +398,14 @@ async def act_edit_card(s, p, a):              # 앱 홈 「✏️ 상태·담�
         await open_editor(s, p, c)
 
 
+async def act_decline(s, p, a):                # ↩️ 못 받아요 — 담당 DM 에서만 (2026-09-23)
+    c = _card(a)
+    if c:
+        m = p.get("message") or {}
+        ch = (p.get("channel") or {}).get("id") or (p.get("container") or {}).get("channel_id")
+        await decline_card(s, c, _user(p), (ch, m.get("ts")) if ch and m.get("ts") else None)
+
+
 async def act_pull(s, p, a):                   # ✋ 내가 할게요 — 맡기 전에 언제까지를 묻는다 (#52)
     c = _card(a)
     if c:
@@ -486,7 +494,7 @@ ACTIONS = {
     **{k: act_set for k in ("set_status", "set_prio", "set_due", "set_assignee", "set_stage", "set_feature",
                             "set_start")},
     "risk_fix": act_risk_fix, "spec_ok": act_spec_ok, "edit_content": act_edit_content, "edit_card": act_edit_card,
-    "pull_card": act_pull, "accept_assign": act_pull,       # accept_assign — 예전 카드에 남은 버튼
+    "pull_card": act_pull, "accept_assign": act_pull, "decline_card": act_decline,       # accept_assign — 예전 카드에 남은 버튼
     "check_dc": act_check, "close_done": act_close_done, "review_ok": act_review_ok, "review_back": act_review_back,
     "mtg_apply": act_mtg_apply, "finish_meeting": act_finish_meeting, "show_meeting": act_show_meeting, "show_md": act_show_md,
     "card_menu": lambda s, p, a: act_card_menu(s, p, a), "canvas_now": act_canvas_now,
@@ -568,7 +576,7 @@ from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401
 from flows.meeting import apply_meeting_change, finish_meeting, new_meeting, save_meeting  # noqa: E402,F401
-from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, save_content, save_take, take_card  # noqa: E402,F401
+from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, decline_card, save_content, save_take, take_card  # noqa: E402,F401
 from flows.review import review_answer  # noqa: E402,F401
 from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, fill_all as tidy_fill_all, propose as tidy_propose  # noqa: E402,F401
 from views.canvas import render_canvas, render_canvas_now  # noqa: E402,F401

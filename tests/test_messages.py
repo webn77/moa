@@ -104,6 +104,16 @@ class MessageRules(unittest.TestCase):
         for k, v in TEXTS.items():
             self.assertIsNone(JOSA.search(v), f"{k}: 자리표시 뒤에 조사 — 줄표(—)로 끊어 주세요")
 
+    def test_the_one_who_gets_the_work_can_say_no(self):
+        """**받는 쪽에 선택지가 있어야 한다** (2026-09-23 사장님: 「받는쪽 선택지 이거 없는거 문제일 거 같다」).
+
+        예전 담당 DM 은 읽고 링크를 누르는 것뿐이었다 — 맡긴 사람이 다 정하고 **통보**하는 모양이다.
+        못 받겠다는 말을 할 자리가 없으면 그 일은 말없이 멈추고, 맡긴 사람은 되고 있는 줄 안다.
+        """
+        self.assertIn("못 받아요", TEXTS["dm_assigned"])
+        self.assertIn("dm_declined", TEXTS, "거절을 맡긴 사람에게 전할 말이 없다")
+        self.assertIn("담당이 비었어요", TEXTS["dm_declined"])
+
     def test_placeholders_are_known(self):
         """자리표시는 이 목록 안에서만 — 오타면 실행 중에 KeyError 가 난다."""
         known = {"link", "no", "ref", "what", "bot", "err", "n", "url", "tracker", "path", "who", "body", "plan",
