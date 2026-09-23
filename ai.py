@@ -174,6 +174,7 @@ COACH = ("너는 팀의 프로젝트 비서다. 카드 스레드에서 사람과
          "사람이 '됐어·그만·나중에' 라고 하면 stop=true. "
          "JSON 한 개만 출력: {\"reply\": \"사람에게 할 말(한국어, 3줄 이내)\", \"ready\": false, \"stop\": false, "
          "\"spec\": {\"title\":\"40자 이내\",\"why\":\"\",\"change\":\"\",\"expect\":\"\",\"not_doing\":\"\",\"done_criteria\":[]} 또는 null}")
+COACH_MAX = 5           # 구체화 대화를 주고받는 상한 — 넘으면 멈춘다 (한도가 녹지 않게)
 _COACHING = set()
 
 
@@ -192,6 +193,14 @@ async def convo(s, c):
 async def coach(s, c, trigger):
     """#31 질문으로 구체화 — 카드가 생기면 먼저 묻고, 사람이 스레드에 답하면 이어서 대화한다."""
     if c["no"] in _COACHING or c.get("coach") in ("done", "stopped"):
+        return
+    # **다섯 번 주고받으면 멈춘다** (2026-09-23 감사). 멈추는 길이 둘뿐이었다 — 정리안에 👍 를
+    # 누르거나 AI 가 스스로 「그만」 이라고 하거나. 그래서 정리안이 떴는데 👍 를 안 누르고
+    # 그 스레드에서 **딴 얘기**를 하면(「이거 언제까지죠?」·「ㅇㅋ」) 한 줄마다 AI 를 불렀다.
+    # `coach_rounds >= 3` 은 **정리안을 낼지**만 가르고 대화를 안 멈춘다 — 그건 그대로 둔다.
+    if c.get("coach_rounds", 0) >= COACH_MAX:
+        c["coach"] = "stopped"
+        log(f"구체화 그만 #{c['no']} — {COACH_MAX}번 주고받음")
         return
     if (c.get("spec") or {}).get("done_criteria") and trigger == "new":
         c["coach"] = "done"                                       # 이미 정의가 있으면 묻지 않는다

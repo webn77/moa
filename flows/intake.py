@@ -9,7 +9,8 @@ from slack import Step, api, mood, name_of  # noqa: E402,F401
 from store import STATE, chan, project_for, add_log, decision_snap, ref, save  # noqa: E402,F401
 
 
-async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None):
+async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None,
+                    suggest=True):
     """요청 메시지 없이 할 일 카드만 만든다 — DM 등록·관리자·봇이 직접 올릴 때.
 
     `project` 를 주면 그 프로젝트로 (#70). 안 주면 첫 프로젝트 — 프로젝트가 하나면 늘 그것이다.
@@ -21,11 +22,11 @@ async def add_issue(s, title, user, project=None, assignee=None, due=None, ask=T
     """
     room = next((p.get("channel") for p in PROJECTS if p.get("key") == project), CHANNEL) if project else CHANNEL
     return await new_card(s, {"text": title, "user": user}, room, spec=spec, assignee=assignee, due=due,
-                          ask=ask, score=score)
+                          ask=ask, score=score, suggest=suggest)
 
 
 async def new_card(s, m, origin_channel=None, spec=None, number=None, assignee=None, due=None,
-                   ask=True, score=True):
+                   ask=True, score=True, suggest=True):
     """요청을 이슈 카드로 만든다. 카드는 언제나 프로젝트 방에, 링크는 요청이 온 자리에.
     spec 을 주면 정의를 붙인 채로 만든다 — 그러면 봇이 다시 묻지 않는다 (초안 → 버튼 경로, #54).
     만든 카드를 돌려준다.
@@ -70,7 +71,12 @@ async def new_card(s, m, origin_channel=None, spec=None, number=None, assignee=N
                   "text": say("card_made", link=link, no=c["no"])})
     snap = decision_snap()
     try:                                   # 담당 없음을 남기지 않는다 — 만들자마자 추천·순서까지
-        if not assignee:                   # **물어서 받은 답을 두고 다시 추천하지 않는다**
+        # **물어서 받은 답을 두고 다시 추천하지 않는다.** 여러 개를 한 번에 올릴 때는
+        # `suggest=False` 로 미뤄 두고 **마지막에 한 번** 묶어 부른다 (2026-09-23 감사) —
+        # 카드마다 부르면 열 개에 AI 를 열 번 쓰고, 매번 같은 팀 명단을 보낸다.
+        # 묶는 쪽이 **결과도 낫다**: 열 개를 같이 보면 나눠 배정하는데, 하나씩 물으면
+        # 매번 「지금 제일 여유 있는 사람」 이 나와 한 사람에게 몰린다
+        if not assignee and suggest:
             await recommend(s, [c])
         if score:
             # 여러 개를 한 번에 올릴 때는 **마지막 하나에서만** 점수를 매긴다 (flows/task.py) —

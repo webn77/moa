@@ -48,10 +48,11 @@ class Base(unittest.TestCase):
         self.made = []
         STATE.pop("new_task", None)
 
-        async def fake_add(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None):
+        async def fake_add(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None, suggest=True):
             """카드 만들기는 이미 다른 시험이 본다 — 여기서는 **무엇을 넘겼는지**만 본다."""
             c = {"no": 90 + len(self.made), "title": title, "card_ts": f"8.{len(self.made)}",
-                 "project": project, "assignee": assignee, "due": due, "ask": ask, "score": score, "spec": spec}
+                 "project": project, "assignee": assignee, "due": due, "ask": ask, "score": score,
+                 "spec": spec, "suggest": suggest}
             self.made.append(c)
             return c
 
@@ -59,9 +60,14 @@ class Base(unittest.TestCase):
             """**진짜 AI 를 부르지 않는다.** 안 갈아 끼우면 시험이 네트워크를 타고 4초씩 걸린다
             (2026-09-23 실측). 체크리스트를 무엇으로 채우는지는 `checklists` 가 따로 본다."""
             return {t: [f"{t} 준비하기"] for t in titles}
-        self.lists = fake_lists
+        async def fake_reco(s, cards):
+            """담당 추천도 갈아 끼운다 — 안 그러면 시험이 네트워크를 타고 **69초** 걸린다
+            (2026-09-23 실측: 묶어 부르게 고치자마자 1.1초가 69초가 됐다)."""
+            self.reco = list(cards)
+        self.lists, self.reco = fake_lists, None
         self.patches = [mock.patch.object(task, "api", self.fake.api),
                         mock.patch("ai.checklists", fake_lists),
+                        mock.patch("ai.recommend", fake_reco),
                         mock.patch.object(task, "save", lambda: None),
                         # 담당 DM 은 `flows.status` 가 보낸다 — 거기도 갈아 끼워야 밖으로 안 나간다
                         mock.patch("flows.status.api", self.fake.api),
@@ -331,7 +337,7 @@ class ManyTest(Base):
         """번호를 받다 막히면 **거기까지만** 올라간다 — 안 한 일을 했다고 말하지 않는다."""
         calls = []
 
-        async def flaky(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None):
+        async def flaky(s, title, user, project=None, assignee=None, due=None, ask=True, score=True, spec=None, suggest=True):
             calls.append(title)
             if len(calls) > 2:
                 return None                    # 세 번째에서 번호를 못 받았다
@@ -716,6 +722,35 @@ class ThreadTest(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AiCountTest(Base):
+    """**AI 를 몇 번 부르나** (2026-09-23 감사). 열 개를 올리면 열두 번이었다.
+
+        담당 추천 10 + 점수 1 + 체크리스트 1 = 12   →   1 + 1 + 1 = 3
+    """
+
+    def many(self, who="2"):
+        self.say("두 번째 프로젝트에 할일 등록")
+        self.say("\n".join(f"{i}번 일 고치기" for i in range(1, 6)))
+        self.say(who)
+        self.say("이번 주")
+        self.say("네")
+
+    def test_five_at_once_asks_for_one_recommendation(self):
+        self.many()
+        self.assertEqual(len(self.made), 5)
+        self.assertEqual(len(self.reco or []), 5, "다섯을 한 번에 묶어 물어야 한다")
+        self.assertTrue(all(c["suggest"] is False for c in self.made), "카드마다 추천을 불렀다")
+
+    def test_no_recommendation_when_you_said_who(self):
+        """물어서 받은 답을 두고 다시 추천하지 않는다 — 「제가」 면 아예 안 부른다."""
+        self.many(who="1")
+        self.assertIsNone(self.reco)
+
+    def test_the_score_is_still_only_on_the_last_one(self):
+        self.many()
+        self.assertEqual([c["score"] for c in self.made], [False, False, False, False, True])
 
 
 class SpacingAndTyposTest(unittest.TestCase):

@@ -59,7 +59,12 @@ async def do_note(s, r):
 
 async def do_issue(s, r):
     """새 이슈 — 사람이 정한 것만 여기로 온다 (분류함은 #51)."""
-    c = await add_issue(s, r.get("title", "(제목 없음)"), r.get("pm") or "", r.get("project"))
+    # **AI 를 안 부른다** (2026-09-23 감사). 도구가 넣는 줄에는 이미 내용이 적혀 있는데
+    # `add_issue` 가 담당 추천·점수·구체화로 **줄마다 AI 를 세 번** 불렀다. 게다가 바로 아래에서
+    # `c["spec"]` 을 덮어쓰고 `coach="done"` 으로 바꿔서 **구체화 결과는 그대로 버려졌다.**
+    # 점수는 큐를 다 비운 뒤 `watch_asks` 가 한 번만 매긴다
+    c = await add_issue(s, r.get("title", "(제목 없음)"), r.get("pm") or "", r.get("project"),
+                        ask=False, score=False, suggest=False)
     if not c:                                   # 번호를 못 받으면 카드가 없다 — 남의 카드를 집으면 안 된다 (#60)
         return "카드를 못 만들었어요 — GitHub 에서 번호를 못 받았습니다. 로그를 보세요"
     if r.get("why") or r.get("done"):

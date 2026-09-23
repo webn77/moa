@@ -553,7 +553,7 @@ async def _build(s, ch, th, st, user):
             items = (st.get("dc") or {}).get(title)
             c = await add_issue(s, title, user, project=st.get("pkey"),
                                 assignee=st.get("who"), due=st.get("due"), ask=False,
-                                score=(i == len(got) - 1),
+                                score=(i == len(got) - 1), suggest=False,
                                 spec={"done_criteria": items} if items else None)
         except Exception as ex:
             c, err = None, f"{type(ex).__name__}"
@@ -565,6 +565,18 @@ async def _build(s, ch, th, st, user):
         if st.get("who") and st["who"] != user:      # 남에게 맡기셨으면 그분 DM 으로
             from flows.status import tell_assigned
             await tell_assigned(s, c, user)
+    # **담당 추천은 마지막에 한 번** (2026-09-23 감사) — 열 개면 AI 를 열 번 부르던 자리다.
+    # 담당을 이미 말씀하셨으면 아예 안 부른다 (물어서 받은 답을 두고 다시 추천하지 않는다)
+    if made and not st.get("who"):
+        try:
+            from ai import recommend
+            from views.card import card_blocks
+            await recommend(s, made)
+            for c in made:
+                await api(s, "chat.update", body={"channel": chan(c), "ts": c["card_ts"],
+                          "text": f"🎫 #{c['no']} {c['title']}", "blocks": card_blocks(c)})
+        except Exception as ex:
+            log(f"담당 추천 실패: {type(ex).__name__}: {ex}")   # 추천이 없어도 카드는 이미 올라갔다
     STATE["new_task"].pop(user, None); save()
     if not made:
         await _say(s, ch, say("task_fail", err=err or "번호를 못 받았어요"), th)
