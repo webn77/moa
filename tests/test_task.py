@@ -450,6 +450,66 @@ class DmTest(Base):
         self.assertEqual(self.dms(), [])
 
 
+class ChecklistAtConfirmTest(Base):
+    """확인 화면에서 체크리스트를 그 자리에서 더한다 (2026-09-23 사장님: 「체크리스트 추가
+    하거나 수정 할 수 있는거지 등록 할때 너가 추천 해주는거고」).
+
+    AI 가 낸 것은 **추천**이다 — 사람이 손댈 자리가 없으면 추천이 아니라 통보다.
+    """
+
+    def ready(self):
+        self.say("두 번째 프로젝트에 할일 등록")
+        self.say("알림이 두 번 와요")
+        self.say("제가")
+        self.say("9/30")
+
+    def dc(self):
+        return (STATE["new_task"][ME].get("dc") or {}).get("알림이 두 번 와요")
+
+    def test_the_ai_suggestion_is_there_to_start_with(self):
+        self.ready()
+        self.assertEqual(self.dc(), ["알림이 두 번 와요 준비하기"])      # setUp 의 가짜 AI
+        self.assertIn("☐ 알림이 두 번 와요 준비하기", self.last())
+
+    def test_you_can_add_one(self):
+        self.ready()
+        self.say("체크리스트에 스테이징에서 확인하기")
+        self.assertEqual(self.dc(), ["알림이 두 번 와요 준비하기", "스테이징에서 확인하기"])
+        self.assertIn("☐ 스테이징에서 확인하기", self.last())
+
+    def test_you_can_add_several_at_once(self):
+        """항목은 짧은 할 거리라 한 줄에 「a, b」 로 쓰는 것이 자연스럽다."""
+        self.ready()
+        self.say("체크리스트에 로그 남기기, 배포 확인하기")
+        self.assertEqual(self.dc()[-2:], ["로그 남기기", "배포 확인하기"])
+
+    def test_you_can_throw_it_away(self):
+        self.ready()
+        self.say("체크리스트 지워")
+        self.assertEqual(self.dc(), [])
+        self.say("네")
+        self.assertIsNone(self.made[0]["spec"])          # 빈 것은 안 붙인다
+
+    def test_what_you_added_is_what_gets_saved(self):
+        self.ready()
+        self.say("체크리스트에 스테이징에서 확인하기")
+        self.say("네")
+        self.assertEqual(self.made[0]["spec"]["done_criteria"][-1], "스테이징에서 확인하기")
+
+    def test_adding_does_not_call_the_ai_again(self):
+        """한 번 받아 둔 추천을 다시 받지 않는다 — 고칠 때마다 부르면 한 줄에 한 번씩이다."""
+        import ai
+        self.ready()
+        calls = []
+
+        async def counted(system, prompt, tries=3):
+            calls.append(prompt)
+            return '{"lists":[]}'
+        with mock.patch.object(ai, "ask_ai", counted), mock.patch("ai.checklists", REAL_CHECKLISTS):
+            self.say("체크리스트에 하나 더 넣기")
+        self.assertEqual(calls, [])
+
+
 class AiBudgetTest(Base):
     """**묻는 대화는 AI 를 안 쓴다. 체크리스트만 한 번** (2026-09-23 사장님: 「체크리스트
     만드는건 할일만들때」).

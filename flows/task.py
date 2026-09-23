@@ -29,6 +29,7 @@
 import datetime
 import re
 
+import core
 from common import PROJECTS, log
 from flows.ask import CANCEL, COMMANDS, HEAD, LATER, yes as _yes
 from messages import say
@@ -56,6 +57,12 @@ DUE_IN = re.compile(r"(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})\s*/\s*(\d{1,2})|(\d{
 TITLE_IN = re.compile(r"(?:제목|이름)\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
 WHO_IN = re.compile(r"담당\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
 DUE_WORD = re.compile(r"(?:언제까지|기한|목표일|마감)\s*(?:은|는|을|를|이|가)?\s*[:：]?\s*(\S.*)")
+# 확인 화면에서 **체크리스트를 그 자리에서 더한다** (2026-09-23 사장님: 「체크리스트 추가
+# 하거나 수정 할 수 있는거지」). AI 가 낸 것은 **추천**이므로 사람이 손댈 자리가 있어야 한다.
+# 더하기와 지우기 **둘만** 둔다 — 「2번을 이렇게 고쳐」 까지 받으려면 번호를 세고 되읽어 줘야
+# 하는데, 그건 올린 뒤 📝 설명 쓰기 창이 이미 훨씬 잘 한다 (한 줄에 하나씩 통째로 고친다)
+LIST_IN = re.compile(r"체크리스트\s*(?:에|는|은|을|를|이|가|도)?\s*[:：]?\s*(.*)", re.S)
+LIST_OFF = ("없이", "없음", "지워", "빼", "비워", "필요 없", "안 할")
 STEP_WHAT = {"title": "무슨 일인가", "project": "어느 프로젝트", "who": "누가 할까", "due": "언제까지",
              "confirm": "마지막 확인"}
 
@@ -266,6 +273,18 @@ def _titles(st):
     return st.get("titles") or []
 
 
+def _list_of(text):
+    """「체크리스트 …」 뒤에 쓴 것 → 더할 항목들. 지우자는 말이면 빈 목록.
+
+    줄바꿈·가운뎃점·쉼표로 나눈다. 제목과 달리 **쉼표로도 나눈다** — 항목은 짧은 할 거리라
+    한 줄에 「a, b, c」 로 쓰는 것이 자연스럽다 (제목은 쉼표가 문장 안에 들어가서 못 나눈다).
+    """
+    body = (text or "").strip()
+    if len(body) < 12 and any(x in body for x in LIST_OFF):
+        return []
+    return core.clean_items(re.split(r"[\n·,]+", body))
+
+
 def _numbered(st):
     """번호 붙인 제목 — **체크리스트가 있으면 그 아래 붙인다** (2026-09-23 사장님:
     「체크리스트 만드는건 할일만들때」). 확인 화면에서 한눈에 보고 「네」 하면 그대로 올라간다."""
@@ -417,6 +436,12 @@ async def maybe(s, e, q, force=False):
         st["who"] = _who_of(WHO_IN.search(s2).group(1), st["by"])
     elif DUE_WORD.search(s2) and _due_of(DUE_WORD.search(s2).group(1)) is not False:
         st["due"] = _due_of(DUE_WORD.search(s2).group(1))
+    elif LIST_IN.search(s2) and len(_titles(st)) == 1:
+        # 여러 개를 한 번에 올릴 때는 안 받는다 — 어느 것의 체크리스트인지 알 수 없다.
+        # 그때는 올린 뒤 카드마다 📝 에서 고치는 것이 오히려 짧다
+        key, add = _titles(st)[0], _list_of(LIST_IN.search(s2).group(1))
+        cur = (st.get("dc") or {}).get(key) or []
+        st.setdefault("dc", {})[key] = core.clean_items(cur + add) if add else []
     elif _pick_project(s2) is not None and len(PROJECTS) > 1:
         st["pkey"] = _pick_project(s2).get("key") or ""
     elif _yes(q):
