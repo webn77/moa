@@ -647,6 +647,23 @@ class ThreadTest(Base):
         posts = [b for m, b in self.fake.sent if m == "chat.postMessage"]
         self.assertEqual({b.get("thread_ts") for b in posts}, {"111.1"})
 
+    def test_the_first_question_is_also_shown_in_the_channel(self):
+        """**스레드 답글은 DM 에서 접혀 보인다** (2026-09-23 사장님: 「이거 반응 안 하는 게」).
+        맨 아래에서 타자를 치고 계시면 아무 일도 안 일어난 것처럼 보인다.
+        첫 물음만 채팅창에도 띄운다 — 매 걸음 띄우면 스레드로 묶은 뜻이 없어진다."""
+        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "111.1"}, "할 일 등록"))
+        first = [b for m, b in self.fake.sent if m == "chat.postMessage"][0]
+        self.assertEqual(first.get("thread_ts"), "111.1")
+        self.assertTrue(first.get("reply_broadcast"), "첫 물음이 채팅창에 안 보인다")
+
+    def test_the_later_steps_stay_in_the_thread_only(self):
+        self.say("할 일 등록")
+        self.fake.sent.clear()
+        self.say("알림이 두 번 와요")
+        posts = [b for m, b in self.fake.sent if m == "chat.postMessage"]
+        self.assertTrue(posts)
+        self.assertFalse(any(b.get("reply_broadcast") for b in posts), "걸음마다 채팅창에 띄웠다")
+
     def test_a_word_outside_the_thread_is_not_an_answer(self):
         """밖에 쓴 말은 **등록과 무관한 말**이다 — 조용히 스레드로 빨려 들어가면 헷갈린다.
         평소 갈래(찾기·현황)로 가도록 `False` 를 돌려준다."""
