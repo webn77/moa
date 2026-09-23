@@ -188,6 +188,11 @@ async def on_event(s, e, me):
         await on_dm(s, e)                                     # DM — 채널에서 @PA 뒤에 쓰는 말과 같게 (2026-09-20)
         return
     if t == "message" and not e.get("subtype") and not e.get("bot_id") and e.get("user"):
+        # **회의 스레드에 사람이 쓰면 「논의가 있다」 고 표시한다** (2026-09-23). 이게 없으면
+        # 「📝 회의록 확정」 단추가 영영 안 나타난다 — 단추를 논의 뒤로 미뤘기 때문이다.
+        # `bot_id` 가 있는 글은 위 조건이 이미 걸러 낸다: 10분 전 알림이 논의로 세면 안 된다
+        if e.get("thread_ts") in STATE.get("meetings", {}):
+            await mark_talked(s, e["thread_ts"])
         if e.get("thread_ts") and await refresh_draft(s, e):      # 초안 스레드에 더 쓰면 다시 정리한다 (#54)
             return
         await unfurl_refs(s, e)                                   # #40 → 작은 카드 (어느 채널에서든, #54)
@@ -292,6 +297,10 @@ async def on_view_submit(s, payload):
         return await save_content(s, payload)
     if payload["view"].get("callback_id") == "edit_list_submit":
         return await save_list(s, payload)
+    if payload["view"].get("callback_id") == "meet_note_submit":
+        v = payload["view"]
+        note = ((v["state"]["values"].get("note") or {}).get("v") or {}).get("value") or ""
+        return await save_note(s, v.get("private_metadata"), note, payload.get("user", {}).get("id"))
     if payload["view"].get("callback_id") == "review_back_submit":
         c = STATE["cards"].get(payload["view"].get("private_metadata"))
         why = ((payload["view"]["state"]["values"].get("why") or {}).get("v") or {}).get("value")
@@ -468,6 +477,10 @@ async def act_meet_stop(s, p, a):              # 정기 끄기 — 이 회의는
     await stop_every(s, a.get("value"), _user(p))
 
 
+async def act_meet_note(s, p, a):              # ✍️ 논의 적기 — 창에 적으면 회의 스레드에 올라간다
+    await open_note(s, p["trigger_id"], a.get("value"))
+
+
 async def act_detail(s, p, a):                 # 앱 홈 「자세히 볼 것」 → 팝업 (버튼·고르는 칸 둘 다)
     a = dict(a, value=(a.get("selected_option") or {}).get("value") or a.get("value"))
     if a.get("value") in DETAIL:
@@ -519,7 +532,7 @@ ACTIONS = {
     "pull_card": act_pull, "accept_assign": act_pull, "decline_card": act_decline,       # accept_assign — 예전 카드에 남은 버튼
     "check_dc": act_check, "close_done": act_close_done, "review_ok": act_review_ok, "review_back": act_review_back,
     "mtg_apply": act_mtg_apply, "finish_meeting": act_finish_meeting, "show_meeting": act_show_meeting,
-    "meet_stop": act_meet_stop, "show_md": act_show_md,
+    "meet_stop": act_meet_stop, "meet_note": act_meet_note, "show_md": act_show_md,
     "card_menu": lambda s, p, a: act_card_menu(s, p, a), "canvas_now": act_canvas_now,
     # 초안 → 카드 (#54) — 이 버튼이 번호를 만든다. 이름은 맨 아래에서 오므로 부를 때 찾는다
     **{k: (lambda s, p, a: tidy_decide(s, p, a)) for k in ("tidy_drop", "tidy_later", "tidy_keep")},
@@ -620,8 +633,9 @@ from flows.repo import maybe as new_repo  # noqa: E402
 from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401
-from flows.meeting import (apply_meeting_change, due_meetings, finish_meeting, new_meeting,  # noqa: E402,F401
-                           save_meeting, stop_every, maybe as new_meet)  # noqa: E402,F401
+from flows.meeting import (apply_meeting_change, due_meetings, finish_meeting, mark_talked,  # noqa: E402,F401
+                           new_meeting, open_note, save_meeting, save_note, stop_every,  # noqa: E402,F401
+                           maybe as new_meet)  # noqa: E402,F401
 from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_list_editor, save_list, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, decline_card, save_content, save_take, take_card  # noqa: E402,F401
 from flows.review import review_answer  # noqa: E402,F401
 from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, propose as tidy_propose  # noqa: E402,F401

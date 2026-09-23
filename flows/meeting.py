@@ -20,8 +20,10 @@ import asyncio, json, re, datetime
 import core
 import gh_link
 from flows.ask import ASKING, HEAD, NOPE, cancelled, titleable
+# 프로젝트를 고르는 세 함수는 할 일 등록과 **똑같아야 한다** — 베끼면 갈라진다
+from flows.task import _pick_project, _project_list, _project_of
 from messages import say
-from common import BOT, CHANNEL, HANDLE, LABEL, REQUEST, log  # noqa: E402,F401
+from common import BOT, CHANNEL, HANDLE, LABEL, PROJECTS, REQUEST, log  # noqa: E402,F401
 
 
 def mch(m):
@@ -64,7 +66,7 @@ def meeting_blocks(m):
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn", "text": f"*🗓️ {m['id']} {m['title']}*"}},
         {"type": "context", "elements": [{"type": "mrkdwn",
-            "text": f"{state} · {m['date']}{issue} · 만든 사람 {m['by']}"}]},
+            "text": f"{state} · {core.meet_label(m)}{issue} · 만든 사람 {m['by']}"}]},
     ]
     # 정기 회의는 **다음이 언제인지 카드에 적어 둔다** — 안 적으면 「정기라고 했는데 다음이
     # 오긴 하나」 를 아무도 확인할 수 없다. 끄는 길도 같은 자리에 둔다 (2026-09-23)
@@ -84,23 +86,36 @@ def meeting_blocks(m):
             "text": say("mtg_hint")}]})
     if m.get("file"):                                  # 확정된 회의 — 볼 것만 남긴다
         el = [{"type": "button", "text": {"type": "plain_text", "text": "📄 회의록 보기"},
-               "action_id": "show_meeting", "value": m["card_ts"]}]
+               "action_id": "show_meeting", "value": m["card_ts"]},
+              {"type": "button", "text": {"type": "plain_text", "text": "✍️ 논의 적기"},
+               "action_id": "meet_note", "value": m["card_ts"]}]
         blocks.append({"type": "actions", "elements": el})
         blocks.append({"type": "context", "elements": [{"type": "mrkdwn",
             "text": say("mtg_redo_hint", bot=HANDLE)}]})
     else:
-        blocks.append({"type": "actions", "elements": [
-            {"type": "button", "text": {"type": "plain_text", "text": "📝 회의록 확정"},
-             "action_id": "finish_meeting", "value": m["card_ts"], "style": "primary"}]})
+        # **적을 길을 먼저 준다** (2026-09-23 사장님: 「확정 버튼이 먼저 나오면 안될거 같고
+        # 작성 할 수 있게 해줘야 할거 같은데」). 예전에는 확정 단추만 덩그러니 있어서,
+        # 무엇을 어디에 써야 하는지 모른 채 누르면 **빈 표**가 나왔다.
+        #
+        # 실시간으로 회의하면 스레드에 그냥 쓰면 되고, 끝나고 혼자 정리할 땐 창이 편하다 —
+        # 둘 다 받는다. **확정은 논의가 쌓인 뒤에만** 보인다: 없을 때 눌러 봐야 건질 게 없다
+        el = [{"type": "button", "text": {"type": "plain_text", "text": "✍️ 논의 적기"},
+               "action_id": "meet_note", "value": m["card_ts"],
+               **({} if m.get("talked") else {"style": "primary"})}]
+        if m.get("talked"):
+            el.append({"type": "button", "text": {"type": "plain_text", "text": "📝 회의록 확정"},
+                       "action_id": "finish_meeting", "value": m["card_ts"], "style": "primary"})
+        blocks.append({"type": "actions", "elements": el})
     return blocks
 
 
-async def new_meeting(s, title, issue_no, by, channel, every="once", date=None, weekday=None):
-    """회의 카드를 만든다. `every`·`weekday` 는 **덧붙임이라 안 줘도 된다** — 예전처럼
-    부르면 오늘 한 번 하는 회의다 (옛 카드와 시험 대역이 그대로 돌아간다)."""
+async def new_meeting(s, title, issue_no, by, channel, every="once", date=None, weekday=None,
+                      time=None, pkey=None):
+    """회의 카드를 만든다. `every`·`weekday`·`time`·`pkey` 는 **덧붙임이라 안 줘도 된다** —
+    예전처럼 부르면 오늘 한 번 하는 회의다 (옛 카드와 시험 대역이 그대로 돌아간다)."""
     m = {"id": f"M{STATE.get('next_m', 1)}", "title": title, "issue": issue_no, "by": by,
          "date": date or datetime.date.today().isoformat(), "summary": None, "file": None,
-         "channel": channel, "every": every, "weekday": weekday}
+         "channel": channel, "every": every, "weekday": weekday, "time": time, "pkey": pkey}
     STATE["next_m"] = STATE.get("next_m", 1) + 1
     d = await api(s, "chat.postMessage", body={"channel": channel, "text": f"🗓️ {m['id']} {title}",
                                                "blocks": meeting_blocks(dict(m, card_ts="tmp"))})
@@ -292,16 +307,30 @@ MEET_START = re.compile(r"(회의|미팅)(?!록)\S*\s*(를|을|로|은|는)?\s*\
 # 않는다** (같은 저장소가 `NOT_MINE` 에 그렇게 적어 두고도 오늘 한 번 새게 두었다)
 MEET_NOT = re.compile(r"할\s*일|할일|이슈|업무|작업")
 _HEAD = re.compile(HEAD, re.I)
-STEP_WHAT = {"title": "무슨 회의인가", "every": "한 번만인가 정기인가", "when": "언제"}
+STEP_WHAT = {"title": "무슨 회의인가", "project": "어느 프로젝트", "every": "한 번만인가 정기인가",
+             "when": "언제"}
 
 
 def _asking_meet(user):
     return (STATE.get("new_meeting") or {}).get(user)
 
 
+def _msteps(st):
+    """이 대화에서 물을 칸 — **아는 것은 빼고 센다** (할 일 등록과 같은 규칙).
+
+    **날짜와 시간을 한 칸에서 받는다.** 「내일 2시」 라고 한 번에 말씀하시는 것이 자연스럽고,
+    칸을 나누면 셋이 넷이 된다 (사장님: 「쉽게 가야해」). 시간만 빠졌으면 그 칸에서 한 번
+    더 여쭐 뿐, 단계 수는 안 늘린다.
+    """
+    out = ["title"]
+    if not st.get("proj_known"):
+        out.append("project")
+    return out + ["every", "when"]
+
+
 def _mwhere(st):
-    """지금 몇 번째 칸인가 — (번호, 전체, 무엇). **회의는 늘 세 칸이다.**"""
-    steps = ["title", "every", "when"]
+    """지금 몇 번째 칸인가 — (번호, 전체, 무엇)."""
+    steps = _msteps(st)
     step = st.get("step") or "title"
     n = steps.index(step) + 1 if step in steps else len(steps)
     return n, len(steps), STEP_WHAT.get(step, "확인")
@@ -333,7 +362,9 @@ async def _mask(s, ch, th, st, step, head=""):
     st["step"], st["miss"] = step, 0
     save()
     no = _keycap(_mwhere(st)[0])
-    if step == "every":
+    if step == "project":
+        text = say("meet_ask_project", step=no, list=_project_list())
+    elif step == "every":
         text = say("meet_ask_every", step=no)
     elif step == "when":
         text = (say("meet_ask_date", step=no) if st.get("every") == "once"
@@ -342,6 +373,30 @@ async def _mask(s, ch, th, st, step, head=""):
         return False
     await _msay(s, ch, head + text, th)
     return True
+
+
+async def _after_name(s, ch, th, st, name):
+    """이름을 받았다 — 프로젝트를 알면 ② 로, 모르면 프로젝트부터 묻는다."""
+    head = say("meet_title_ok", title=name) + "\n\n"
+    return await _mask(s, ch, th, st, "every" if st.get("proj_known") else "project", head)
+
+
+def meet_room(st_or_m, dm=None):
+    """이 회의 카드를 **어느 방에** 둘까 (2026-09-23 사장님: 「어느 프로젝트 방에 올릴건지
+    정해야 하고 … 프로젝트 방에 올려도 되고 안올려도 되고」).
+
+      프로젝트의 `meeting` → 없으면 그 프로젝트의 `request` → 그것도 없으면 팀 대화방
+
+    `meeting` 을 **빈 글자로 적어 두면 아무 방에도 안 올린다** — 그때는 DM 에만 둔다.
+    설정에 없는 것과 일부러 비운 것은 다르므로 `in` 으로 가린다.
+    """
+    key = st_or_m.get("pkey") if isinstance(st_or_m, dict) else None
+    p = next((x for x in PROJECTS if (x.get("key") or "") == (key or "")), None) if key else None
+    if p is None and len(PROJECTS) == 1:
+        p = PROJECTS[0]
+    if p is not None and "meeting" in p:
+        return p["meeting"] or dm            # 일부러 비웠다 — DM 에만
+    return (p or {}).get("request") or REQUEST
 
 
 async def maybe(s, e, q, force=False):
@@ -357,6 +412,10 @@ async def maybe(s, e, q, force=False):
             return False
         opened = True
         st = {"by": user, "step": "title", "th": e.get("thread_ts") or e.get("ts")}
+        # **아는 것은 묻지 않는다** — 프로젝트가 하나뿐이면 그것이고, 말에 이름이 있으면 그것이다
+        hit = _project_of(q) if len(PROJECTS) > 1 else (PROJECTS[0] if PROJECTS else None)
+        if hit is not None:
+            st["pkey"], st["proj_known"] = hit.get("key") or "", True
         STATE.setdefault("new_meeting", {})[user] = st
         save()
     # **시작한 스레드 안에서만 이어 간다** (사장님: 「스레드 안에서 시작한 건 거기에서 이야기가 맞어」)
@@ -371,7 +430,7 @@ async def maybe(s, e, q, force=False):
         name = _title_after(q)
         if titleable(name):
             st["title"] = name[:60]
-            return await _mask(s, ch, th, st, "every", say("meet_title_ok", title=name[:60]) + "\n\n")
+            return await _after_name(s, ch, th, st, name[:60])
         await _msay(s, ch, say("meet_ask_title", step=_keycap(1)), th)
         return True
     if cancelled(q):
@@ -398,7 +457,7 @@ async def maybe(s, e, q, force=False):
             st.pop("date", None); st.pop("weekday", None)
         if rest and titleable(rest) and not ASKING.search(rest):
             st["title"] = rest[:60]
-            return await _mask(s, ch, th, st, "every", say("meet_title_ok", title=rest[:60]) + "\n\n")
+            return await _after_name(s, ch, th, st, rest[:60])
         st["step"] = "title"
         return await _magain(s, ch, th, st, say("meet_nope"))
 
@@ -409,9 +468,20 @@ async def maybe(s, e, q, force=False):
         if not titleable(name) or NOT_A_NAME.match(name):
             return await _magain(s, ch, th, st, say("meet_title_bad", word=q.strip()[:20]))
         st["title"] = name[:60]
-        return await _mask(s, ch, th, st, "every", say("meet_title_ok", title=name[:60]) + "\n\n")
+        return await _after_name(s, ch, th, st, name[:60])
 
-    # ② 한 번만인가 정기인가
+    # ② 어느 프로젝트 — **여럿일 때만** 묻는다
+    if step == "project":
+        p = _pick_project(q)
+        if p is None:
+            return await _magain(s, ch, th, st, say("meet_project_bad", list=_project_list()))
+        # **`proj_known` 은 여기서 건드리지 않는다.** 그건 「처음부터 알고 있어서 이 칸을
+        # 안 묻는다」 는 뜻이라, 칸 수를 세는 데 쓴다 — 답을 받았다고 켜면 대화 도중에
+        # 「4칸 중 3번째」 가 「3칸 중 2번째」 로 줄어든다 (시험이 잡았다). 할 일 등록도 같다
+        st["pkey"] = p.get("key") or ""
+        return await _mask(s, ch, th, st, "every")
+
+    # ③ 한 번만인가 정기인가
     if step == "every":
         every = core.meet_every(q)
         if not every:
@@ -419,19 +489,31 @@ async def maybe(s, e, q, force=False):
         st["every"] = every
         return await _mask(s, ch, th, st, "when")
 
-    # ③ 언제 — 정기면 요일, 한 번이면 날짜
+    # ④ 언제 — 정기면 요일, 한 번이면 날짜. **시간도 같은 칸에서 받는다**
     if step == "when":
-        if st.get("every") == "once":
-            when = core.meet_when(_date_pick(q))
-            if not when:
-                return await _magain(s, ch, th, st, say("meet_date_bad"))
-            st["date"], st["weekday"] = when, None
-        else:
-            wd = core.weekday_of(_weekday_pick(q))
-            if wd is None:
-                return await _magain(s, ch, th, st, say("meet_weekday_bad"))
-            st["weekday"] = wd
-            st["date"] = core.next_meet(st["every"], wd, datetime.date.today() - datetime.timedelta(days=1))
+        if not st.get("date"):                       # 날짜(요일)를 아직 못 받았다
+            if st.get("every") == "once":
+                when = core.meet_when(_date_pick(q))
+                if not when:
+                    return await _magain(s, ch, th, st, say("meet_date_bad"))
+                st["date"], st["weekday"] = when, None
+            else:
+                wd = core.weekday_of(_weekday_pick(q))
+                if wd is None:
+                    return await _magain(s, ch, th, st, say("meet_weekday_bad"))
+                st["weekday"] = wd
+                st["date"] = core.next_meet(st["every"], wd, datetime.date.today() - datetime.timedelta(days=1))
+        # **시간은 같은 칸에서 한 번 더 여쭌다** — 칸을 늘리지 않으려는 것이다 (사장님: 「쉽게 가야해」).
+        # 「내일 2시」 처럼 한 번에 말씀하시면 여기서 바로 잡히고, 안 적으셨으면 한 줄 더 오간다
+        hm = core.meet_time(q)
+        if hm is None:
+            if st.get("asked_time"):                 # 두 번째인데도 못 읽었다
+                return await _magain(s, ch, th, st, say("meet_time_bad"))
+            st["asked_time"] = True
+            save()
+            await _msay(s, ch, say("meet_ask_time"), th)
+            return True
+        st["time"] = list(hm)
         return await _mbuild(s, ch, th, st, user)
     return False
 
@@ -473,19 +555,108 @@ def _weekday_pick(text):
 
 
 async def _mbuild(s, ch, th, st, user):
-    """다 물었다 — 회의 카드를 만든다. **카드는 팀 대화방에** (2026-09-20 결정), 대화는 여기 DM 에 남는다."""
+    """다 물었다 — 회의 카드를 만든다. 대화는 여기 DM 에 남고, **카드는 프로젝트가 정한 방에**
+    간다 (`meet_room`). 그 프로젝트가 방을 비워 뒀으면 카드도 이 DM 에 남는다."""
     STATE.get("new_meeting", {}).pop(user, None)
     save()
+    room = meet_room(st, dm=ch)
     try:
-        m = await new_meeting(s, st["title"], None, await name_of(s, {"user": user}), REQUEST,
-                              every=st.get("every") or "once", date=st.get("date"), weekday=st.get("weekday"))
+        m = await new_meeting(s, st["title"], None, await name_of(s, {"user": user}), room,
+                              every=st.get("every") or "once", date=st.get("date"),
+                              weekday=st.get("weekday"), time=st.get("time"), pkey=st.get("pkey"))
     except Exception as ex:
         log(f"회의 만들기 실패: {type(ex).__name__}: {ex}")
         await _msay(s, ch, say("mtg_fail", err=str(ex)[:120]), th)
         return True
+    when = core.meet_label(m)
+    if room == ch:                                   # 방에 안 올렸다 — 카드가 바로 여기 있다
+        key = "meet_made_here" if (m.get("every") or "once") == "once" else "meet_made_here_every"
+        await _msay(s, ch, say(key, title=m["title"], when=when), th)
+        return True
     key = "meet_made" if (m.get("every") or "once") == "once" else "meet_made_every"
-    await _msay(s, ch, say(key, title=m["title"], when=core.meet_label(m), ch=REQUEST), th)
+    await _msay(s, ch, say(key, title=m["title"], when=when, ch=room), th)
     return True
+
+
+async def open_note(s, trigger, card_ts):
+    """✍️ 논의 적기 — **한 칸짜리 창**. 적은 것이 그대로 회의 스레드에 올라간다."""
+    m = STATE.get("meetings", {}).get(card_ts)
+    if not m:
+        return
+    await api(s, "views.open", body={"trigger_id": trigger, "view": {
+        "type": "modal", "callback_id": "meet_note_submit", "private_metadata": card_ts,
+        "title": {"type": "plain_text", "text": "회의 논의"},
+        "submit": {"type": "plain_text", "text": "올리기"}, "close": {"type": "plain_text", "text": "닫기"},
+        "blocks": [
+            {"type": "context", "elements": [{"type": "mrkdwn",
+             "text": f"*🗓️ {m['title']}* · {core.meet_label(m)}"}]},
+            {"type": "input", "block_id": "note", "optional": False,
+             "label": {"type": "plain_text", "text": "무엇을 이야기했나요?"},
+             "element": {"type": "plain_text_input", "action_id": "v", "multiline": True},
+             "hint": {"type": "plain_text",
+                      "text": "정한 것 · 누가 뭘 하기로 했는지를 적어 주시면 회의록으로 정리해 드려요"}},
+        ]}})
+
+
+async def save_note(s, card_ts, text, user):
+    """창에 적은 논의를 회의 스레드에 올린다 — **사람이 쓴 것처럼 그 자리에** 남는다."""
+    m = STATE.get("meetings", {}).get(card_ts)
+    if not m or not (text or "").strip():
+        return
+    who = load_team().get(user, {}).get("name") or await name_of(s, {"user": user})
+    await api(s, "chat.postMessage", body={"channel": mch(m), "thread_ts": card_ts,
+              "text": f"*{who}*: {text.strip()}"[:3900], "unfurl_links": False})
+    await mark_talked(s, card_ts)
+    log(f"회의 논의 적음 {m['id']} ← {user}")
+
+
+async def mark_talked(s, card_ts):
+    """이 회의에 **논의가 생겼다**고 표시하고 카드를 다시 그린다.
+
+    이게 없으면 「📝 회의록 확정」 단추가 영영 안 나타난다 — 스레드에 사람이 직접 쓴 글은
+    `handlers.py` 가, 창으로 적은 것은 `save_note` 가 여기로 온다. **봇이 쓴 글은 세지 않는다**
+    (부르는 쪽에서 거른다): 10분 전 알림 때문에 「논의했다」 가 되면 안 된다.
+    """
+    m = STATE.get("meetings", {}).get(card_ts)
+    if not m or m.get("talked"):
+        return
+    m["talked"] = True
+    save()
+    await api(s, "chat.update", body={"channel": mch(m), "ts": card_ts,
+              "text": f"🗓️ {m['id']} {m['title']}", "blocks": meeting_blocks(m)})
+
+
+async def soon_meetings(s, now=None):
+    """회의 **10분 전에 그 방에 알린다** — 아침 루프가 매분 부른다.
+
+    사장님: 「슬랙으로 바로 만드는거야」 — 밖으로 나가지 않고 슬랙 안에서 알림까지 끝낸다.
+    **한 회의에 한 번만** 알린다 (`told`). 봇이 몇 분 늦게 돌아도 놓치지 않게 5~15분 전
+    구간을 본다 — 딱 10분만 보면 그 분에 못 돌았을 때 영영 안 간다.
+    """
+    import datetime as dt
+    now = now or dt.datetime.now()
+    sent = []
+    for m in STATE.get("meetings", {}).values():
+        if m.get("told") or not m.get("time") or not m.get("date"):
+            continue
+        try:
+            h, mi = m["time"]
+            at = dt.datetime.combine(dt.date.fromisoformat(m["date"]), dt.time(h, mi))
+        except (TypeError, ValueError):
+            continue
+        left = (at - now).total_seconds() / 60
+        if not 5 <= left <= 15:
+            continue
+        link = (await api(s, "chat.getPermalink", channel=mch(m),
+                          message_ts=m["card_ts"])).get("permalink", "")
+        await api(s, "chat.postMessage", body={"channel": mch(m),
+                  "text": say("meet_soon", title=m["title"], link=link), "unfurl_links": False})
+        m["told"] = True
+        sent.append(m["id"])
+    if sent:
+        save()
+        log(f"회의 알림 {', '.join(sent)}")
+    return sent
 
 
 async def stop_every(s, card_ts, user):

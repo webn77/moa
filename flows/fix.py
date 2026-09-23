@@ -138,8 +138,9 @@ async def morning(s):
             if now.hour >= 8 and STATE.get("meet_day") != day:
                 await due_meetings(s)
                 STATE["meet_day"] = day          # **연 뒤에 찍는다** — 먼저 찍으면 오늘 회의는 영영 안 열린다
+            await soon_meetings(s, now)          # 회의 10분 전 알림 — 매분 본다
         except Exception as e:
-            log(f"정기 회의 열기 실패: {type(e).__name__}: {e}")
+            log(f"정기 회의 실패: {type(e).__name__}: {e}")
         await asyncio.sleep(60)
 
 
@@ -164,7 +165,7 @@ def write_daily(day):
 # 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다
 from flows.status import ensure_ctl, note_decisions, place  # noqa: E402,F401
 from flows.github import check_sync  # noqa: E402,F401
-from flows.meeting import due_meetings  # noqa: E402,F401
+from flows.meeting import due_meetings, soon_meetings  # noqa: E402,F401
 from flows.review import remind_reviews  # noqa: E402,F401
 from views.canvas import render_canvas  # noqa: E402,F401
 from views.card import card_blocks  # noqa: E402,F401

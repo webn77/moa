@@ -712,14 +712,57 @@ def next_meet(every, weekday, after=None):
 
 
 def meet_label(m):
-    """회의 카드에 쓸 한 줄 — 「매주 화요일」·「10/1 (화)」."""
+    """회의 카드에 쓸 한 줄 — 「매주 화요일 오전 10시」·「10/1 (화) 오후 2시」.
+
+    **시간이 없으면 시간 없이 적는다** — 옛 회의에는 시간이 없다 (2026-09-23 이전).
+    """
     import datetime
+    at = m.get("time")
+    tail = f" {time_text(tuple(at))}" if at else ""
     every = m.get("every") or "once"
     if every != "once" and m.get("weekday") is not None:
-        return f"{EVERY[every]} {WEEK[m['weekday']]}요일"
+        return f"{EVERY[every]} {WEEK[m['weekday']]}요일{tail}"
     d = m.get("date")
     try:
         x = datetime.date.fromisoformat(d)
     except (TypeError, ValueError):
         return "날짜 미정"
-    return f"{x.month}/{x.day} ({WEEK[x.weekday()]})"
+    return f"{x.month}/{x.day} ({WEEK[x.weekday()]}){tail}"
+
+
+def meet_time(text):
+    """회의가 **몇 시인가** — 「2시」·「오후 2시」·「14:00」·「10시 30분」. 못 읽으면 None.
+
+    돌려주는 것은 `(시, 분)`.
+
+    **맨 「2시」 는 오후로 본다.** 새벽 두 시에 모이는 회의는 없다. 1~7 은 오후,
+    8~12 는 오전, 13 이상은 적으신 그대로. 이 규칙을 여기 적어 두는 까닭은 다음 사람이
+    「버그」 로 보고 고치지 않게 하려는 것이다 — 일부러 이렇게 둔다.
+    「오전 2시」 처럼 **또렷이 말하면 그대로 따른다.**
+    """
+    import re
+    s = (text or "").strip()
+    ampm = "오후" if re.search(r"오후|저녁|밤|PM|pm", s) else ("오전" if re.search(r"오전|아침|AM|am", s) else None)
+    m = re.search(r"(\d{1,2})\s*(?:시|:)\s*(\d{1,2})?\s*분?", s)
+    if not m:
+        return None
+    h, mi = int(m.group(1)), int(m.group(2) or 0)
+    if h > 23 or mi > 59:
+        return None
+    if ampm == "오후" and h < 12:
+        h += 12
+    elif ampm == "오전" and h == 12:
+        h = 0
+    elif ampm is None and 1 <= h <= 7:
+        h += 12                               # 맨 「2시」 는 오후 두 시
+    return (h, mi)
+
+
+def time_text(hm):
+    """「오전 10시」·「오후 2시 30분」 — 사람이 읽는 꼴."""
+    if not hm:
+        return "시간 미정"
+    h, mi = hm
+    half = "오전" if h < 12 else "오후"
+    h12 = h if 1 <= h <= 12 else (h - 12 if h > 12 else 12)
+    return f"{half} {h12}시" + (f" {mi}분" if mi else "")

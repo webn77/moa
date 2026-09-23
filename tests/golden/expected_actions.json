@@ -7004,7 +7004,7 @@
       {
        "elements": [
         {
-         "text": "📝 기록됨 · 제안 대기 · 2026-09-21 · 할 일 #10 · 만든 사람 이동원",
+         "text": "📝 기록됨 · 제안 대기 · 9/21 (월) · 할 일 #10 · 만든 사람 이동원",
          "type": "mrkdwn"
         }
        ],
@@ -7023,6 +7023,15 @@
          "action_id": "show_meeting",
          "text": {
           "text": "📄 회의록 보기",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "MTS"
+        },
+        {
+         "action_id": "meet_note",
+         "text": {
+          "text": "✍️ 논의 적기",
           "type": "plain_text"
          },
          "type": "button",

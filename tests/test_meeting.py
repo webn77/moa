@@ -150,7 +150,7 @@ class StartTest(Base):
         """「회의 만들자 주간 점검」 이면 이름을 다시 묻지 않는다 — **아는 것은 묻지 않는다.**"""
         self.assertTrue(self.say("회의 만들자 주간 점검"))
         self.assertIn("주간 점검", self.last())
-        self.assertIn("정기", self.last())          # 이름을 건너뛰고 ② 로 갔다
+        self.assertIn("프로젝트", self.last())       # 이름을 건너뛰고 다음 칸으로 갔다
 
     def test_the_channel_path_can_start_it_too(self):
         """채널에서 `@모아 회의` 라고만 불러도 — `handlers.py` 가 `force` 로 넘긴다."""
@@ -159,28 +159,36 @@ class StartTest(Base):
 
 
 class StepTest(Base):
-    def test_once_takes_three_questions(self):
-        """한 번만 하는 회의 — 이름 · 한 번/정기 · 날짜 셋이면 끝난다."""
+    def test_once_takes_four_questions(self):
+        """한 번만 하는 회의 — 이름 · 프로젝트 · 한 번/정기 · 언제(+몇 시).
+
+        **날짜와 시간은 한 칸이다** — 「내일 2시」 라고 한 번에 말씀하시면 거기서 끝난다
+        (2026-09-23 사장님: 「몇시에 잡는지 이게 중요해」 · 「쉽게 가야해」).
+        """
         self.say("회의 만들자")
         self.assertIn("무슨 회의", self.last())
         self.say("결제 점검")
+        self.assertIn("프로젝트", self.last())
+        self.say("1")
         self.assertIn("정기", self.last())
         self.say("한 번만")
         self.assertIn("언제", self.last())
-        self.say("내일")
+        self.say("내일 오후 2시")
         self.assertEqual(len(self.made()), 1)
         m = self.made()[0]
         self.assertEqual(m["title"], "결제 점검")
         self.assertEqual(m["every"], "once")
         self.assertEqual(m["date"], (datetime.date.today() + datetime.timedelta(days=1)).isoformat())
+        self.assertEqual(m["time"], [14, 0])
 
     def test_recurring_asks_for_a_weekday(self):
         """정기면 ③ 이 날짜가 아니라 **요일**이다 — 매주 회의에 날짜를 물으면 한 번짜리가 된다."""
         self.say("회의 만들자")
         self.say("주간 점검")
+        self.say("1")
         self.say("매주")
         self.assertIn("요일", self.last())
-        self.say("화요일")
+        self.say("화요일 10시")
         m = self.made()[0]
         self.assertEqual((m["every"], m["weekday"]), ("week", 1))
         self.assertEqual(datetime.date.fromisoformat(m["date"]).weekday(), 1)
@@ -192,26 +200,35 @@ class StepTest(Base):
             STATE.pop("new_meeting", None); STATE.pop("meetings", None)
             self.say("회의 만들자")
             self.say("점검")
+            self.say("1")
             self.say(n)
-            self.say("화요일" if want != "once" else "내일")
+            self.say("화요일 10시" if want != "once" else "내일 10시")
             self.assertEqual(self.made()[0]["every"], want, n)
 
     def test_numbers_work_for_the_weekday_too(self):
-        """② 에서 번호로 답한 분은 ③ 에서도 번호를 친다 — 안 받으면 한 번 더 되묻게 된다."""
+        """앞 칸에서 번호로 답한 분은 여기서도 번호를 친다 — 안 받으면 한 번 더 되묻게 된다.
+
+        **번호만 왔을 때 받는다.** 「2 10시」 처럼 시간과 함께 오면 어느 숫자가 요일인지
+        알 수 없다 — 그때는 시간을 따로 여쭙는 쪽이 안전하다.
+        """
         for n, wd in (("1", 0), ("2", 1), ("5", 4), ("7", 6)):
             STATE.pop("new_meeting", None); STATE.pop("meetings", None)
             self.say("회의 만들자")
             self.say("점검")
+            self.say("1")
             self.say("매주")
-            self.say(n)
+            self.say(n)                       # 요일만 — 시간은 봇이 한 번 더 묻는다
+            self.assertIn("몇 시", self.last())
+            self.say("10시")
             self.assertEqual(self.made()[0]["weekday"], wd, n)
 
     def test_the_card_goes_to_the_team_room_not_the_dm(self):
         """**카드는 팀 대화방에** (2026-09-20 결정) — 대화만 DM 에 남는다."""
         self.say("회의 만들자")
         self.say("주간 점검")
+        self.say("1")
         self.say("한 번만")
-        self.say("내일")
+        self.say("내일 10시")
         self.assertTrue(self.fake.cards(), "회의 카드가 안 올라갔다")
         self.assertNotEqual(self.fake.cards()[0]["channel"], DM["channel"])
 
@@ -234,6 +251,7 @@ class LostTest(Base):
         """
         self.say("회의 만들자")
         self.say("주간 점검")
+        self.say("1")
         self.say("정기가 뭐야?")
         self.assertIn("정기", self.last())
         self.assertIn("매주·격주·매달", self.last(), "묻는 칸에 맞는 답이 아니다")
@@ -243,8 +261,9 @@ class LostTest(Base):
         """자리표시 바로 뒤에 조사를 붙이지 않는다 — 「화요일 **으로**」 가 나갔다."""
         self.say("회의 만들자")
         self.say("주간 점검")
+        self.say("1")
         self.say("매주")
-        self.say("화요일")
+        self.say("화요일 10시")
         self.assertNotIn(" 으로", self.last())
         self.assertIn("화요일", self.last())
 
@@ -252,8 +271,9 @@ class LostTest(Base):
         """못 알아들으면 **어디에 있는지와 나가는 길**을 늘 함께."""
         self.say("회의 만들자")
         self.say("주간 점검")
+        self.say("1")
         self.say("음")
-        self.assertIn("2/3", self.last())
+        self.assertIn("3/4", self.last())
         self.assertIn("취소", self.last())
 
     def test_that_is_not_it_rewinds(self):
@@ -262,8 +282,9 @@ class LostTest(Base):
         self.say("주간 점검")
         self.say("그게 아니라 결제 점검")
         self.assertIn("결제 점검", self.last())
+        self.say("1")
         self.say("한 번만")
-        self.say("내일")
+        self.say("내일 10시")
         self.assertEqual(self.made()[0]["title"], "결제 점검")
 
     def test_cancel_leaves_nothing_behind(self):
@@ -326,6 +347,110 @@ class EveryTest(Base):
         run(meeting.stop_every(None, m["card_ts"], ME))
         self.assertIn(m["card_ts"], STATE["meetings"])
         self.assertFalse(run(meeting.due_meetings(None, datetime.date(2026, 11, 1))))
+
+
+class RoomTest(Base):
+    """**어느 방에 올릴지는 프로젝트가 정한다** (2026-09-23 사장님: 「어느 프로젝트 방에
+    올릴건지 정해야 하고 … 프로젝트 방에 올려도 되고 안올려도 되고」)."""
+
+    def test_it_follows_the_project(self):
+        from common import PROJECTS
+        self.assertEqual(meeting.meet_room({"pkey": PROJECTS[1].get("key")}),
+                         PROJECTS[1].get("request"), "두 번째 프로젝트의 방으로 안 갔다")
+
+    def test_an_empty_room_means_dm_only(self):
+        """`meeting` 을 **빈 글자로 적어 두면** 아무 방에도 안 올리고 DM 에만 둔다.
+        설정에 없는 것과 일부러 비운 것은 다르다."""
+        from common import PROJECTS
+        p = PROJECTS[0]
+        with mock.patch.dict(p, {"meeting": ""}, clear=False):
+            self.assertEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), "D0TEST")
+        with mock.patch.dict(p, {"meeting": "C0MEET"}, clear=False):
+            self.assertEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), "C0MEET")
+
+    def test_a_dm_only_meeting_still_knows_its_room(self):
+        """방을 비운 프로젝트의 회의도 `channel` 이 차 있어야 한다 — 비면 회의록 확정·정기
+        끄기가 어디에 말해야 할지 모른다."""
+        from common import PROJECTS
+        with mock.patch.dict(PROJECTS[0], {"meeting": ""}, clear=False):
+            self.say("회의 만들자")
+            self.say("주간 점검")
+            self.say("1")
+            self.say("한 번만")
+            self.say("내일 10시")
+        m = self.made()[0]
+        self.assertEqual(m["channel"], DM["channel"])
+        self.assertTrue(meeting.mch(m))
+
+
+class SoonTest(Base):
+    """회의 **10분 전 알림** — 슬랙 안에서 끝낸다 (사장님: 「슬랙으로 바로」)."""
+
+    def _at(self, date, hm):
+        return run(meeting.new_meeting(None, "주간 점검", None, "이동원", "C0TEAM",
+                                       date=date, time=list(hm)))
+
+    def test_it_tells_ten_minutes_before(self):
+        import datetime as dt
+        self._at("2026-09-29", (10, 0))
+        told = run(meeting.soon_meetings(None, dt.datetime(2026, 9, 29, 9, 50)))
+        self.assertEqual(len(told), 1)
+        self.assertIn("10분 뒤", self.fake.texts()[-1])
+
+    def test_it_is_quiet_when_it_is_not_close(self):
+        import datetime as dt
+        self._at("2026-09-29", (10, 0))
+        self.assertFalse(run(meeting.soon_meetings(None, dt.datetime(2026, 9, 29, 8, 0))))
+        self.assertFalse(run(meeting.soon_meetings(None, dt.datetime(2026, 9, 29, 10, 30))))
+
+    def test_it_tells_only_once(self):
+        """매분 도는 루프가 부른다 — 한 회의에 알림이 열 번 가면 안 된다."""
+        import datetime as dt
+        self._at("2026-09-29", (10, 0))
+        run(meeting.soon_meetings(None, dt.datetime(2026, 9, 29, 9, 50)))
+        self.assertFalse(run(meeting.soon_meetings(None, dt.datetime(2026, 9, 29, 9, 51))))
+
+    def test_a_meeting_without_a_time_is_skipped(self):
+        """옛 회의에는 시간이 없다 — 터지지 말고 조용히 넘어가야 한다."""
+        import datetime as dt
+        run(meeting.new_meeting(None, "옛 회의", None, "이동원", "C0TEAM", date="2026-09-29"))
+        self.assertFalse(run(meeting.soon_meetings(None, dt.datetime(2026, 9, 29, 9, 50))))
+
+
+class NoteTest(Base):
+    """**적을 길을 먼저 준다** (2026-09-23 사장님: 「확정 버튼이 먼저 나오면 안될거 같고
+    작성 할 수 있게 해줘야 할거 같은데」)."""
+
+    def _buttons(self, m):
+        from flows.meeting import meeting_blocks
+        return [el.get("text", {}).get("text")
+                for b in meeting_blocks(m) if b.get("type") == "actions"
+                for el in b.get("elements", [])]
+
+    def test_confirm_is_hidden_until_there_is_discussion(self):
+        m = run(meeting.new_meeting(None, "주간 점검", None, "이동원", "C0TEAM"))
+        self.assertIn("✍️ 논의 적기", self._buttons(m))
+        self.assertNotIn("📝 회의록 확정", self._buttons(m), "논의도 없는데 확정 단추가 보인다")
+
+    def test_confirm_appears_once_someone_talks(self):
+        m = run(meeting.new_meeting(None, "주간 점검", None, "이동원", "C0TEAM"))
+        run(meeting.mark_talked(None, m["card_ts"]))
+        self.assertIn("📝 회의록 확정", self._buttons(m))
+        self.assertIn("✍️ 논의 적기", self._buttons(m), "적는 길은 계속 있어야 한다")
+
+    def test_the_popup_posts_into_the_thread_and_opens_the_gate(self):
+        m = run(meeting.new_meeting(None, "주간 점검", None, "이동원", "C0TEAM"))
+        run(meeting.save_note(None, m["card_ts"], "다음 주에 배포하기로 했어요", ME))
+        posted = [b for mm, b in self.fake.sent
+                  if mm == "chat.postMessage" and b.get("thread_ts") == m["card_ts"]]
+        self.assertTrue(posted, "창에 적은 것이 스레드에 안 올라갔다")
+        self.assertIn("다음 주에 배포", posted[-1]["text"])
+        self.assertTrue(m.get("talked"))
+
+    def test_an_empty_note_does_nothing(self):
+        m = run(meeting.new_meeting(None, "주간 점검", None, "이동원", "C0TEAM"))
+        run(meeting.save_note(None, m["card_ts"], "   ", ME))
+        self.assertFalse(m.get("talked"))
 
 
 class MinutesTest(Base):
