@@ -334,7 +334,7 @@ async def on_view_submit(s, payload):
 
 
 SLOW = ("review_ok", "review_back", "close_done", "check_dc", "set_status", "spec_ok", "edit_list",
-        "fill_spec", "fill_all", "fill_after", "draft_make", "same_as", "tidy_drop", "tidy_later", "canvas_now")
+        "fill_spec", "fill_after", "draft_make", "same_as", "tidy_drop", "tidy_later", "canvas_now")
 
 
 async def on_action(s, payload):
@@ -508,7 +508,7 @@ ACTIONS = {
     "card_menu": lambda s, p, a: act_card_menu(s, p, a), "canvas_now": act_canvas_now,
     # 초안 → 카드 (#54) — 이 버튼이 번호를 만든다. 이름은 맨 아래에서 오므로 부를 때 찾는다
     **{k: (lambda s, p, a: tidy_decide(s, p, a)) for k in ("tidy_drop", "tidy_later", "tidy_keep")},
-    "fill_spec": act_fill_spec, "fill_all": lambda s, p, a: tidy_fill_all(s, p, a),
+    "fill_spec": act_fill_spec,
     "fill_after": lambda s, p, a: tidy_fill_after(s, p, a),
     "same_as": lambda s, p, a: same_as(s, p, a), "not_same": lambda s, p, a: not_same(s, p, a),
     "draft_make": lambda s, p, a: make_from_draft(s, p, a),   # draft_make_PA 처럼 뒤에 프로젝트가 붙기도 한다 (#70)
@@ -586,7 +586,7 @@ from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, 
 from flows.meeting import apply_meeting_change, finish_meeting, new_meeting, save_meeting  # noqa: E402,F401
 from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_list_editor, save_list, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, decline_card, save_content, save_take, take_card  # noqa: E402,F401
 from flows.review import review_answer  # noqa: E402,F401
-from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, fill_all as tidy_fill_all, propose as tidy_propose  # noqa: E402,F401
+from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, propose as tidy_propose  # noqa: E402,F401
 from views.canvas import render_canvas, render_canvas_now  # noqa: E402,F401
 from views.card import peek_blocks, card_blocks, card_detail_blocks, md_for_slack, review_back_view  # noqa: E402,F401
 from views.home import DETAIL, detail_blocks, publish_home  # noqa: E402,F401

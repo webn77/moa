@@ -73,11 +73,14 @@ async def propose(s, channel=None, user=None):
         {"type": "section", "text": {"type": "mrkdwn", "text": say("tidy_clean")}},
         {"type": "context", "elements": [{"type": "mrkdwn",
          "text": say("tidy_basis") + (say("tidy_skipped", n=len(back)) if back else "")}]}]
+    # **「✨ 한 번에 채우기」 단추를 뺐다** (2026-09-23 사장님: 「굳이 필요 없는 건 빼자고」).
+    # 빈 카드 16건을 한 번에 치우려고 만든 것인데, 등록할 때 체크리스트가 자동으로 붙게 된
+    # 뒤로 빈 카드가 **0건**이 됐다 (실측: PA 0/71). 남은 값은 위험뿐이었다 —
+    # 카드 수만큼 AI 를 부르고 상한이 없어서, 한 번 누르면 구독 한도가 크게 빠진다.
+    # 어느 카드가 비었는지는 그대로 보여 준다. 채우는 건 그 카드의 📝·✍️ 단추로 한 건씩.
     if empty:
         body += [{"type": "divider"},
-                 {"type": "section", "text": {"type": "mrkdwn", "text": say("empty_head", n=len(empty))},
-                  "accessory": {"type": "button", "text": {"type": "plain_text", "text": "✨ 한 번에 채우기"},
-                                "style": "primary", "action_id": "fill_all", "value": "go"}},
+                 {"type": "section", "text": {"type": "mrkdwn", "text": say("empty_head", n=len(empty))}},
                  {"type": "context", "elements": [{"type": "mrkdwn", "text": "\n".join(
                   ref(c["no"], 30) for c in empty[:12])
                   + (f"\n…외 {len(empty) - 12}건" if len(empty) > 12 else "")}]}]
@@ -98,22 +101,6 @@ async def propose(s, channel=None, user=None):
     return found
 
 
-async def fill_all(s, p, a):
-    """[✨ 한 번에 채우기] — 내용 없는 이슈를 차례로 채운다. 하나씩 눌러야 하면 16건을 아무도 안 채운다."""
-    empty = core.needs_spec(list(STATE["cards"].values()))
-    step = Step(s, CHANNEL)
-    await step.say(say("fill_all_start", n=len(empty)), **mood("생각"))
-    ok = 0
-    # 여기는 한 건씩 도니까 k/n 으로 진행을 보여 준다 — 경과 시간보다 낫다
-    for c in empty:
-        try:
-            await refine(s, c, c["card_ts"])
-            ok += 1
-        except Exception as e:
-            log(f"채우기 실패 #{c['no']}: {e}")
-        await step.say(say("fill_all_at", k=ok, n=len(empty)))     # 몇 번째인지 보여 준다
-    await step.say(say("fill_all_done", n=ok))
-    log(f"한 번에 채우기 {ok}/{len(empty)}")
 
 
 async def fill_after_all(s, p, a):
