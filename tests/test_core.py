@@ -340,6 +340,34 @@ class ReadableTest(unittest.TestCase):
         self.assertEqual(self.r(None), "")
 
 
+class FilledTest(unittest.TestCase):
+    """남은 칸 (2026-09-23 사장님: 「회원가입처럼 남은 거를 누가 더 만들지」).
+
+    할 일 하나를 **한 사람이 다 만들지 않아도 된다.** 제목만 던져 두면 다음 사람이 이어
+    채운다 — 그러려면 뭐가 남았는지 보여야 한다.
+    """
+
+    def test_a_bare_title_shows_all_four_left(self):
+        k, n, left = core.filled({"title": "제목만"})
+        self.assertEqual((k, n), (0, 4))
+        self.assertEqual(left, ["설명", "체크리스트", "담당", "언제까지"])
+
+    def test_it_fills_up_one_at_a_time(self):
+        c = {"title": "t"}
+        c["spec"] = {"why": "권한이 샌다"}
+        self.assertEqual(core.filled(c)[2], ["체크리스트", "담당", "언제까지"])
+        c["spec"]["done_criteria"] = ["표 쓰기"]
+        self.assertEqual(core.filled(c)[2], ["담당", "언제까지"])
+        c["assignee"] = "UA"
+        self.assertEqual(core.filled(c)[2], ["언제까지"])
+        c["due"] = "2026-09-30"
+        self.assertEqual(core.filled(c), (4, 4, []))
+
+    def test_blank_strings_do_not_count_as_filled(self):
+        """「미정」 을 걸러 낸 것과 같은 이유 — 빈 칸을 찼다고 세면 화면이 거짓말을 한다."""
+        self.assertEqual(core.filled({"spec": {"why": "  ", "change": ""}})[0], 0)
+
+
 class FinishGateTest(unittest.TestCase):
     """**체크리스트가 남으면 완료가 아니다** (2026-09-23 사장님: 「체크리스트 다 완료 되어야 완료야 할일은」)."""
     TEAM = {"UPM": {"role": "PM", "max": 3}, "UDEV": {"role": "개발", "max": 3}}

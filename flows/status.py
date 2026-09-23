@@ -67,7 +67,13 @@ async def decline_card(s, c, who, msg=None):
     was_by = c.get("assign_by") or c.get("by_id")
     c["assignee"], c["no_auto"] = None, True
     c.pop("assign_src", None)
-    c.pop("suggested", None)                 # 추천으로도 다시 올리지 않는다
+    # **`suggested` 는 남겨 둔다.** 지웠더니 앱 홈의 「✋ 가져갈 수 있는 일」 이 그 카드를
+    # **아무에게도** 안 보여 줬다 (그 칸은 `suggested == 나` 로 고른다) — 거절 한 번에
+    # 일이 눈앞에서 사라진 셈이다. 다시 안 오게 하는 일은 `no_auto` 가 이미 한다.
+    # 대신 **거절한 사람에게만** 안 보이게 이름을 적어 둔다
+    c.setdefault("declined", [])
+    if who and who not in c["declined"]:
+        c["declined"].append(who)
     if c.get("due_src") == "ai":
         c.pop("due", None), c.pop("due_src", None)
     team = _team()

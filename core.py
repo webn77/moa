@@ -353,6 +353,29 @@ def clean_after(raw, no, cards):
 SPEC_KEYS = ("why", "change", "expect")          # 이것들이 다 비면 정의가 없는 것으로 본다
 
 
+# ── 얼마나 채워졌나 — 「회원가입처럼 남은 칸이 보여야 한다」 (2026-09-23 사장님) ──
+#
+# 사장님: 「할일들 구체화 스텝 등이 회원가입 처럼 남은거를 누가 더 만들지 ·
+#         언제든지 다른사람이 가져가서 할 수 있게」
+#
+# 할 일 하나를 **한 사람이 다 만들지 않아도 된다.** 제목만 던져 두면 다음 사람이 설명을,
+# 그다음 사람이 체크리스트를 채운다. 그러려면 **뭐가 남았는지 보여야** 한다 —
+# 안 보이면 아무도 이어 쓰지 않는다.
+#
+# 채우는 자리는 **이미 다 있다** (카드의 ⚙️ 와 📝 설명 쓰기). 없던 것은 「남았다는 표시」 뿐이라
+# 새 화면을 만들지 않았다.
+FILL = [("설명", lambda c: any(((c.get("spec") or {}).get(k) or "").strip() for k in SPEC_KEYS)),
+        ("체크리스트", lambda c: bool((c.get("spec") or {}).get("done_criteria"))),
+        ("담당", lambda c: bool(c.get("assignee"))),
+        ("언제까지", lambda c: bool(c.get("due")))]
+
+
+def filled(c):
+    """(채운 수, 전부, 남은 칸 이름들). 제목은 안 센다 — 카드가 있으면 제목은 늘 있다."""
+    left = [name for name, ok in FILL if not ok(c)]
+    return len(FILL) - len(left), len(FILL), left
+
+
 def check_card(c, cards=(), when="number", today=None, stage_names=()):
     """올려도 되는가 — (막는 것, 알려주는 것). 둘 다 사람이 읽는 한 줄씩.
 

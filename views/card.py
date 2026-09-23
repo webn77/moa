@@ -73,8 +73,15 @@ def card_blocks(c):
                      "action_id": "edit_content", "value": ts})
     btns.append({"type": "button", "text": {"type": "plain_text", "text": "📄 상세"}, "action_id": "show_md", "value": ts})
     out = [{"type": "section", "text": {"type": "mrkdwn", "text": f"{PLEVEL[plevel(c)].split()[0]} *{title}*"}},
-           {"type": "context", "elements": [{"type": "mrkdwn", "text": line or " "}]},
-           {"type": "actions", "elements": btns}]
+           {"type": "context", "elements": [{"type": "mrkdwn", "text": line or " "}]}]
+    # **남은 칸을 보여 준다** (2026-09-23 사장님: 「회원가입처럼 남은 거를 누가 더 만들지」).
+    # 한 사람이 다 만들지 않아도 된다 — 제목만 던져 두면 다음 사람이 이어 채운다.
+    # 안 보이면 아무도 이어 쓰지 않는다. 다 찼으면 **안 쓴다** — 칭찬은 자리를 먹는다
+    k, n, left = core.filled(c)
+    if open_ and left:
+        out.append({"type": "context", "elements": [{"type": "mrkdwn",
+                    "text": f"✍️ *{k}/{n} 채워짐* — 남은 것: {' · '.join(left)}  (아무나 이어서 채우셔도 돼요)"}]})
+    out.append({"type": "actions", "elements": btns})
     return out + (ctl_blocks(c) if open_ else [])
 
 

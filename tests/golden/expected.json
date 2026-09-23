@@ -503,6 +503,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -700,6 +709,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P4 · 담당 없음 (추천 박두리)  ·  🧩 기반 (운영·권한·안전)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -1142,6 +1160,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -1347,6 +1374,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -1544,6 +1580,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P3 · 담당 없음 (추천 박두리)  ·  🧩 알림·후속",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -1812,6 +1857,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P4 · 담당 없음 (추천 박두리)  ·  🧩 알림·후속",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -2089,6 +2143,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -2286,6 +2349,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P3 · 담당 없음 (추천 박두리)  ·  🧩 동기화·기록",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -2530,6 +2602,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -2727,6 +2808,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P2 · 담당 없음 (추천 김하나)  ·  🧩 인수인계",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -3515,6 +3605,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -3720,6 +3819,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -3917,6 +4025,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P4 · 담당 없음 (추천 박두리)  ·  🧩 알림·후속",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -4352,6 +4469,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -4588,6 +4714,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -4785,6 +4920,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P2 · 담당 박두리 (AI 추천 — 확정 전) · 📅 9/21 💡  ·  🧩 보기 (캔버스·홈·카드)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 설명 · 체크리스트  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -4992,6 +5136,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P3 · 담당 없음 (추천 김하나)  ·  🧩 기반 (운영·권한·안전)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -5229,6 +5382,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P2 · 담당 김하나 (AI 추천 — 확정 전) · 📅 9/21 💡  ·  🧩 기반 (운영·권한·안전)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 설명 · 체크리스트  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -5673,6 +5835,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -6107,6 +6278,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -6335,6 +6515,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P4 · 담당 없음 (추천 박두리)  ·  🧩 회의 운영",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -6578,6 +6767,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P3 · 담당 없음 (추천 박두리)  ·  🧩 알림·후속",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -6918,6 +7116,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -7147,6 +7354,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P2 · 담당 없음 (추천 김하나)  ·  🧩 요청 입구",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -7390,6 +7606,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P2 · 담당 없음 (추천 박두리)  ·  🧩 요청 입구",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -7648,6 +7873,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -7884,6 +8118,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -8112,6 +8355,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P3 · 담당 없음 (추천 박두리)  ·  🧩 요청 입구",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],
@@ -8395,6 +8647,15 @@
   {
    "elements": [
     {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
      "action_id": "pull_card",
      "text": {
       "text": "✋ 내가 할게요",
@@ -8592,6 +8853,15 @@
    "elements": [
     {
      "text": "🕒 대기 · P4 · 담당 없음 (추천 박두리)  ·  🧩 요청 입구",
+     "type": "mrkdwn"
+    }
+   ],
+   "type": "context"
+  },
+  {
+   "elements": [
+    {
+     "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
      "type": "mrkdwn"
     }
    ],

@@ -325,8 +325,15 @@ async def publish_home(s, user):
     # 날짜에 놓아 보여 준다. 남겨 두면 같은 이슈가 한 화면에 두 번 나온다
     if not mine:
         blocks.append(sec(say("home_none")))
-    pickable = sorted([c for c in cards if not c.get("assignee") and c.get("suggested") == user
-                       and c["status"] not in ("done", "cancelled")], key=lambda c: (plevel(c), c.get("rank", 99)))[:3]
+    # **담당 없는 일은 누구나 가져갈 수 있다** (2026-09-23 사장님: 「언제든지 다른 사람이
+    # 가져가서 할 수 있게」). 예전에는 **AI 가 그 사람을 추천한 것만** 보여 줬다 — 그래서
+    # 추천이 안 붙은 일은 아무 사람의 화면에도 안 떴다. 여러 명에게 따로 뿌리는 장치를
+    # 만들 것 없이, 담당 없는 일을 **모두에게 열어 두면** 된다. 추천받은 것이 위로 온다.
+    # 한 번 「못 받아요」 한 일은 그 사람 칸에 다시 안 올린다 — 거절이 뜻을 가지려면 그래야 한다
+    pickable = sorted([c for c in cards if not c.get("assignee")
+                       and user not in (c.get("declined") or [])
+                       and c["status"] not in ("done", "cancelled")],
+                      key=lambda c: (c.get("suggested") != user, plevel(c), c.get("rank", 99)))[:3]
     if pickable:
         blocks.append(box("✋ 가져갈 수 있는 일", [line(c) for c in pickable]))
     if asked:

@@ -100,6 +100,15 @@
       {
        "elements": [
         {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 설명 · 체크리스트  (아무나 이어서 채우셔도 돼요)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
          "action_id": "pull_card",
          "text": {
           "text": "✋ 내가 할게요",
@@ -307,6 +316,15 @@
        "elements": [
         {
          "text": "🕒 대기 · P2 · 담당 없음 (추천 박두리)  ·  🧩 보기 (캔버스·홈·카드)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
          "type": "mrkdwn"
         }
        ],
@@ -757,6 +775,15 @@
        "elements": [
         {
          "text": "🕒 대기 · P4 · 담당 박두리 · 📅 9/25  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 설명 · 체크리스트  (아무나 이어서 채우셔도 돼요)",
          "type": "mrkdwn"
         }
        ],
@@ -1240,6 +1267,15 @@
       {
        "elements": [
         {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 설명 · 체크리스트  (아무나 이어서 채우셔도 돼요)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
          "action_id": "edit_content",
          "text": {
           "text": "📝 설명 쓰기",
@@ -1451,6 +1487,15 @@
        "elements": [
         {
          "text": "🕒 대기 · P2 · 담당 박두리 · 📅 9/25  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 설명 · 체크리스트  (아무나 이어서 채우셔도 돼요)",
          "type": "mrkdwn"
         }
        ],
@@ -2096,6 +2141,15 @@
       {
        "elements": [
         {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
          "action_id": "pull_card",
          "text": {
           "text": "✋ 내가 할게요",
@@ -2338,6 +2392,15 @@
        "elements": [
         {
          "text": "🕒 대기 · P3 · 담당 없음 (추천 박두리)  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
          "type": "mrkdwn"
         }
        ],
@@ -2933,6 +2996,13 @@
         "type": "section"
        },
        {
+        "text": {
+         "text": "*✋ 가져갈 수 있는 일*\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794228447349|PA-36 2배 지표 준비>  ·  🕒 대기  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리>  ·  🕒 대기  ·  📁 프로젝트-예시\n> <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794397321529|PA-42 10/02 판단 회의>  ·  🕒 대기  ·  📁 프로젝트-예시",
+         "type": "mrkdwn"
+        },
+        "type": "section"
+       },
+       {
         "elements": [
          {
           "text": "_내가 올린 할 일 1건 · 보시려면 `@Moa 목록`_",
@@ -3185,6 +3255,15 @@
        "elements": [
         {
          "text": "👀 진행 중 · P4 · 담당 없음 (추천 박두리) · 📅 9/24  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *1/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당  (아무나 이어서 채우셔도 돼요)",
          "type": "mrkdwn"
         }
        ],
@@ -3446,6 +3525,15 @@
        "elements": [
         {
          "text": "🕒 대기 · P3 · 담당 없음 (추천 박두리)  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
          "type": "mrkdwn"
         }
        ],
@@ -5704,6 +5792,15 @@
       {
        "elements": [
         {
+         "text": "✍️ *0/4 채워짐* — 남은 것: 설명 · 체크리스트 · 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
          "action_id": "pull_card",
          "text": {
           "text": "✋ 내가 할게요",
@@ -7064,6 +7161,15 @@
        "elements": [
         {
          "text": "🕒 대기 · P2 · 담당 박두리 · 📅 9/30  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 설명 · 체크리스트  (아무나 이어서 채우셔도 돼요)",
          "type": "mrkdwn"
         }
        ],
