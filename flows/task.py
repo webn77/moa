@@ -399,6 +399,16 @@ async def maybe(s, e, q, force=False):
         return await _again(s, ch, th, st, say("ask_busy", word=q.strip(), kind="할 일을 올리는"))
 
     step = st.get("step")
+
+    def _lost(default):
+        """못 알아들었을 때 할 말 — **묻는 말이면 되묻지 않고 답을 한다** (2026-09-23 사장님:
+        「질문을 하는 경우에 대한 예외 처리 하면 될 거 같아」).
+
+        예전에는 제목 칸에서만 가렸다. 그런데 갇히는 자리는 네 칸 전부다 — 봇이 물었으니
+        무엇이 와도 답으로 받고, 못 알아들으면 같은 줄을 되풀이한다. 사람 눈에는 고장이다.
+        """
+        return say("task_asked_mid") if ASKING.search(q) else default
+
     # **「그게 아니라」 는 되돌리자는 말이다** — 어느 단계에서 와도 그 칸을 비우고 다시 묻는다.
     # 뒤에 붙은 말이 답이면 그것까지 받는다 (「그게 아니라 알림 고치기」)
     # 확인 단계는 빼 둔다 — 거기에는 「어느 걸 고칠까요」 라는 **더 나은 되묻기**가 이미 있다
@@ -428,7 +438,7 @@ async def maybe(s, e, q, force=False):
         got, dropped = _titles_of(q)
         if not got:
             return await _again(s, ch, th, st,
-                                say("task_title_bad", word=q.strip()[:20] or "빈 글자"))
+                                _lost(say("task_title_bad", word=q.strip()[:20] or "빈 글자")))
         st["titles"], st["dropped"] = got[:MAX], dropped
         st["over"] = max(0, len(got) - MAX)
         return await _after_title(s, ch, th, st)
@@ -439,10 +449,12 @@ async def maybe(s, e, q, force=False):
         if hit is None:
             # **두 번 못 알아들었으면 더 좁게 묻는다** — 같은 줄을 되풀이하면 고장으로 보인다
             if st.get("miss", 0) >= 2:
-                return await _again(s, ch, th, st, say(
+                # 좁혀 묻는 자리에서도 **묻는 말은 되묻지 않는다** — 「숫자만 적어 주세요」 를
+                # 물음에 대고 되풀이하면 사람은 갇힌 것으로 느낀다
+                return await _again(s, ch, th, st, _lost(say(
                     "task_project_only", list=_project_list(),
-                    what=" · ".join(str(i + 1) for i in range(len(PROJECTS)))))
-            return await _again(s, ch, th, st, say("task_project_bad", list=_project_list()))
+                    what=" · ".join(str(i + 1) for i in range(len(PROJECTS))))))
+            return await _again(s, ch, th, st, _lost(say("task_project_bad", list=_project_list())))
         st["pkey"] = hit.get("key") or ""
         return await _ask(s, ch, th, st, "who")
 
@@ -450,7 +462,7 @@ async def maybe(s, e, q, force=False):
     if step == "who":
         who = {"1": st["by"], "2": None}.get(q.strip()) if q.strip() in ("1", "2") else _who_of(q, st["by"])
         if who is False:
-            return await _again(s, ch, th, st, say("task_ask_who", step=_keycap(_where(st)[0])))
+            return await _again(s, ch, th, st, _lost(say("task_ask_who", step=_keycap(_where(st)[0]))))
         st["who"] = who
         return await _ask(s, ch, th, st, "due")
 
@@ -459,7 +471,7 @@ async def maybe(s, e, q, force=False):
     if step == "due":
         due = _due_pick(q)
         if due is False:
-            return await _again(s, ch, th, st, say("task_due_bad"))
+            return await _again(s, ch, th, st, _lost(say("task_due_bad")))
         st["due"] = due
         return await _show(s, ch, th, st)
 

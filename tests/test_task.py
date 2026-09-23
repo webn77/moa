@@ -484,6 +484,23 @@ class AskingBackTest(Base):
             self.say(q)
             self.assertEqual(STATE["new_task"][ME].get("titles"), [q], q)
 
+    def test_a_question_at_any_step_gets_an_answer(self):
+        """갇히는 자리는 **네 칸 전부**다 — 제목 칸만 가리면 나머지 셋에서 같은 일이 난다
+        (2026-09-23 사장님: 「질문을 하는 경우에 대한 예외 처리 하면 될 거 같아」)."""
+        self.say("할 일 등록")
+        self.say("알림이 두 번 와요")
+        for q in ("프로젝트가 뭐야?", "담당은 나중에 정해도 되나요?", "언제까지가 뭐야?"):
+            self.say(q)
+            self.assertIn("물어보신 것부터", self.last(), q)
+
+    def test_a_real_answer_still_wins(self):
+        """되묻기를 넓히다 진짜 답까지 막으면 안 된다 — 답이 되면 답이 먼저다."""
+        self.say("두 번째 프로젝트에 할일 등록")
+        self.say("알림이 두 번 와요")
+        self.say("제가")
+        self.assertNotIn("물어보신 것부터", self.last())
+        self.assertEqual(STATE["new_task"][ME]["who"], ME)
+
     def test_not_that_rewinds_the_step(self):
         """「그게 아니라」 는 답이 아니라 되돌리자는 말이다."""
         self.say("할 일 등록")
