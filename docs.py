@@ -28,17 +28,15 @@ def load_team():
 
 
 def load_hours():
-    """team.md 「가용 시간」 표. {이름: 주당 시간}"""
-    p = HERE / "team.md"
-    out, on = {}, False
-    for line in p.read_text(encoding="utf-8").splitlines() if p.exists() else []:
-        if line.startswith("## "):
-            on = line.strip() == "## 가용 시간"
-        elif on:
-            cells = [x.strip() for x in line.strip().strip("|").split("|")]
-            if len(cells) >= 2 and re.fullmatch(r"\d+(\.\d+)?", cells[1]):
-                out[cells[0]] = float(cells[1])
-    return out
+    """team.md 「가용 시간」 표. {이름: 주당 시간}
+
+    **`md_table` 을 쓴다** (2026-09-23 감사). 예전에는 제목이 `"## 가용 시간"` 과
+    **정확히 같아야** 했다 — 사람이 `## 가용 시간 (주당)` 처럼 괄호만 덧붙여도 `{}` 가 되고,
+    그러면 `schedule()` 의 가능 시간이 0 이 되어 캔버스 「⏱️ 일정」 이 **전원 넘침**으로 뒤집힌다.
+    `md_table` 은 괄호 앞부분만 맞으면 받는다 (그 고침이 여기까지 안 따라왔었다).
+    """
+    return {r[0]: float(r[1]) for r in md_table("team.md", "## 가용 시간", 3)
+            if re.fullmatch(r"\d+(\.\d+)?", r[1])}
 
 
 def deadline():
@@ -167,12 +165,12 @@ def current_stage():
 
 def load_features():
     """project.md 「기능」 표. {기능: 할 일}"""
-    return {r[0]: r[1] for r in md_table("project.md", "## 기능 (상위 이슈)", 3)}
+    return {r[0]: r[1] for r in md_table("project.md", "## 기능", 3)}
 
 
 def feature_state():
     """{기능: 있음|만드는 중|예정}"""
-    return {r[0]: r[2] for r in md_table("project.md", "## 기능 (상위 이슈)", 3)}
+    return {r[0]: r[2] for r in md_table("project.md", "## 기능", 3)}
 
 
 def load_initiatives():
@@ -221,14 +219,5 @@ def metrics():
 
 
 def vacant_roles():
-    """team.md 「빈 역할과 대행」 표. [(역할, 대행, 상태)]"""
-    p = HERE / "team.md"
-    out, on = [], False
-    for line in p.read_text(encoding="utf-8").splitlines() if p.exists() else []:
-        if line.startswith("## "):
-            on = line.strip() == "## 빈 역할과 대행"
-        elif on and line.startswith("|"):
-            cells = [x.strip() for x in line.strip().strip("|").split("|")]
-            if len(cells) == 4 and cells[0] != "빈 역할" and not cells[0].startswith("---"):
-                out.append((cells[0], cells[2], cells[3]))
-    return out
+    """team.md 「빈 역할과 대행」 표. [(역할, 대행, 상태)] — `load_hours` 와 같은 이유로 `md_table`."""
+    return [(r[0], r[2], r[3]) for r in md_table("team.md", "## 빈 역할과 대행", 4)]

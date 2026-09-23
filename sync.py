@@ -10,7 +10,7 @@
 새 이슈를 처음 발견하면 스레드에 「#N 으로 등록」 답글을 단다.
 토큰은 ~/.config/moa.env 에서 읽고 출력하지 않는다.
 """
-import json, os, re, sys, pathlib, datetime, urllib.request, urllib.parse
+import json, re, sys, pathlib, datetime, urllib.request, urllib.parse
 
 HERE = pathlib.Path(__file__).resolve().parent
 STATE = HERE / "state.json"

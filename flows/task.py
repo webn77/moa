@@ -31,7 +31,7 @@ import re
 
 import core
 from common import PROJECTS, log
-from flows.ask import CANCEL, COMMANDS, HEAD, LATER, yes as _yes
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, cancelled, command, later, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save
@@ -112,6 +112,17 @@ def _titles_of(text):
     return out, dropped
 
 
+# **묻는 말은 제목이 아니다** (2026-09-23 사장님 실사용). 「이번주에 할일 한번에 만들려고
+# 하는데 가능해?」 가 그대로 할 일 이름이 됐다. 봇이 방금 「무슨 일인가요」 라고 물었으니
+# 무엇이 와도 답으로 받던 탓인데, 사람은 **물어 놓고 되물을 수 있다.**
+ASKING = re.compile(r"\?\s*$|가능(해|한가|할까|하나)|되나요|되나\?|할\s*수\s*있|어떻게\s*(해|하)|방법이")
+# **「그게 아니라」 는 답이 아니라 되돌리자는 말이다** (같은 대화에서 나왔다).
+# 이걸 프로젝트 이름으로 받아서 「그 프로젝트를 못 찾았어요」 가 나갔다
+# 맨 「아니」 는 안 넣는다 — 그건 머리말이라 `_HEAD` 가 이미 떼고, 넣으면
+# 「아니 그게 아니고요」 의 앞 「아니」 만 먹고 나머지를 제목으로 받는다 (시험이 잡았다)
+NOPE = re.compile(r"^\s*(?:그게|그거|그건|그 말)?\s*(?:아니라|아니고|아니야|아냐|말고)[\s,.!~]*")
+
+
 def _titleable(text):
     """할 일 이름으로 쓸 글자가 두 자 이상 남나 — 이모지만이면 목록에서 못 알아본다."""
     return len(re.sub(r"[^0-9A-Za-z가-힣]", "", text or "")) >= 2
@@ -181,7 +192,7 @@ def _who_of(text, by):
     s = (text or "").strip().rstrip("요!.~ ")
     if s in WHO_ME or any(w in (text or "") for w in ("제가", "내가", "저요", "제거")):
         return by
-    if any(x in (text or "") for x in LATER):
+    if later(text):
         return None
     return False
 
@@ -369,7 +380,10 @@ async def maybe(s, e, q, force=False):
             st["pkey"], st["pkey_known"] = hit.get("key") or "", True
         STATE.setdefault("new_task", {})[user] = st
         save()
-    th = e.get("thread_ts") or st.get("th")
+    # **답은 사람이 쓴 자리로 간다** (2026-09-23 사장님: 「스레드에 안 적고 그냥 채팅에
+    # 적었는데 스레드 답변으로 들어가네」). 예전에는 처음 시작한 스레드로만 답해서,
+    # 바깥에 쓰면 답이 **다른 데서** 나왔다 — 쓴 사람 눈에는 아무 말이 없는 것과 같다.
+    th = e.get("thread_ts") or e.get("ts") or st.get("th")
     if opened:
         name = _title_of(q)                 # 「제목은 X」 처럼 또렷이 말했을 때만 줍는다
         if _titleable(name):
@@ -377,17 +391,40 @@ async def maybe(s, e, q, force=False):
             return await _after_title(s, ch, th, st)
         await _say(s, ch, say("task_ask_title", step=_keycap(1)), th)
         return True
-    if q.strip() in CANCEL:
+    if cancelled(q):
         STATE["new_task"].pop(user, None); save()
         await _say(s, ch, say("task_cancel"), th)
         return True
-    if q.strip() in COMMANDS:
+    if command(q):
         return await _again(s, ch, th, st, say("ask_busy", word=q.strip(), kind="할 일을 올리는"))
 
     step = st.get("step")
+    # **「그게 아니라」 는 되돌리자는 말이다** — 어느 단계에서 와도 그 칸을 비우고 다시 묻는다.
+    # 뒤에 붙은 말이 답이면 그것까지 받는다 (「그게 아니라 알림 고치기」)
+    # 확인 단계는 빼 둔다 — 거기에는 「어느 걸 고칠까요」 라는 **더 나은 되묻기**가 이미 있다
+    if step != "confirm" and NOPE.match(_HEAD.sub("", q.strip())):
+        rest = NOPE.sub("", _HEAD.sub("", q.strip())).strip(" ,.!~") or ""
+        if step == "title":
+            st.pop("titles", None)
+        elif step in ("project", "who", "due"):
+            st.pop({"project": "pkey", "who": "who", "due": "due"}[step], None)
+        if rest and _titleable(rest) and not ASKING.search(rest):
+            # 「그게 아니라 **결제 화면 문구 고치기**」 — 뒤에 붙은 말이 곧 고친 제목이다.
+            # 단계가 지나갔어도 제목으로 돌아간다: 사람이 고치겠다는 건 보통 **방금 한 말**이다
+            got, dropped = _titles_of(rest)
+            if got:
+                st["titles"], st["dropped"] = got[:MAX], dropped
+                st["over"] = max(0, len(got) - MAX)
+                st["step"] = "title"
+                return await _after_title(s, ch, th, st)
+        st["step"] = "title" if step != "confirm" else step
+        return await _again(s, ch, th, st, say("task_nope"))
 
     # ① 무슨 일인가 — 여기서는 **적으신 그대로** 받는다. 제목은 사람이 읽을 한 줄이다
     if step == "title":
+        if ASKING.search(q) and not NOPE.match(q.strip()):
+            # 물어보신 것에 **답을 하고** 다시 묻는다 — 되묻기만 하면 같은 말을 또 하시게 된다
+            return await _again(s, ch, th, st, say("task_title_asked"))
         got, dropped = _titles_of(q)
         if not got:
             return await _again(s, ch, th, st,

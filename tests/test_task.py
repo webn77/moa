@@ -450,6 +450,54 @@ class DmTest(Base):
         self.assertEqual(self.dms(), [])
 
 
+class AskingBackTest(Base):
+    """**묻는 말은 제목이 아니다** (2026-09-23 사장님 실사용).
+
+        모아: ① 무슨 일인가요?
+        사장님: 이번주에 할일 한번에 만들려고 하는데 가능해?
+        모아: 「이번주에…가능해?」 — 적어 뒀어요.      ← 질문이 할 일 이름이 됐다
+        사장님: 그게 아니라 …
+        모아: 그 프로젝트를 못 찾았어요.               ← 정정까지 답으로 받았다
+
+    봇이 방금 물었으니 무엇이 와도 답으로 받던 탓이다. 사람은 **물어 놓고 되물을 수 있다.**
+    """
+
+    def test_a_question_is_not_a_title(self):
+        self.say("할 일 등록")
+        self.say("이번주에 할일 한번에 만들려고 하는데 가능해?")
+        self.assertNotIn("적어 뒀어요", self.last())
+        self.assertIn("한 줄에 하나씩", self.last())            # 물으신 것에 답을 한다
+        self.assertIsNone(STATE["new_task"][ME].get("titles"))  # 제목으로 안 받는다
+
+    def test_other_ways_of_asking(self):
+        for q in ("여러 개 한 번에 되나요?", "이거 어떻게 해?", "담당도 같이 정할 수 있어?"):
+            STATE.pop("new_task", None)
+            self.say("할 일 등록")
+            self.say(q)
+            self.assertIsNone(STATE["new_task"][ME].get("titles"), q)
+
+    def test_a_real_title_still_goes_through(self):
+        """되묻기를 넓히다 진짜 제목까지 막으면 안 된다."""
+        for q in ("충전 실패 알림이 두 번 와요", "결제 화면 문구 고치기", "로그인 실패 안내 방법 정리"):
+            STATE.pop("new_task", None)
+            self.say("할 일 등록")
+            self.say(q)
+            self.assertEqual(STATE["new_task"][ME].get("titles"), [q], q)
+
+    def test_not_that_rewinds_the_step(self):
+        """「그게 아니라」 는 답이 아니라 되돌리자는 말이다."""
+        self.say("할 일 등록")
+        self.say("알림이 두 번 와요")
+        self.say("그게 아니라")
+        self.assertIn("다시 여쭤볼게요", self.last())
+
+    def test_not_that_plus_the_real_answer(self):
+        self.say("할 일 등록")
+        self.say("알림이 두 번 와요")
+        self.say("그게 아니라 결제 화면 문구 고치기")
+        self.assertEqual(STATE["new_task"][ME].get("titles"), ["결제 화면 문구 고치기"])
+
+
 class ChecklistAtConfirmTest(Base):
     """확인 화면에서 체크리스트를 그 자리에서 더한다 (2026-09-23 사장님: 「체크리스트 추가
     하거나 수정 할 수 있는거지 등록 할때 너가 추천 해주는거고」).
@@ -562,13 +610,28 @@ class AiBudgetTest(Base):
 
 
 class ThreadTest(Base):
-    """등록 대화는 **한 스레드에 모인다** — 사장님이 정한 기본값."""
+    """**답은 사람이 쓴 자리로 간다** (2026-09-23 사장님: 「스레드에 안 적고 그냥 채팅에
+    적었는데 스레드 답변으로 들어가네」).
 
-    def test_the_whole_talk_lands_in_one_thread(self):
+    9/22 에는 「대화가 한 스레드에 모인다」 가 기본이었다. 맞는 말이지만, **사람이 스레드
+    밖에 썼을 때**까지 옛 스레드로 답하면 쓴 사람 눈에는 아무 말이 없는 것과 같다.
+    스레드 안에 쓰면 그 스레드로 — 이건 그대로다.
+    """
+
+    def test_an_answer_in_the_thread_stays_in_the_thread(self):
         run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "111.1"}, "할 일 등록"))
-        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "222.2"}, "알림이 두 번 와요"))
+        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "222.2",
+                              "thread_ts": "111.1"}, "알림이 두 번 와요"))
         posts = [b for m, b in self.fake.sent if m == "chat.postMessage"]
         self.assertEqual({b.get("thread_ts") for b in posts}, {"111.1"})
+
+    def test_an_answer_outside_the_thread_is_answered_there(self):
+        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "111.1"}, "할 일 등록"))
+        self.fake.sent.clear()
+        run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "222.2"}, "알림이 두 번 와요"))
+        posts = [b for m, b in self.fake.sent if m == "chat.postMessage"]
+        self.assertEqual({b.get("thread_ts") for b in posts}, {"222.2"},
+                         "밖에 쓰셨는데 옛 스레드로 답했다")
 
 
 if __name__ == "__main__":

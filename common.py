@@ -66,7 +66,9 @@ def fill(text):
     return text.replace("{request}", REQUEST_NAME).replace("{issues}", ISSUE_NAME).replace("{bot}", HANDLE)
 
 
-MARK = {"todo": "", "doing": "👀", "blocked": "⛔", "done": "✅", "cancelled": "❌"}
+# **`LABEL` 의 상태를 하나도 빠뜨리지 않는다** — `tests/test_docs_contract.py` 가 지킨다.
+# 「확인 대기」 가 빠져 있어서 앱 홈 「내 할 일」 의 그 카드는 아이콘이 비어 있었다 (2026-09-23 감사)
+MARK = {"todo": "", "doing": "👀", "blocked": "⛔", "review": "🔍", "done": "✅", "cancelled": "❌"}
 
 
 WEEK = "월화수목금토일"

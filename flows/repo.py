@@ -24,7 +24,7 @@ import re
 import shutil
 
 from common import HERE, PROJECTS, log
-from flows.ask import CANCEL, COMMANDS, HEAD, yes as _yes
+from flows.ask import CANCEL, COMMANDS, HEAD, cancelled, command, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save
@@ -231,11 +231,11 @@ async def maybe(s, e, q, force=False):
                               git=say("repo_git_yes") if got["git"] else say("repo_git_no"),
                               now=say("repo_now", repo=got["repo"]) if got["repo"] else ""), th)
         return True
-    if q.strip() in CANCEL:
+    if cancelled(q):
         STATE["new_repo"].pop(user, None); save()
         await _say(s, ch, say("repo_cancel"), th)
         return True
-    if q.strip() in COMMANDS:
+    if command(q):
         return await _again(s, ch, th, st, say("ask_busy", word=q.strip(), kind="GitHub 를 붙이는"))
 
     step = st.get("step")

@@ -2,9 +2,9 @@
 import re, datetime
 from messages import say
 from common import BOARD, HERE, LABEL, MARK, PLEVEL, PNAME, PROJECTS, QUEUE, REQUEST, fill, mday, plevel  # noqa: E402,F401
-from docs import current_stage, deadline, project_info, current_stage, deadline, due_text, feature_state, load_features, load_initiatives, load_stages, load_team, schedule  # noqa: E402,F401
+from docs import current_stage, deadline, project_info, due_text, feature_state, load_features, load_initiatives, load_stages, load_team, schedule  # noqa: E402,F401
 from slack import api  # noqa: E402,F401
-from store import open_cards, STATE, day_meta, open_cards, project_of, ref, timeline  # noqa: E402,F401
+from store import open_cards, STATE, day_meta, project_of, ref, timeline  # noqa: E402,F401
 
 
 # 자주 여는 다섯은 단추로, 나머지는 ⋯ 메뉴로 (Slack 오버플로우는 다섯 개까지).

@@ -7,7 +7,7 @@
   issues/012-….md   정본. frontmatter + 왜/바뀌는 것/기대와 확인/하지 않는 것/체크리스트
   GitHub Issue      같은 내용 + Slack 스레드 링크. 상태가 done 이면 닫는다
 """
-import json, logging, re, subprocess, pathlib, datetime
+import json, logging, re, subprocess, datetime
 import config
 
 HERE = config.DATA                          # 팀 데이터 폴더 (#50) — git 은 여기서 돈다
@@ -25,7 +25,10 @@ def repo_of(c=None):
     return next((p.get("repo") for p in ps if p.get("key") == key), ps[0].get("repo")) or REPO
 
 
-LABEL = {"todo": "할 일", "doing": "진행 중", "blocked": "막힘", "review": "확인 대기", "done": "완료", "cancelled": "취소"}
+# **Slack 과 같은 말을 쓴다** (2026-09-23 감사). `blocked` 가 Slack 에서는 「보류」,
+# 레포의 md 에서는 「막힘」 이었다 — 같은 카드가 자리마다 다른 말로 불렸다.
+# (`tests/test_messages.py` 는 「막힘」 을 옛말로 금지하는데 그 시험은 `MSG` 만 본다)
+LABEL = {"todo": "할 일", "doing": "진행 중", "blocked": "보류", "review": "확인 대기", "done": "완료", "cancelled": "취소"}
 
 
 def sh(*args, **kw):

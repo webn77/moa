@@ -39,7 +39,7 @@ import re
 from common import log, reload_projects
 # 「네」·「취소」·「나중에」 같은 대꾸와 막을 낱말은 **틀에서 가져온다** — 등록 흐름이 둘이
 # 되었으니 (프로젝트·할 일) 이 낱말이 두 곳에서 갈라지면 안 된다 (2026-09-22)
-from flows.ask import CANCEL, COMMANDS, HEAD, LATER, yes as _yes
+from flows.ask import CANCEL, COMMANDS, HEAD, LATER, cancelled, command, later, yes as _yes
 from messages import say
 from slack import api
 from store import STATE, save
@@ -392,11 +392,11 @@ async def maybe(s, e, q, force=False):
             return await _take_title(s, ch, th, st, name)
         await _say(s, ch, say("proj_ask_name"), th)
         return True
-    if q.strip() in CANCEL:
+    if cancelled(q):
         STATE["new_project"].pop(user, None); save()
         await _say(s, ch, say("proj_cancel"), th)
         return True
-    if q.strip() in COMMANDS:          # 「현황」 이 프로젝트 이름이 되면 안 된다
+    if command(q):          # 「현황」 이 프로젝트 이름이 되면 안 된다
         return await _again(s, ch, th, st, say("ask_busy", word=q.strip(), kind="프로젝트를 만드는"))
 
     step, taken = st.get("step"), _taken()
