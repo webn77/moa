@@ -555,8 +555,30 @@ def clean_checklists():
     return fixed
 
 
+MD_VER = 1           # 정본 md 의 **모양**이 바뀌면 올린다 (칸 이름·제목 등)
+
+
+def refresh_md():
+    """정본 md 를 다시 쓰게 한다 (2026-09-23 사장님: 「issues 55개가 아직 완료 조건」).
+
+    md 는 카드에서 **다시 만들어지므로** 지우고 다시 쓰면 된다. 직접 고치지 않는다 —
+    `file_hash` 만 지우면 `flows/github.sweep` 이 다음 훑기에서 바뀐 것으로 보고 새로 쓴다.
+    쓰는 자리는 여기 하나다(#58) — 그 약속을 깨지 않는다.
+
+    9/23 에 「완료 조건」 을 「체크리스트」 로 바꿨는데 **쓰는 쪽만** 바뀌었다. md 는 내용이
+    바뀐 카드만 다시 써지므로 71장 중 4장만 따라왔고, 레포를 훑으면 반만 보였다.
+    """
+    if STATE.get("md_ver") == MD_VER:
+        return
+    n = sum(1 for c in STATE["cards"].values() if c.pop("file_hash", None) is not None)
+    STATE["md_ver"] = MD_VER
+    save()
+    log(f"정본 md 다시 쓰기 — {n}건 예약 (v{MD_VER})")
+
+
 async def refresh_ctls(s):
     clean_checklists()
+    refresh_md()
     if STATE.get("ctl_ver") == CTL_VER:
         return
     for c in [x for x in STATE["cards"].values() if x.get("card_ts")]:
