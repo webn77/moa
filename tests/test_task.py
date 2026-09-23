@@ -553,6 +553,36 @@ class ChecklistAtConfirmTest(Base):
         self.say("체크리스트에 로그 남기기, 배포 확인하기")
         self.assertEqual(self.dc()[-2:], ["로그 남기기", "배포 확인하기"])
 
+    def test_spaced_spelling_works_too(self):
+        """「체크 리스트」 라고 띄어 쓰셨다 (2026-09-23 실사용) — 한국어는 띄어쓰기가 흔들린다."""
+        self.ready()
+        self.say("체크 리스트에 스테이징에서 확인하기")
+        self.assertIn("스테이징에서 확인하기", self.dc())
+
+    def test_fill_it_for_me_asks_the_ai_again(self):
+        """「채워줘」 는 더하자는 말이 아니라 **다시 만들자**는 말이다 (2026-09-23 실사용:
+        「체크 리스트도 채워줘봐 테스트로」 를 못 알아들었다)."""
+        self.ready()
+        calls = []
+
+        async def counted(titles):
+            calls.append(list(titles))
+            return {t: ["다시 만든 것"] for t in titles}
+        with mock.patch("ai.checklists", counted):
+            self.say("체크리스트 채워줘")
+        self.assertEqual(len(calls), 1, "AI 를 한 번 불러야 한다")
+        self.assertEqual(self.dc(), ["다시 만든 것"])
+
+    def test_when_the_ai_has_nothing_it_says_so(self):
+        """제목만으로 모르면 **지어내지 않는다** — 대신 어디서 쓰면 되는지 알려 준다."""
+        self.ready()
+
+        async def empty(titles):
+            return {}
+        with mock.patch("ai.checklists", empty):
+            self.say("체크리스트 채워줘")
+        self.assertIn("지어내고 싶지 않아서", self.last())
+
     def test_you_can_throw_it_away(self):
         self.ready()
         self.say("체크리스트 지워")

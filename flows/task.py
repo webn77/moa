@@ -61,8 +61,14 @@ DUE_WORD = re.compile(r"(?:언제까지|기한|목표일|마감)\s*(?:은|는|�
 # 하거나 수정 할 수 있는거지」). AI 가 낸 것은 **추천**이므로 사람이 손댈 자리가 있어야 한다.
 # 더하기와 지우기 **둘만** 둔다 — 「2번을 이렇게 고쳐」 까지 받으려면 번호를 세고 되읽어 줘야
 # 하는데, 그건 올린 뒤 📝 설명 쓰기 창이 이미 훨씬 잘 한다 (한 줄에 하나씩 통째로 고친다)
-LIST_IN = re.compile(r"체크리스트\s*(?:에|는|은|을|를|이|가|도)?\s*[:：]?\s*(.*)", re.S)
+# **「체크 리스트」 처럼 띄어 써도 받는다** (2026-09-23 사장님 실사용: 「체크 리스트도
+# 채워줘봐」 를 못 알아들었다). 한국어는 띄어쓰기가 흔들린다 — 이 저장소가 「내 할일」 로
+# 한 번 겪은 것과 같은 모양이다
+LIST_IN = re.compile(r"체크\s*리스트\s*(?:에|는|은|을|를|이|가|도)?\s*[:：]?\s*(.*)", re.S)
 LIST_OFF = ("없이", "없음", "지워", "빼", "비워", "필요 없", "안 할")
+# **「채워줘」 는 더하자는 말이 아니라 다시 만들자는 말이다** — AI 를 한 번 더 부른다.
+# 제목만으로 모를 때는 빈 채로 두는데(지어내지 않는다), 그때 사람이 「그래도 해 봐」 할 자리다
+LIST_MAKE = ("채워", "만들어", "추천", "알아서", "적어줘", "적어 줘", "써줘", "써 줘", "해줘", "해 줘")
 STEP_WHAT = {"title": "무슨 일인가", "project": "어느 프로젝트", "who": "누가 할까", "due": "언제까지",
              "confirm": "마지막 확인"}
 
@@ -507,6 +513,12 @@ async def maybe(s, e, q, force=False):
         st["who"] = _who_of(WHO_IN.search(s2).group(1), st["by"])
     elif DUE_WORD.search(s2) and _due_of(DUE_WORD.search(s2).group(1)) is not False:
         st["due"] = _due_of(DUE_WORD.search(s2).group(1))
+    elif LIST_IN.search(s2) and any(x in LIST_IN.search(s2).group(1) for x in LIST_MAKE):
+        # 「체크리스트 채워줘」 — 다시 만들어 본다. 제목이 여럿이면 전부 한 번에 (AI 한 번)
+        st["dc"] = None
+        await _make_lists(s, st)
+        if not (st.get("dc") or {}):
+            return await _again(s, ch, th, st, say("task_list_none"))
     elif LIST_IN.search(s2) and len(_titles(st)) == 1:
         # 여러 개를 한 번에 올릴 때는 안 받는다 — 어느 것의 체크리스트인지 알 수 없다.
         # 그때는 올린 뒤 카드마다 📝 에서 고치는 것이 오히려 짧다
