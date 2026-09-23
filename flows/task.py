@@ -31,7 +31,8 @@ import re
 
 import core
 from common import PROJECTS, log
-from flows.ask import CANCEL, COMMANDS, HEAD, LATER, cancelled, command, later, loose, norm, yes as _yes
+from flows.ask import (ASKING, CANCEL, COMMANDS, HEAD, LATER, NOPE, cancelled, command, later, loose, norm,
+                       titleable, yes as _yes)
 from messages import say
 from slack import api
 from store import STATE, save
@@ -44,7 +45,17 @@ START = re.compile(r"(할\s*일|이슈|업무|작업)\S*\s*(를|을|로|은|는)
 # (2026-09-22 시뮬레이션). 갈래 순서로도 막았지만 **순서에 기대지 않는다** —
 # 순서는 나중에 누가 바꿀 수 있고, 그러면 조용히 어긋난다.
 # 「프로젝트」 는 여기 넣지 않는다: 「두 번째 프로젝트에 할일 등록」 은 진짜 할 일이다
-NOT_MINE = re.compile(r"깃허브|깃헙|github|레포|repo|저장소", re.I)
+#
+# **회의·미팅도 여기 넣되 좁게 넣는다** (2026-09-23). `START` 의 뒷가지
+# `등록(할래|하려|…)` 에는 「할 일」 이 안 붙어 있어서 「회의 등록할래」 가 **할 일 등록으로
+# 샜다** — 회의 흐름이 `new_task` 뒤에 있으니 차례가 오지도 않는다.
+#
+# **낱말만 보고 막으면 안 된다.** 처음에 「회의」 를 통째로 넣었더니 「회의 준비 할 일
+# 등록해줘」 라는 **진짜 할 일**이 검색으로 샜다 (재 보고 알았다). 회의라는 말은 할 일
+# 이름에도 흔히 들어간다 — **바로 뒤에 만드는 낱말이 붙을 때만** 회의로 본다
+# 사이에 **조사 하나만** 허락한다 — 낱말을 두 자까지 봐줬더니 「회의 **자료** 만들기
+# 할일 추가」 가 걸렸다 (재 보고 알았다). 회의를 잡자는 말은 만드는 낱말이 바로 뒤에 붙는다
+NOT_MINE = re.compile(r"깃허브|깃헙|github|레포|repo|저장소|(회의|미팅)\s*(를|을|도|은|는)?\s*(등록|만들|만드|잡|열|시작|생성)", re.I)
 _HEAD = re.compile(HEAD, re.I)
 # 「제가 할게요」 처럼 문장으로 오기도 하고 「제가」 한 마디로 오기도 한다.
 # **설명할 수 있는 낱말만 둔다** — 뜻 모를 낱말을 방어용으로 끼워 두면 다음 사람이
@@ -121,20 +132,9 @@ def _titles_of(text):
     return out, dropped
 
 
-# **묻는 말은 제목이 아니다** (2026-09-23 사장님 실사용). 「이번주에 할일 한번에 만들려고
-# 하는데 가능해?」 가 그대로 할 일 이름이 됐다. 봇이 방금 「무슨 일인가요」 라고 물었으니
-# 무엇이 와도 답으로 받던 탓인데, 사람은 **물어 놓고 되물을 수 있다.**
-ASKING = re.compile(r"\?\s*$|가능(해|한가|할까|하나)|되나요|되나\?|할\s*수\s*있|어떻게\s*(해|하)|방법이")
-# **「그게 아니라」 는 답이 아니라 되돌리자는 말이다** (같은 대화에서 나왔다).
-# 이걸 프로젝트 이름으로 받아서 「그 프로젝트를 못 찾았어요」 가 나갔다
-# 맨 「아니」 는 안 넣는다 — 그건 머리말이라 `_HEAD` 가 이미 떼고, 넣으면
-# 「아니 그게 아니고요」 의 앞 「아니」 만 먹고 나머지를 제목으로 받는다 (시험이 잡았다)
-NOPE = re.compile(r"^\s*(?:그게|그거|그건|그 말)?\s*(?:아니라|아니고|아니야|아냐|말고)[\s,.!~]*")
-
-
-def _titleable(text):
-    """할 일 이름으로 쓸 글자가 두 자 이상 남나 — 이모지만이면 목록에서 못 알아본다."""
-    return len(re.sub(r"[^0-9A-Za-z가-힣]", "", text or "")) >= 2
+# `ASKING`·`NOPE`·`_titleable` 은 **회의 만들기도 쓰므로** `flows/ask.py` 로 올렸다
+# (2026-09-23). 여기 이름은 그대로 두어 부르는 자리를 안 건드린다
+_titleable = titleable
 
 
 def _short(name):

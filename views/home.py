@@ -1,5 +1,6 @@
 """앱 홈 · 팝업 — 화면만 만든다 (#30 에서 bot.py 를 나눔)."""
 import re, datetime
+import core
 from messages import say
 from common import BOARD, HERE, LABEL, MARK, PLEVEL, PNAME, PROJECTS, QUEUE, REQUEST, fill, mday, plevel  # noqa: E402,F401
 from docs import current_stage, deadline, project_info, due_text, feature_state, load_features, load_initiatives, load_stages, load_team, schedule  # noqa: E402,F401
@@ -142,9 +143,13 @@ def detail_groups(key):
         groups.append((f"판단일 {end}" if end else "판단일 미정",
                        "필요 = 예상 시간 × AI 할인 (🤖 ×0.3 · 🤝 ×0.6 · 🧑 ×1.0) · 가능 = team.md 주당 시간 × 남은 주", lines))
     elif key == "meetings":
+        # **없는 명령을 안내하지 않는다** — 여기와 캔버스가 `/meeting 제목` 이라고 적어
+        # 두었는데 그런 슬래시 명령은 **만든 적이 없다** (2026-09-23 발견). 안내가 거짓말이면
+        # 사람은 한 번 해 보고 안 쓴다. 이 저장소가 같은 모양으로 여러 번 넘어졌다
         ms = sorted(STATE.get("meetings", {}).values(), key=lambda x: x["date"], reverse=True)
-        groups.append((f"회의 ({len(ms)})", "새 회의는 `/meeting 제목`", [
+        groups.append((f"회의 ({len(ms)})", "새 회의는 저에게 「회의 만들기」 라고 하시면 한 칸씩 여쭤볼게요", [
             f"🗓️ {m['date']}  " + (f"<{m['permalink']}|{m['title']}>" if m.get("permalink") else m["title"])
+            + (f"  ·  🔁 {core.meet_label(m)}" if (m.get("every") or "once") != "once" else "")
             + (f"  ·  할 일 #{m['issue']}" if m.get("issue") else "") + ("  ·  📝 기록됨" if m.get("file") else "  ·  예정")
             for m in ms]))
     elif key == "rules":

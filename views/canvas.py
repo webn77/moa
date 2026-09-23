@@ -331,7 +331,7 @@ async def _render_canvas(s):
         f"| {m['date']} | " + (f"[{m['title']}]({m['permalink']})" if m.get("permalink") else m["title"])
         + f" | {ref(m['issue'], 14) if m.get('issue') else '-'} | "
         + (f"📝 `meetings/{m['file']}`" if m.get("file") else "예정") + " |" for m in ms) \
-        or "| - | 아직 없어요 — `/meeting 제목` 으로 만들면 여기에 모여요 | - | - |"
+        or "| - | 아직 없어요 — 모아에게 「회의 만들기」 라고 하시면 여기에 모여요 | - | - |"
     why = "\n".join(f"- {x}" for x in load_why()) or "- _project.md 「## 왜 (문제)」 를 채워 주세요_"
 
     head = fill((HERE / "canvas_head.md").read_text(encoding="utf-8"))

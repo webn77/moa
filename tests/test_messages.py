@@ -118,7 +118,8 @@ class MessageRules(unittest.TestCase):
         """자리표시는 이 목록 안에서만 — 오타면 실행 중에 KeyError 가 난다."""
         known = {"link", "no", "ref", "what", "bot", "err", "n", "url", "tracker", "path", "who", "body", "plan",
                  "freed", "p", "nobody", "uid", "due", "dc", "next", "why", "done", "refs", "channel", "detail",
-                 "title", "k", "word", "name", "at", "detail", "who", "goal", "kind", "total", "list", "step", "note", "done", "git", "now", "repo", "make", "where", "lock", "when", "got", "want", "left"}
+                 "title", "k", "word", "name", "at", "detail", "who", "goal", "kind", "total", "list", "step", "note", "done", "git", "now", "repo", "make", "where", "lock", "when", "got", "want", "left",
+                 "every", "label", "ch"}
         for k, v in TEXTS.items():
             used = {f for _, f, _, _ in string.Formatter().parse(v) if f}
             self.assertLessEqual(used, known, f"{k}: {used - known}")

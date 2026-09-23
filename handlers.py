@@ -30,7 +30,12 @@ ASKISH = re.compile(r"만들|생성|등록|추가|시작|올려|새로|새\s*프
 # 백슬래시가 둘이면 「빈칸」 이 아니라 「\ 글자」 를 찾는다 — 그래서 「@PA 이슈 정리」 가 안 먹었다 (2026-09-20 발견)
 TIDY = re.compile(r"^(정리|이슈\s*정리|치우|비우)")     # 「@PA 정리」 — 카드 스레드 밖에서만
 ORDER = re.compile(r"^(순서|선행|앞선\s*일|의존)")      # 「@PA 순서」 — 선행을 한 화면에 모아 고치기 (#68)
-MTG = re.compile(r"^(회의|미팅)(?!록)\s*(?:(?:카드|열어|잡아|만들|시작)\w*\s*)*[:：]?\s*(?:#(\d+)\s*)?(.*)$")   # 「@PA 회의 스프린트 점검」
+# 「@PA 회의 스프린트 점검」 — 이름이 없으면(「회의 만들자」) **한 칸씩 묻는 흐름으로 넘긴다**
+# (2026-09-23). 예전에는 이름이 빈 것을 그냥 버려서, 사람이 가장 흔히 쓰는 말이 아무 반응도
+# 없었다 — 「회의만들기」·「회의 만들어줘」·「미팅 잡아줘」 가 전부 그랬다 (실측).
+# 어간을 잘라 둔다: 「잡아」 만 보면 「잡자」·「잡을까」 를 놓친다. 넓게 잡아도 괜찮다 —
+# 못 알아들은 뒷말은 이름이 아니라 **빈 이름**이 되고, 그러면 봇이 무슨 회의인지 묻는다
+MTG = re.compile(r"^(회의|미팅)(?!록)\s*(?:(?:카드|열|잡|만들|만드|시작)\w*\s*)*[:：]?\s*(?:#(\d+)\s*)?(.*)$")
 # 문장 속 #40 · PA-40 — 붙여 쓴 글자 뒤는 안 잡는다. **둘 다 받는다**: 옛 스레드·캔버스에
 # 맨 `#40` 이 이미 깔려 있고, 앞말을 켠 뒤에도 사람이 예전처럼 쓸 수 있어야 한다 (#66)
 REF = re.compile(r"(?:^|[\s(\[<])(?:" + (re.escape(PREFIX) + r"-|" if PREFIX else "") + r"#)(\d{1,4})\b")
@@ -95,9 +100,12 @@ async def _route(s, e, q):
         await tidy_propose(s, e["channel"], e.get("user"))         # 정리 제안 (#57)
     elif ORDER.match(q):
         await tidy_order(s, e["channel"], e.get("user"))           # 선행 한 화면 (#68)
-    elif MTG.match(q) and MTG.match(q).group(3).strip():
+    elif MTG.match(q):
         g = MTG.match(q)                                           # 「@PA 회의 스프린트 점검」
-        await new_meeting(s, g.group(3).strip()[:60], g.group(2), await name_of(s, e), REQUEST)
+        if g.group(3).strip():
+            await new_meeting(s, g.group(3).strip()[:60], g.group(2), await name_of(s, e), REQUEST)
+        else:
+            await new_meet(s, e, q, force=True)                    # 이름이 없으면 한 칸씩 묻는다
     elif MAKE.search(q):
         await propose_issue(s, e, q)                               # 초안 + 버튼 (#54, #11)
     else:
@@ -136,6 +144,8 @@ async def on_dm(s, e):
         if await new_repo(s, e, q):           # GitHub 붙이기 — 같은 틀 (2026-09-22)
             return
         if await new_task(s, e, q):           # 할 일 올리기 — 같은 틀로 한 칸씩 (2026-09-22)
+            return
+        if await new_meet(s, e, q):           # 회의 잡기 — 같은 틀로 한 칸씩 (2026-09-23)
             return
         if await onboard_catch(s, e, q):      # 처음 오신 분의 한 걸음 — 「됐어요」 만 여기서 받는다
             return
@@ -454,6 +464,10 @@ async def act_finish_meeting(s, p, a):
         await finish_meeting(s, m, _user(p))
 
 
+async def act_meet_stop(s, p, a):              # 정기 끄기 — 이 회의는 그대로, 다음 회만 안 연다
+    await stop_every(s, a.get("value"), _user(p))
+
+
 async def act_detail(s, p, a):                 # 앱 홈 「자세히 볼 것」 → 팝업 (버튼·고르는 칸 둘 다)
     a = dict(a, value=(a.get("selected_option") or {}).get("value") or a.get("value"))
     if a.get("value") in DETAIL:
@@ -504,7 +518,8 @@ ACTIONS = {
     "risk_fix": act_risk_fix, "spec_ok": act_spec_ok, "edit_content": act_edit_content, "edit_card": act_edit_card, "edit_list": act_edit_list,
     "pull_card": act_pull, "accept_assign": act_pull, "decline_card": act_decline,       # accept_assign — 예전 카드에 남은 버튼
     "check_dc": act_check, "close_done": act_close_done, "review_ok": act_review_ok, "review_back": act_review_back,
-    "mtg_apply": act_mtg_apply, "finish_meeting": act_finish_meeting, "show_meeting": act_show_meeting, "show_md": act_show_md,
+    "mtg_apply": act_mtg_apply, "finish_meeting": act_finish_meeting, "show_meeting": act_show_meeting,
+    "meet_stop": act_meet_stop, "show_md": act_show_md,
     "card_menu": lambda s, p, a: act_card_menu(s, p, a), "canvas_now": act_canvas_now,
     # 초안 → 카드 (#54) — 이 버튼이 번호를 만든다. 이름은 맨 아래에서 오므로 부를 때 찾는다
     **{k: (lambda s, p, a: tidy_decide(s, p, a)) for k in ("tidy_drop", "tidy_later", "tidy_keep")},
@@ -605,7 +620,8 @@ from flows.repo import maybe as new_repo  # noqa: E402
 from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401
-from flows.meeting import apply_meeting_change, finish_meeting, new_meeting, save_meeting  # noqa: E402,F401
+from flows.meeting import (apply_meeting_change, due_meetings, finish_meeting, new_meeting,  # noqa: E402,F401
+                           save_meeting, stop_every, maybe as new_meet)  # noqa: E402,F401
 from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_list_editor, save_list, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, decline_card, save_content, save_take, take_card  # noqa: E402,F401
 from flows.review import review_answer  # noqa: E402,F401
 from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, propose as tidy_propose  # noqa: E402,F401

@@ -610,3 +610,116 @@ def needs_spec(cards):
     return [c for c in cards
             if c.get("status") not in ("done", "cancelled")
             and not (c.get("spec") or {}).get("done_criteria")]
+
+
+# ── 회의를 언제 · 얼마나 자주 (2026-09-23 사장님: 「정기회의 인지 이번만인지 등등 물어보면서」) ──
+#
+# **할 일의 「언제까지」 와 다른 셈이다.** 목표일은 「이번 주」 라고 하면 그 주 금요일로 밀어
+# 두면 되지만(마감은 범위다), 회의는 **모여 앉는 날**이라 하루로 정해져야 한다. 그래서
+# `flows/task.py` 의 `_due_of` 를 가져다 쓰지 않고 여기 따로 둔다 — 억지로 합치면 한쪽을
+# 고칠 때 다른 쪽이 조용히 틀어진다.
+
+WEEK = ("월", "화", "수", "목", "금", "토", "일")
+EVERY = {"once": "한 번만", "week": "매주", "2week": "격주", "month": "매달"}
+
+
+def weekday_of(text):
+    """「화요일」·「화」 → 1 (월=0). 없으면 None.
+
+    **요일 글자 하나만 보고 집지 않는다** — 「일」·「토」 는 다른 말에도 흔하다
+    (「일정」·「토의」). 「요일」 이 붙었거나, 그 글자로 낱말이 끝날 때만 본다.
+    """
+    import re
+    s = text or ""
+    for i, w in enumerate(WEEK):
+        if re.search(w + r"\s*요일", s) or re.search(r"(?:^|[\s,(])" + w + r"(?=[\s,).]|$)", s):
+            return i
+    return None
+
+
+def meet_every(text):
+    """얼마나 자주 — once·week·2week·month. 못 알아들으면 None.
+
+    번호로도 답할 수 있게 한다 (묻는 자리에 1~4 를 보여 준다). **격주를 먼저 본다** —
+    「격주」 에도 「주」 가 들어 있어서 매주보다 뒤에 두면 매주로 먹힌다.
+    """
+    s = (text or "").strip()
+    pick = {"1": "once", "2": "week", "3": "2week", "4": "month"}.get(s)
+    if pick:
+        return pick
+    if any(x in s for x in ("격주", "2주", "이주", "두 주", "두주")):
+        return "2week"
+    if any(x in s for x in ("매달", "매월", "한 달", "한달", "월마다", "달마다")):
+        return "month"
+    if any(x in s for x in ("매주", "주마다", "주간", "주 1회", "주1회", "정기")):
+        return "week"
+    if any(x in s for x in ("한 번", "한번", "이번만", "1회", "일회", "한 회")):
+        return "once"
+    return None
+
+
+def meet_when(text, today=None):
+    """한 번만 하는 회의가 **어느 날인가** — 「오늘」·「내일」·「화요일」·「9/30」. 못 읽으면 False.
+
+    요일만 말하면 **앞으로 오는 그 요일**이다. 오늘과 같은 요일이면 오늘이 아니라 다음 주로
+    본다 — 「화요일에 하자」 를 화요일에 말하면 보통 다음 주 이야기다.
+    """
+    import datetime, re
+    s = (text or "").strip()
+    today = today or datetime.date.today()
+    for word, days in (("오늘", 0), ("내일", 1), ("모레", 2), ("글피", 3)):
+        if word in s:
+            return (today + datetime.timedelta(days=days)).isoformat()
+    wd = weekday_of(s)
+    if wd is not None:
+        ahead = (wd - today.weekday()) % 7 or 7
+        if "다음" in s and "주" in s and ahead <= 7 - today.weekday():
+            ahead += 7                       # 「다음 주 화요일」 — 이번 주 화요일이 아직 안 지났어도 다음 주
+        return (today + datetime.timedelta(days=ahead)).isoformat()
+    m = re.search(r"(\d{4})-(\d{1,2})-(\d{1,2})|(\d{1,2})\s*/\s*(\d{1,2})|(\d{1,2})\s*월\s*(\d{1,2})\s*일", s)
+    if m:
+        y, mo, d = (m.group(1), m.group(2), m.group(3)) if m.group(1) else \
+                   (None, m.group(4) or m.group(6), m.group(5) or m.group(7))
+        try:
+            return datetime.date(int(y) if y else today.year, int(mo), int(d)).isoformat()
+        except ValueError:
+            return False
+    return False
+
+
+def next_meet(every, weekday, after=None):
+    """정기 회의의 **다음 날짜**. `after` 다음으로 오는 날 — 같은 날은 돌려주지 않는다.
+
+    매달은 **같은 요일의 같은 주차**로 본다 (넷째 화요일 식) — 날짜로 매기면 「31일」 이
+    없는 달이 생긴다. 4주 뒤가 아직 같은 달이면 한 주 더 민다.
+
+    **요일을 먼저 맞추고 주를 더한다.** 거꾸로 하면 — 주를 먼저 더하고 요일을 맞추면 —
+    `after` 가 회의 요일이 아닐 때 한 주가 통째로 밀린다 (매주인데 2주 뒤가 나왔다,
+    2026-09-23 에 만들자마자 잡았다). `after` 는 보통 직전 회의 날이라 요일이 맞지만,
+    사람이 날짜를 손으로 고치면 어긋난다 — 어느 쪽이 와도 같은 답이 나와야 한다.
+    """
+    import datetime
+    if every not in ("week", "2week", "month") or weekday is None:
+        return None
+    after = after or datetime.date.today()
+    if isinstance(after, str):
+        after = datetime.date.fromisoformat(after)
+    nxt = after + datetime.timedelta(days=(weekday - after.weekday()) % 7 or 7)
+    nxt += datetime.timedelta(days={"week": 0, "2week": 7, "month": 21}[every])
+    if every == "month" and nxt.month == after.month:
+        nxt += datetime.timedelta(days=7)
+    return nxt.isoformat()
+
+
+def meet_label(m):
+    """회의 카드에 쓸 한 줄 — 「매주 화요일」·「10/1 (화)」."""
+    import datetime
+    every = m.get("every") or "once"
+    if every != "once" and m.get("weekday") is not None:
+        return f"{EVERY[every]} {WEEK[m['weekday']]}요일"
+    d = m.get("date")
+    try:
+        x = datetime.date.fromisoformat(d)
+    except (TypeError, ValueError):
+        return "날짜 미정"
+    return f"{x.month}/{x.day} ({WEEK[x.weekday()]})"

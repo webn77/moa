@@ -131,6 +131,15 @@ async def morning(s):
                 STATE["daily_day"] = day
         except Exception as e:
             log(f"아침·저녁 일 실패: {type(e).__name__}: {e}")
+        # **정기 회의는 따로 감싼다** (2026-09-23). 위 `try` 에 얹으면 회의 하나가 터질 때
+        # 아침 현황·확인 재촉·동기화 검사까지 같이 멈춘다 — 위 주석이 경고하는 바로 그 고장이다.
+        # 아침 9시를 기다리지 않는다: 그날 아침에 열려야 하루를 쓸 수 있다
+        try:
+            if now.hour >= 8 and STATE.get("meet_day") != day:
+                await due_meetings(s)
+                STATE["meet_day"] = day          # **연 뒤에 찍는다** — 먼저 찍으면 오늘 회의는 영영 안 열린다
+        except Exception as e:
+            log(f"정기 회의 열기 실패: {type(e).__name__}: {e}")
         await asyncio.sleep(60)
 
 
@@ -155,6 +164,7 @@ def write_daily(day):
 # 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다
 from flows.status import ensure_ctl, note_decisions, place  # noqa: E402,F401
 from flows.github import check_sync  # noqa: E402,F401
+from flows.meeting import due_meetings  # noqa: E402,F401
 from flows.review import remind_reviews  # noqa: E402,F401
 from views.canvas import render_canvas  # noqa: E402,F401
 from views.card import card_blocks  # noqa: E402,F401
