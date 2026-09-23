@@ -48,18 +48,24 @@ async def watch_cards(s, every=30):
     안 바뀌었으면 아무 일도 하지 않는다(지문 비교, API 0번). 번호 순으로 돈다 — gh#N = 카드 #N 이라
     작은 번호가 먼저 올라가야 한다.
     """
+    # **한 번 터져도 계속 돈다** (2026-09-23 감사) — `guard` 는 잡고 나면 그 일을 끝낸다
     while True:
         await asyncio.sleep(every)
-        await sweep(s)
+        try:
+            await sweep(s)
+        except Exception as e:
+            log(f"카드 내보내기 훑기 실패: {type(e).__name__}: {e}")
 
 
 async def sweep(s):
     """바뀐 카드를 한 번 훑는다. 내보낸 개수를 돌려준다."""
     n = 0
     for c in sorted(STATE["cards"].values(), key=lambda x: x["no"]):
-        if c.get("file_hash") == fingerprints(c)[0]:
-            continue
         try:
+            # `fingerprints` 도 try 안에 둔다 — 밖에 있으면 **망가진 카드 한 장**이
+            # 나머지 전부의 내보내기를 막는다 (2026-09-23 감사)
+            if c.get("file_hash") == fingerprints(c)[0]:
+                continue
             await export_github(s, c, c.get("card_ts"))
             n += 1
         except Exception as e:
@@ -205,7 +211,10 @@ async def watch_github(s):
     loop = asyncio.get_running_loop()
     while True:
         await asyncio.sleep(120)
-        await import_github(s)                            # 밖에서 만든 이슈 먼저 (#60)
+        try:
+            await import_github(s)                        # 밖에서 만든 이슈 먼저 (#60)
+        except Exception as e:
+            log(f"GitHub 이슈 가져오기 실패: {type(e).__name__}: {e}")
         for c in list(STATE["cards"].values()):
             seen = c.setdefault("gh_seen", [])
             try:

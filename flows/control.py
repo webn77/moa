@@ -201,12 +201,22 @@ DO = {"check": do_check, "note": do_note, "issue": do_issue, "spec": do_spec, "s
 async def watch_asks(s, every=10):
     """ask.jsonl 을 지켜본다. 한 줄씩 처리하고 결과를 ask.done.jsonl 에 남긴다."""
     done = ASK.with_name("ask.done.jsonl")
+    # **한 번 터져도 계속 본다** (2026-09-23 감사) — 파일 읽기·비우기가 try 밖이라
+    # 통로가 한 번 꼬이면 도구가 맡기는 일이 재시작 전까지 전부 멈췄다
     while True:
         await asyncio.sleep(every)
-        if not (ASK and ASK.exists()):
+        try:
+            if not (ASK and ASK.exists()):
+                continue
+            # **비우지 않고 옮긴다.** 예전에는 읽자마자 빈 파일로 덮었는데, 그 사이에
+            # 봇이 내려가면(배포·재시작) 그 줄들은 **아무 데도 안 남고 사라졌다.**
+            # 옮겨 두면 남아 있으므로 무슨 일을 잃었는지 볼 수 있다
+            hold = ASK.with_suffix(".jsonl.doing")
+            ASK.replace(hold)
+            lines = [x for x in hold.read_text(encoding="utf-8").splitlines() if x.strip()]
+        except Exception as e:
+            log(f"통로 읽기 실패: {type(e).__name__}: {e}")
             continue
-        lines = [x for x in ASK.read_text(encoding="utf-8").splitlines() if x.strip()]
-        ASK.write_text("", encoding="utf-8")                  # 먼저 비운다 — 같은 줄을 두 번 하지 않게
         for line in lines:
             try:
                 r = json.loads(line)
@@ -220,6 +230,7 @@ async def watch_asks(s, every=10):
             log(f"통로: {line[:80]} → {out}")
             with done.open("a", encoding="utf-8") as f:
                 f.write(json.dumps({"ask": line[:300], "result": out}, ensure_ascii=False) + "\n")
+        hold.unlink(missing_ok=True)      # 다 적고 나서 치운다 — 중간에 죽으면 이 파일이 남는다
 
 
 # 다른 모듈의 이름은 맨 아래에서 가져온다 — 함수는 부를 때 찾으므로 서로 불러도 순환 import 가 안 된다

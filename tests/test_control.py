@@ -87,7 +87,10 @@ class ControlTest(unittest.TestCase):
             self.assertEqual(len(done), 2)
             self.assertIn("실패", done[0]["result"])
             self.assertIn("메모", done[1]["result"])
-            self.assertEqual(control.ASK.read_text(encoding="utf-8"), "")       # 처리한 줄은 남지 않는다
+            # 처리한 줄은 남지 않는다. **비우는 대신 옮겼다가 지운다** (2026-09-23) —
+            # 읽자마자 빈 파일로 덮으면 그 사이에 봇이 내려갈 때 그 줄들이 아무 데도 안 남는다
+            self.assertFalse(control.ASK.exists(), "통로가 안 치워졌다")
+            self.assertFalse(control.ASK.with_suffix(".jsonl.doing").exists(), "하던 파일이 남았다")
 
 
 

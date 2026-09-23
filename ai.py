@@ -34,7 +34,11 @@ def model():
 
 
 # 잠깐 뒤 되는 오류들 — 여기 걸리면 다시 해 본다 (2026-09-22 실측: 500 이 몇 분 오락가락했다)
-AGAIN = ("500", "502", "503", "504", "overloaded", "rate limit", "timeout", "Connection")
+# **「한도」 는 여기 없다** (2026-09-23 감사). 한도에 걸린 때가 바로 물러설 때인데 2초·4초 쉬고
+# 두 번 더 두드리고 있었다 — 벽을 세 번 치는 셈이고, 여러 카드를 도는 자리에서는 N×3 이 된다.
+AGAIN = ("500", "502", "503", "504", "overloaded", "Connection", "TimeoutError")
+# 물러설 오류 — 걸리면 **그 자리에서 끝낸다**
+STOP = ("rate limit", "usage limit", "quota")
 
 
 async def _once(system, prompt):
@@ -43,7 +47,16 @@ async def _once(system, prompt):
         "claude", "-p", "--model", model(), "--setting-sources", "project", "--strict-mcp-config",
         "--tools", "", "--no-session-persistence", "--output-format", "json", "--system-prompt", system,
         cwd=AI_CWD, stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-    out, _ = await asyncio.wait_for(p.communicate(prompt.encode()), timeout=180)
+    try:
+        out, _ = await asyncio.wait_for(p.communicate(prompt.encode()), timeout=180)
+    except (asyncio.TimeoutError, asyncio.CancelledError):
+        # **끊으면 죽인다.** `wait_for` 는 기다리기를 그만둘 뿐 자식 프로세스는 계속 돈다 —
+        # 화면에서만 끝나고 한도는 계속 녹는다 (2026-09-23 감사)
+        try:
+            p.kill()
+        except ProcessLookupError:
+            pass
+        raise
     d = json.loads(out or b"{}")
     if d.get("is_error"):
         raise RuntimeError(d.get("result"))
@@ -63,7 +76,13 @@ async def ask_ai(system, prompt, tries=3):
             return await _once(system, prompt)
         except Exception as e:
             last = e
-            if i + 1 >= tries or not any(x.lower() in str(e).lower() for x in AGAIN):
+            # **예외 이름도 본다** — `str(asyncio.TimeoutError())` 는 **빈 문자열**이라
+            # 예전의 `"timeout"` 항목은 한 번도 안 걸렸다 (2026-09-23 실측)
+            says = f"{type(e).__name__} {e}".lower()
+            if any(x in says for x in STOP):
+                log(f"AI 한도에 걸렸어요 — 다시 안 두드립니다: {str(e)[:80]}")
+                raise
+            if i + 1 >= tries or not any(x.lower() in says for x in AGAIN):
                 raise
             log(f"AI 다시 해 봅니다 ({i + 1}/{tries - 1}): {str(e)[:80]}")
             await asyncio.sleep(2 * (i + 1))

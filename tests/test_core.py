@@ -340,6 +340,34 @@ class ReadableTest(unittest.TestCase):
         self.assertEqual(self.r(None), "")
 
 
+class CanvasMarkTest(unittest.TestCase):
+    """프로젝트 캔버스에서 **봇 칸을 찾는 말** (2026-09-23 감사).
+
+    `_look` 은 그 말이 든 **모든** 칸을 돌려주고, 첫 칸은 replace · 나머지는 delete 된다.
+    그래서 찾는 말이 사람이 쓸 법한 말이면 **팀이 쓴 글이 덮이거나 지워진다.**
+    캔버스에는 되돌리기가 없고 봇은 10분마다 돈다 — 한 번 날아가면 끝이다.
+    """
+
+    def parts(self):
+        from views.canvas import _proj_parts
+        return _proj_parts({"key": "XX", "name": "시험", "goal": "목표"}, [], {})
+
+    def test_each_mark_is_in_what_the_bot_writes(self):
+        """만드는 쪽과 찾는 쪽이 어긋나면 봇이 자기 칸을 못 찾고 **하나 더 만든다**."""
+        from views.canvas import HEAD_MARK, TABLE_MARK, FOOT_MARK
+        head, table, foot = self.parts()
+        for mark, text, name in ((HEAD_MARK, head, "제목"), (TABLE_MARK, table, "표"), (FOOT_MARK, foot, "꼬리")):
+            self.assertIn(mark, text, f"{name} 칸을 찾는 말이 실제 글에 없다")
+
+    def test_no_mark_is_a_word_a_person_might_type(self):
+        """「지금 할 일」·「목표일」·「마지막으로 바뀐 때」 로 찾던 적이 있다 — 팀이 자기 칸에
+        자연스럽게 쓰는 말이다. 표식에는 사람이 우연히 못 칠 글자가 섞여 있어야 한다."""
+        from views.canvas import HEAD_MARK, TABLE_MARK, FOOT_MARK
+        for mark in (HEAD_MARK, TABLE_MARK, FOOT_MARK):
+            self.assertTrue(any(x in mark for x in ("##", "|", "_", "🎫")),
+                            f"「{mark}」 는 사람이 그대로 쓸 수 있는 말이다")
+
+
 class FilledTest(unittest.TestCase):
     """남은 칸 (2026-09-23 사장님: 「회원가입처럼 남은 거를 누가 더 만들지」).
 

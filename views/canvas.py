@@ -97,9 +97,19 @@ async def render_canvas_now(s):
 #     섹션만 replace  → 사람이 쓴 줄 남음 ✅
 #     통째로 replace  → 사람이 쓴 줄 사라짐 ❌
 # 그래서 봇은 **자기 세 칸만** 갈아 끼운다. `delete`·`insert_after` 도 실측으로 확인했다.
-HEAD_MARK = "지금 할 일"          # 봇 제목 칸을 찾는 말
-TABLE_MARK = "목표일"             # 봇 표의 머리줄에만 있는 말
-FOOT_MARK = "마지막으로 바뀐 때"   # 봇 꼬리 칸
+# **찾는 말은 사람이 우연히 칠 수 없어야 한다** (2026-09-23 감사에서 나옴).
+# 예전 값은 「지금 할 일」·「목표일」·「마지막으로 바뀐 때」 — **팀이 자기 칸에 자연스럽게 쓰는 말**이다.
+# `_look` 은 그 말이 든 **모든** 칸을 돌려주고, 아래에서 `ids[0]` 은 replace, `ids[1:]` 는 delete 한다.
+# 즉 팀이 자기 칸에 「목표일」 이라고 쓰면 그 칸이 봇 표로 덮이거나 **지워진다.**
+# 캔버스에는 되돌리기가 없고 봇은 10분마다 돈다 — 한 번 날아가면 끝이다.
+#
+# 그래서 셋 다 **봇이 쓰는 글자 그대로** 잡는다. 이모지·표 머리줄·밑줄까지 포함해서
+# 사람이 우연히 똑같이 칠 수 없게 만들고, **만드는 쪽과 찾는 쪽이 같은 상수**를 쓰게 한다 —
+# 한쪽만 고치면 조용히 죽는 그 모양을 여기서 끊는다 (오늘 하루에 세 번 겪었다).
+HEAD_MARK = "## 🎫 지금 할 일 —"                                  # `head` 가 이대로 시작한다
+TABLE_HEAD = "| 번호 | 할 일 | 상태 | 담당 | 목표일 |"             # 봇 표의 머리줄 — 만들 때도 이걸 쓴다
+TABLE_MARK = TABLE_HEAD
+FOOT_MARK = "_마지막으로 바뀐 때:"                                # `foot` 이 이대로 끝난다
 MINE = "\n\n## 📝 팀이 적는 칸\n\n여기부터는 팀이 씁니다 — 회의에서 정한 것 · 링크 · 규칙.\n모아는 이 아래를 건드리지 않아요.\n"
 
 
@@ -120,12 +130,12 @@ def _proj_parts(p, cards, team):
         rows.append(f"| {no} | {link_of(c, text=c['title'][:40])} | `{LABEL[c['status']]}` "
                     f"| {who} | {due_text(c) or '-'} |")
     goal, repo = (p.get("goal") or "").strip(), p.get("repo")
-    head = (f"## 🎫 {HEAD_MARK} — 열린 것 {len(open_)}건 · 끝난 것 {len(done_)}건")
-    table = ("| 번호 | 할 일 | 상태 | 담당 | 목표일 |\n| --- | --- | --- | --- | --- |\n"
+    head = f"{HEAD_MARK} 열린 것 {len(open_)}건 · 끝난 것 {len(done_)}건"
+    table = (TABLE_HEAD + "\n| --- | --- | --- | --- | --- |\n"
              + (chr(10).join(rows) or "| - | _아직 없어요 — " + BOT + " 에게 「할 일 등록」_ | - | - | - |"))
     bits = ([f"🎯 {goal}"] if goal else []) + \
            ([f"📦 [{repo}](https://github.com/{repo})"] if repo else []) + \
-           [f"_{FOOT_MARK}: {datetime.datetime.now():%-m/%-d %H:%M}_"]
+           [f"{FOOT_MARK} {datetime.datetime.now():%-m/%-d %H:%M}_"]
     foot = "> " + "  ·  ".join(bits)
     return head, table, foot
 

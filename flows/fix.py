@@ -113,17 +113,24 @@ async def show_digest(s, channel, user, thread=None):
 
 async def morning(s):
     """평일 아침 9시 현황 · 저녁 7시 하루 묶음 — 각각 하루 한 번만."""
+    # **한 번 터져도 내일 또 돈다** (2026-09-23 감사). `guard` 는 잡고 나면 그 일을 **끝낸다** —
+    # 여기서 안 잡으면 아침 현황·확인 재촉·동기화 검사·저녁 기록이 **재시작 전까지 전부** 멈춘다.
+    # 증상은 「봇은 살아 있는데 아무 알림이 없다」 — 가장 늦게 알아채는 고장이다.
     while True:
-        now = datetime.datetime.now()
-        day = now.date().isoformat()
-        if now.weekday() < 5 and now.hour == 9 and STATE.get("digest_day") != day:
-            STATE["digest_day"] = day
-            await post_digest(s, "아침 9시")
-            await remind_reviews(s)
-            await check_sync(s, tell=CHANNEL)          # 카드와 GitHub 이 어긋났으면 알린다 (#59)
-        if now.hour >= 19 and STATE.get("daily_day") != day:
-            STATE["daily_day"] = day
-            await asyncio.get_running_loop().run_in_executor(None, write_daily, day)
+        try:
+            now = datetime.datetime.now()
+            day = now.date().isoformat()
+            if now.weekday() < 5 and now.hour == 9 and STATE.get("digest_day") != day:
+                # **다 보낸 뒤에 표시를 찍는다.** 먼저 찍으면 터졌을 때 오늘 아침은 영영 안 간다
+                await post_digest(s, "아침 9시")
+                await remind_reviews(s)
+                await check_sync(s, tell=CHANNEL)      # 카드와 GitHub 이 어긋났으면 알린다 (#59)
+                STATE["digest_day"] = day
+            if now.hour >= 19 and STATE.get("daily_day") != day:
+                await asyncio.get_running_loop().run_in_executor(None, write_daily, day)
+                STATE["daily_day"] = day
+        except Exception as e:
+            log(f"아침·저녁 일 실패: {type(e).__name__}: {e}")
         await asyncio.sleep(60)
 
 

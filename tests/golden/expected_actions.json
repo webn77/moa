@@ -7848,7 +7848,7 @@
     "body": {
      "canvas_id": "F0XXSECOND",
      "criteria": {
-      "contains_text": "지금 할 일"
+      "contains_text": "## 🎫 지금 할 일 —"
      }
     },
     "method": "canvases.sections.lookup"
@@ -7857,7 +7857,7 @@
     "body": {
      "canvas_id": "F0XXSECOND",
      "criteria": {
-      "contains_text": "목표일"
+      "contains_text": "| 번호 | 할 일 | 상태 | 담당 | 목표일 |"
      }
     },
     "method": "canvases.sections.lookup"
@@ -7866,7 +7866,7 @@
     "body": {
      "canvas_id": "F0XXSECOND",
      "criteria": {
-      "contains_text": "마지막으로 바뀐 때"
+      "contains_text": "_마지막으로 바뀐 때:"
      }
     },
     "method": "canvases.sections.lookup"
@@ -8750,7 +8750,7 @@
     "body": {
      "canvas_id": "F0XXSECOND",
      "criteria": {
-      "contains_text": "지금 할 일"
+      "contains_text": "## 🎫 지금 할 일 —"
      }
     },
     "method": "canvases.sections.lookup"
@@ -8759,7 +8759,7 @@
     "body": {
      "canvas_id": "F0XXSECOND",
      "criteria": {
-      "contains_text": "목표일"
+      "contains_text": "| 번호 | 할 일 | 상태 | 담당 | 목표일 |"
      }
     },
     "method": "canvases.sections.lookup"
@@ -8768,7 +8768,7 @@
     "body": {
      "canvas_id": "F0XXSECOND",
      "criteria": {
-      "contains_text": "마지막으로 바뀐 때"
+      "contains_text": "_마지막으로 바뀐 때:"
      }
     },
     "method": "canvases.sections.lookup"
