@@ -250,20 +250,18 @@ def _due_text(iso):
     return f"{d.month}/{d.day}" + (f" (D-{left})" if left > 0 else " (오늘)" if left == 0 else " (지났어요)")
 
 
-async def _say(s, ch, text, thread=None, loud=False):
+async def _say(s, ch, text, thread=None):
     """**등록 대화는 스레드 안에서** — 묻고 답하는 대여섯 마디를 한 덩이로 묶는다.
 
-    **첫 물음은 채팅창에도 같이 띄운다** (2026-09-23 사장님: 「이거 반응 안 하는 게」).
-    스레드 답글은 DM 에서 「답글 1개」 로 접혀 보여서, 맨 아래에서 타자를 치고 계시면
-    **아무 일도 안 일어난 것처럼** 보인다 — 실제로 그렇게 보셨다. `reply_broadcast` 는
-    스레드에 그대로 두면서 채팅창에도 한 번 보여 준다. **첫 물음만** 그렇게 한다:
-    매 걸음 띄우면 스레드로 묶은 뜻이 없어진다.
+    **채팅창에는 띄우지 않는다** (2026-09-23 사장님: 「노노 dm 은 스레드만」).
+    하루 전에는 첫 물음을 `reply_broadcast` 로 채팅창에도 한 번 보여 줬다 — 스레드 답글이
+    DM 에서 「답글 1개」 로 접혀서 아무 일도 안 일어난 것처럼 보였기 때문이다. 그런데
+    실제로 써 보니 **같은 말이 두 곳에 나오는 것**이 더 거슬렸다 (사장님: 「왜 2곳에 둘다 나와」).
+    묶을 거면 한 곳에만 둔다.
     """
     body = {"channel": ch, "text": text, "unfurl_links": False}
     if thread:
         body["thread_ts"] = thread
-        if loud:
-            body["reply_broadcast"] = True
     await api(s, "chat.postMessage", body=body)
 
 
@@ -420,7 +418,7 @@ async def maybe(s, e, q, force=False):
         if _titleable(name):
             st["titles"] = [name]
             return await _after_title(s, ch, th, st)
-        await _say(s, ch, say("task_ask_title", step=_keycap(1)), th, loud=True)
+        await _say(s, ch, say("task_ask_title", step=_keycap(1)), th)
         return True
     if cancelled(q):
         STATE["new_task"].pop(user, None); save()

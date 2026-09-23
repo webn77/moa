@@ -683,14 +683,17 @@ class ThreadTest(Base):
         posts = [b for m, b in self.fake.sent if m == "chat.postMessage"]
         self.assertEqual({b.get("thread_ts") for b in posts}, {"111.1"})
 
-    def test_the_first_question_is_also_shown_in_the_channel(self):
-        """**스레드 답글은 DM 에서 접혀 보인다** (2026-09-23 사장님: 「이거 반응 안 하는 게」).
-        맨 아래에서 타자를 치고 계시면 아무 일도 안 일어난 것처럼 보인다.
-        첫 물음만 채팅창에도 띄운다 — 매 걸음 띄우면 스레드로 묶은 뜻이 없어진다."""
+    def test_the_dm_talk_stays_in_the_thread_only(self):
+        """**DM 은 스레드만** (2026-09-23 사장님: 「노노 dm 은 스레드만」).
+
+        하루 전에는 첫 물음을 `reply_broadcast` 로 채팅창에도 띄웠다 — 스레드 답글이
+        「답글 1개」 로 접혀서 반응이 없는 것처럼 보였기 때문이다. 실제로 써 보니
+        **같은 말이 두 곳에 나오는 것**이 더 거슬렸다 (「왜 2곳에 둘다 나와」).
+        """
         run(task.maybe(None, {"user": ME, "channel": "D0TEST", "ts": "111.1"}, "할 일 등록"))
         first = [b for m, b in self.fake.sent if m == "chat.postMessage"][0]
         self.assertEqual(first.get("thread_ts"), "111.1")
-        self.assertTrue(first.get("reply_broadcast"), "첫 물음이 채팅창에 안 보인다")
+        self.assertFalse(first.get("reply_broadcast"), "첫 물음이 채팅창에도 나왔다")
 
     def test_the_later_steps_stay_in_the_thread_only(self):
         self.say("할 일 등록")

@@ -164,12 +164,10 @@ async def ready():
     return got
 
 
-async def _say(s, ch, text, thread=None, loud=False):
+async def _say(s, ch, text, thread=None):
     body = {"channel": ch, "text": text, "unfurl_links": False}
     if thread:
         body["thread_ts"] = thread
-        if loud:
-            body["reply_broadcast"] = True
     await api(s, "chat.postMessage", body=body)
 
 
@@ -241,7 +239,7 @@ async def maybe(s, e, q, force=False):
         save()
         await _say(s, ch, say("repo_ask", who=got["who"] or "(이름 모름)",
                               git=say("repo_git_yes") if got["git"] else say("repo_git_no"),
-                              now=say("repo_now", repo=got["repo"]) if got["repo"] else ""), th, loud=True)
+                              now=say("repo_now", repo=got["repo"]) if got["repo"] else ""), th)
         return True
     if cancelled(q):
         STATE["new_repo"].pop(user, None); save()

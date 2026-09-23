@@ -302,13 +302,11 @@ def _keycap(n):
     return f"{n}️⃣"
 
 
-async def _msay(s, ch, text, thread=None, loud=False):
-    """`flows/task.py` 의 `_say` 와 같다 — 첫 물음만 채팅창에도 띄운다 (스레드 답글은 접혀 보인다)."""
+async def _msay(s, ch, text, thread=None):
+    """`flows/task.py` 의 `_say` 와 같다 — **DM 은 스레드만** (사장님: 「노노 dm 은 스레드만」)."""
     body = {"channel": ch, "text": text, "unfurl_links": False}
     if thread:
         body["thread_ts"] = thread
-        if loud:
-            body["reply_broadcast"] = True
     await api(s, "chat.postMessage", body=body)
 
 
@@ -365,7 +363,7 @@ async def maybe(s, e, q, force=False):
         if titleable(name):
             st["title"] = name[:60]
             return await _mask(s, ch, th, st, "every", say("meet_title_ok", title=name[:60]) + "\n\n")
-        await _msay(s, ch, say("meet_ask_title", step=_keycap(1)), th, loud=True)
+        await _msay(s, ch, say("meet_ask_title", step=_keycap(1)), th)
         return True
     if cancelled(q):
         STATE["new_meeting"].pop(user, None); save()

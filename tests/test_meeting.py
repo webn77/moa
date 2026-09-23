@@ -311,6 +311,27 @@ class EveryTest(Base):
         self.assertFalse(run(meeting.due_meetings(None, datetime.date(2026, 11, 1))))
 
 
+class DmIsThreadOnlyTest(unittest.TestCase):
+    """**DM 은 스레드만** (2026-09-23 사장님: 「노노 dm 은 스레드만」).
+
+    한 칸씩 묻는 흐름이 넷이다 (할 일·프로젝트·회의·GitHub). 넷 다 `_say` 를 저마다
+    몇 줄씩 두고 있어서, 하루 전에 넷 모두에 `reply_broadcast` 를 켰다가 오늘 넷 모두에서
+    껐다. **한 곳만 고치면 조용히 갈라질 자리**라 여기서 넷을 한꺼번에 본다.
+
+    `flows/review.py`·`flows/status.py` 는 **채널** 카드 스레드에서 채널로 띄우는 것이라
+    여기 해당하지 않는다 — 그건 팀이 같이 보라고 일부러 띄운다.
+    """
+
+    def test_no_dm_flow_broadcasts_to_the_channel(self):
+        import pathlib
+        here = pathlib.Path(__file__).resolve().parent.parent / "flows"
+        for name in ("task.py", "project.py", "meeting.py", "repo.py"):
+            body = (here / name).read_text(encoding="utf-8")
+            code = "\n".join(l for l in body.splitlines()
+                             if not l.lstrip().startswith("#") and "`reply_broadcast`" not in l)
+            self.assertNotIn("reply_broadcast", code, f"{name} 가 DM 에서 채팅창에도 띄운다")
+
+
 class DateTest(unittest.TestCase):
     """`core` 의 순수 셈 — Slack 을 안 탄다."""
 

@@ -180,7 +180,7 @@ def _taken():
     return {p.get("key") for p in PROJECTS if p.get("key")}
 
 
-async def _say(s, ch, text, thread=None, loud=False):
+async def _say(s, ch, text, thread=None):
     """**등록 대화는 스레드 안에서** — 묻고 답하는 대여섯 마디를 한 덩이로 묶는다.
 
     맨 위에 답하는 것은 **묻지 않은 답**(찾기·현황·인사)일 때다. 그건 숨으면 안 되니까.
@@ -189,8 +189,6 @@ async def _say(s, ch, text, thread=None, loud=False):
     body = {"channel": ch, "text": text, "unfurl_links": False}
     if thread:
         body["thread_ts"] = thread
-        if loud:
-            body["reply_broadcast"] = True
     await api(s, "chat.postMessage", body=body)
 
 
@@ -402,7 +400,7 @@ async def maybe(s, e, q, force=False):
         name = _name_of(q) if START.search(q) else ""
         if _nameable(name):                 # 시작하는 말에 이름이 함께 오면 그것부터 받는다
             return await _take_title(s, ch, th, st, name)
-        await _say(s, ch, say("proj_ask_name"), th, loud=True)
+        await _say(s, ch, say("proj_ask_name"), th)
         return True
     if cancelled(q):
         STATE["new_project"].pop(user, None); save()
