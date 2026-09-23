@@ -148,6 +148,15 @@ async def finish_meeting(s, m, user):
         await api(s, "chat.postMessage", body={"channel": mch(m), "thread_ts": m["card_ts"],
                   "text": say("mtg_fail", err=str(e)[:120])})
         return
+    # **아무것도 안 나왔으면 저장하지 않는다** (2026-09-23 사장님 실사용: 「회의록 작성 누르면
+    # 이상한게 나오는거같은데」). 논의가 얕으면 AI 가 **빈 표만** 돌려준다 — 「정한 것 없음」·
+    # 「액션 아이템 -」 이 줄줄이 적힌 문서가 레포에 남고, 사람은 그걸 회의록이라고 받는다.
+    # 스레드가 비었을 때는 위에서 이미 막지만, **차 있는데 건질 게 없는** 경우가 더 흔하다
+    if not any(r.get(k) for k in ("decisions", "action_items", "issue_changes", "new_issues")) \
+            and not [a for a in (r.get("agenda_results") or []) if (a.get("decision") or "").strip()]:
+        await api(s, "chat.postMessage", body={"channel": mch(m), "thread_ts": m["card_ts"],
+                  "text": say("mtg_nothing")})
+        return
     body = gh_link.render_minutes(r, m.get("agenda"))
     link = (await api(s, "chat.getPermalink", channel=mch(m), message_ts=m["card_ts"])).get("permalink", "")
     m["permalink"] = link
@@ -393,10 +402,11 @@ async def maybe(s, e, q, force=False):
         st["step"] = "title"
         return await _magain(s, ch, th, st, say("meet_nope"))
 
-    # ① 무슨 회의인가 — **적으신 그대로** 받는다
+    # ① 무슨 회의인가 — **적으신 그대로** 받는다.
+    # 다만 「만들자」 처럼 **만들자는 낱말만** 오면 이름이 아니다 — 봇이 물은 것을 되풀이하신 것이다
     if step == "title":
         name = _title_after(q) or q.strip()
-        if not titleable(name):
+        if not titleable(name) or NOT_A_NAME.match(name):
             return await _magain(s, ch, th, st, say("meet_title_bad", word=q.strip()[:20]))
         st["title"] = name[:60]
         return await _mask(s, ch, th, st, "every", say("meet_title_ok", title=name[:60]) + "\n\n")
@@ -426,7 +436,18 @@ async def maybe(s, e, q, force=False):
     return False
 
 
-TITLE_AFTER = re.compile(r"^\s*(?:회의|미팅)\s*(?:카드|만들기|만들|만드|열|잡|시작|생성|등록|추가)?\w*\s*[:：]?\s*(.*)$")
+# **옵션 뒤에 맨 `\w*` 를 두면 안 된다** (2026-09-23 실사용이 잡았다). 그렇게 두었더니
+# 만드는 낱말이 없을 때 `\w*` 가 **아무 낱말이나 한 개** 먹었다 — 「회의 주간 점검」 의 제목이
+# 「점검」 이 됐다. 어미는 만드는 낱말에 **붙어 있을 때만** 먹는다.
+#
+# 한 글자 어간(잡·열)은 어미를 **하나하나 적는다**: `잡\w*` 로 두면 「회의 **잡담방** 개선」 의
+# 「잡담방」 을 먹는다. 두 글자 이상은 그럴 일이 드물어 세 글자까지 봐준다
+TITLE_AFTER = re.compile(r"^\s*(?:회의|미팅)\s*"
+                         r"(?:(?:카드|만들기|만들|만드|시작|생성|등록|추가)\w{0,3}"
+                         r"|(?:잡|열)(?:아줘|어줘|아|자|어|을까|기|지))?\s*[:：]?\s*(.*)$")
+# **만드는 낱말만 있는 답은 제목이 아니다** — 「만들자」 가 회의 이름이 됐다 (실사용).
+# ① 칸에서 「만들자」 라고 답하시면 봇이 물은 것을 되풀이하신 것이지, 이름을 주신 게 아니다
+NOT_A_NAME = re.compile(r"^(?:회의|미팅|카드)?\s*(?:만들|만드|잡|열|시작|생성|등록|추가|해줘|해|하자|할래)\w{0,3}$")
 WORD_DATE = {"1": "오늘", "2": "내일", "3": "모레"}
 
 
@@ -434,7 +455,9 @@ def _title_after(text):
     """「회의 주간 점검」 의 뒷말 — 만들자는 낱말만 있으면 빈 글자."""
     m = TITLE_AFTER.match((text or "").strip())
     got = (m.group(1) if m else (text or "")).strip(" -—:·")
-    return "" if not titleable(got) else got
+    if not titleable(got) or NOT_A_NAME.match(got):
+        return ""
+    return got
 
 
 def _date_pick(text):

@@ -5,6 +5,7 @@ Slack·GitHub·AI 를 부르지 않는다. 회의록 정리(`finish_meeting`)는
 (2026-09-23 에 `ai.recommend` 로 1.1초가 69초가 된 적이 있다).
 """
 import asyncio
+import json
 import datetime
 import os
 import sys
@@ -128,6 +129,22 @@ class StartTest(Base):
         for q in ("회의록 보여줘", "회의록 다시", "현황", "안녕", "내 할 일", "회의 언제였지"):
             STATE.pop("new_meeting", None)
             self.assertFalse(self.say(q), q)
+
+    def test_the_name_is_not_chewed_up(self):
+        """**옵션 뒤에 맨 `\\w*` 를 두면 아무 낱말이나 먹는다** — 2026-09-23 실사용에서
+        「회의 주간 점검」 의 제목이 「점검」 이 됐고, 「만들자」 가 회의 이름이 됐다."""
+        for q, want in {"회의 주간 점검": "주간 점검", "회의 결제 논의": "결제 논의",
+                        "회의 잡담방 개선": "잡담방 개선", "회의 열린 회고": "열린 회고",
+                        "회의 만들자": "", "회의만들자": "", "미팅 잡자": "",
+                        "회의 시작하자": "", "만들자": "", "잡아줘": ""}.items():
+            self.assertEqual(meeting._title_after(q), want, f"「{q}」")
+
+    def test_a_making_word_is_not_a_name(self):
+        """① 칸에서 「만들자」 라고 답하시면 **되풀이하신 것**이지 이름을 주신 게 아니다."""
+        self.say("회의 만들자")
+        self.say("만들자")
+        self.assertIn("회의 이름으로 쓰기 어려워요", self.last())
+        self.assertFalse(self.made())
 
     def test_a_name_in_the_first_line_is_the_name(self):
         """「회의 만들자 주간 점검」 이면 이름을 다시 묻지 않는다 — **아는 것은 묻지 않는다.**"""
@@ -309,6 +326,55 @@ class EveryTest(Base):
         run(meeting.stop_every(None, m["card_ts"], ME))
         self.assertIn(m["card_ts"], STATE["meetings"])
         self.assertFalse(run(meeting.due_meetings(None, datetime.date(2026, 11, 1))))
+
+
+class MinutesTest(Base):
+    """**빈 표만 든 회의록을 레포에 남기지 않는다** (2026-09-23 사장님 실사용:
+    「회의록 작성 누르면 이상한게 나오는거같은데」).
+
+    스레드가 비었을 때는 예전부터 막았다. 그런데 실제로 걸린 건 **차 있는데 건질 게
+    없는** 경우였다 — AI 가 「정한 것 없음」·「액션 아이템 -」 만 든 문서를 돌려주고,
+    그게 `meetings/` 에 파일로 남았다.
+    """
+
+    def _finish(self, answer):
+        import ai
+        m = run(meeting.new_meeting(None, "주간 점검", None, "이동원", "C0TEAM"))
+        self.saved = []
+
+        async def fake_ai(system, prompt):
+            return json.dumps(answer, ensure_ascii=False)
+
+        def fake_save(mm, body, link):
+            """진짜 `gh_link.save_meeting` 처럼 `m["file"]` 을 채운다 — 카드가 그걸로
+            「회의록 보기」 단추를 그린다."""
+            self.saved.append(body)
+            mm["file"] = f"{mm['date']}-x.md"
+            return "meetings/x.md"
+
+        async def replies(s, method, body=None, **p):
+            if method == "conversations.replies":
+                return {"messages": [{"text": "카드"}, {"user": "U1", "text": "회의합시다"}]}
+            return await self.fake.api(s, method, body, **p)
+
+        with mock.patch.object(meeting, "ask_ai", fake_ai), \
+             mock.patch.object(meeting, "api", replies), \
+             mock.patch.object(meeting.gh_link, "save_meeting", fake_save):
+            run(meeting.finish_meeting(None, m, ME))
+        return m
+
+    def test_it_refuses_to_save_an_empty_one(self):
+        m = self._finish({"agenda_results": [], "decisions": [], "action_items": [],
+                          "issue_changes": [], "new_issues": [], "next_meeting": ""})
+        self.assertFalse(self.saved, "건질 게 없는데 회의록을 저장했다")
+        self.assertIsNone(m.get("file"))
+        self.assertIn("남길 게 없어요", self.fake.texts()[-1])
+
+    def test_it_saves_when_something_was_decided(self):
+        m = self._finish({"agenda_results": [], "decisions": ["다음 주에 배포한다"],
+                          "action_items": [], "issue_changes": [], "new_issues": [], "next_meeting": ""})
+        self.assertTrue(self.saved, "정한 것이 있는데 저장하지 않았다")
+        self.assertTrue(m.get("file"), "회의록을 저장했는데 카드가 모른다")
 
 
 class DmIsThreadOnlyTest(unittest.TestCase):
