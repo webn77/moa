@@ -208,9 +208,17 @@ def ctl_blocks(c):
 
 def checklist_blocks(c):
     """체크리스트 체크박스 — 스레드 ⚙️ 설정과 📄 상세가 같이 쓴다. 체크하면 카드에 2/4, 다 체크하면 확인 대기."""
+    # **고치는 단추를 늘 붙인다** (2026-09-23 사장님: 「체크리스트 언제나 쉽게 수정 가능하게」).
+    # 비어 있을 때도 붙는다 — 없을 때야말로 채울 자리가 필요하다. 예전에는 「스레드에 한두 줄
+    # 알려 주시면」 이라고만 했는데, 그건 AI 가 받아 적어 주길 기다리라는 말이라 자리가 아니다.
+    # 📝 설명 쓰기(다섯 칸)로도 되지만 **한 칸짜리 창**이 한 번에 열린다
+    fix = {"type": "button", "text": {"type": "plain_text", "text": "✍️ 체크리스트 고치기"},
+           "action_id": "edit_list", "value": c.get("card_ts") or "-"}
     done = ((c.get("spec") or {}).get("done_criteria") or [])[:10]
     if not done:
-        return [{"type": "context", "elements": [{"type": "mrkdwn", "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요"}]}]
+        return [{"type": "section", "text": {"type": "mrkdwn",
+                 "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요"},
+                 "accessory": fix}]
     k, n = progress(c)
     opts = [{"text": {"type": "mrkdwn", "text": x[:150]}, "value": str(i)} for i, x in enumerate(done)]
     el = {"type": "checkboxes", "action_id": "check_dc", "options": opts}
@@ -218,7 +226,8 @@ def checklist_blocks(c):
     if got:
         el["initial_options"] = got
     return [{"type": "section", "text": {"type": "mrkdwn",
-             "text": f"*{bar(k, n)} 체크리스트 {k}/{n}* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요"}},
+             "text": f"*{bar(k, n)} 체크리스트 {k}/{n}* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요"},
+             "accessory": fix},
             {"type": "actions", "block_id": f"dc:{c.get('card_ts') or '-'}", "elements": [el]}]
 
 

@@ -280,6 +280,8 @@ async def on_view_submit(s, payload):
         return await save_take(s, payload)
     if payload["view"].get("callback_id") == "edit_content_submit":
         return await save_content(s, payload)
+    if payload["view"].get("callback_id") == "edit_list_submit":
+        return await save_list(s, payload)
     if payload["view"].get("callback_id") == "review_back_submit":
         c = STATE["cards"].get(payload["view"].get("private_metadata"))
         why = ((payload["view"]["state"]["values"].get("why") or {}).get("v") or {}).get("value")
@@ -331,7 +333,7 @@ async def on_view_submit(s, payload):
     log(f"창에서 바꿈 #{c['no']} → {c['status']}")
 
 
-SLOW = ("review_ok", "review_back", "close_done", "check_dc", "set_status", "spec_ok",
+SLOW = ("review_ok", "review_back", "close_done", "check_dc", "set_status", "spec_ok", "edit_list",
         "fill_spec", "fill_all", "fill_after", "draft_make", "same_as", "tidy_drop", "tidy_later", "canvas_now")
 
 
@@ -390,6 +392,12 @@ async def act_edit_content(s, p, a):
     c = _card(a)
     if c:                                      # 상세 팝업 안에서 누르면 그 위에 한 장 더 연다
         await open_content_editor(s, p["trigger_id"], c, push=p.get("container", {}).get("type") == "view")
+
+
+async def act_edit_list(s, p, a):              # ✍️ 체크리스트 고치기 — 한 칸짜리 창 (2026-09-23)
+    c = _card(a)
+    if c:                                      # 상세 팝업 안에서 누르면 그 위에 한 장 더 연다
+        await open_list_editor(s, p["trigger_id"], c, push=p.get("container", {}).get("type") == "view")
 
 
 async def act_edit_card(s, p, a):              # 앱 홈 「✏️ 상태·담당」 창
@@ -493,7 +501,7 @@ ACTIONS = {
     # 이것을 쏘고(`flows/meeting.py` MFIELD), 아직 안 다시 그려진 옛 카드에도 드롭다운이 남아 있다
     **{k: act_set for k in ("set_status", "set_prio", "set_due", "set_assignee", "set_stage", "set_feature",
                             "set_start")},
-    "risk_fix": act_risk_fix, "spec_ok": act_spec_ok, "edit_content": act_edit_content, "edit_card": act_edit_card,
+    "risk_fix": act_risk_fix, "spec_ok": act_spec_ok, "edit_content": act_edit_content, "edit_card": act_edit_card, "edit_list": act_edit_list,
     "pull_card": act_pull, "accept_assign": act_pull, "decline_card": act_decline,       # accept_assign — 예전 카드에 남은 버튼
     "check_dc": act_check, "close_done": act_close_done, "review_ok": act_review_ok, "review_back": act_review_back,
     "mtg_apply": act_mtg_apply, "finish_meeting": act_finish_meeting, "show_meeting": act_show_meeting, "show_md": act_show_md,
@@ -576,7 +584,7 @@ from flows.find import find  # noqa: E402,F401
 from flows.fix import apply_fix, post_digest, show_digest  # noqa: E402,F401
 from flows.intake import confirm_spec, drop_draft, make_from_draft, merge_into, new_card, not_same, propose_issue, refresh_draft, same_as, show_md  # noqa: E402,F401
 from flows.meeting import apply_meeting_change, finish_meeting, new_meeting, save_meeting  # noqa: E402,F401
-from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, decline_card, save_content, save_take, take_card  # noqa: E402,F401
+from flows.status import announce, apply_change, balance, tell_assigned, check_criteria, close_done, ensure_ctl, note_decisions, open_content_editor, open_list_editor, save_list, open_editor, open_take_editor, post_log, record_change, redraw, resolve, tell_left, decline_card, save_content, save_take, take_card  # noqa: E402,F401
 from flows.review import review_answer  # noqa: E402,F401
 from flows.tidy import decide as tidy_decide, fill_after_all as tidy_fill_after, order as tidy_order, fill_all as tidy_fill_all, propose as tidy_propose  # noqa: E402,F401
 from views.canvas import render_canvas, render_canvas_now  # noqa: E402,F401

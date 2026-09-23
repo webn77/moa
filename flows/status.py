@@ -311,6 +311,44 @@ async def save_take(s, payload):
 FORM_KEYS = [(k, label) for k, label in SPEC_KEYS if k != "not_doing"]
 
 
+async def open_list_editor(s, trigger, c, push=False):
+    """✍️ 체크리스트 고치기 — **한 칸짜리 창** (2026-09-23 사장님: 「언제나 쉽게 수정 가능하게」).
+
+    📝 설명 쓰기(다섯 칸)로도 되지만, 체크리스트 하나 고치려고 다섯 칸을 지나게 하지 않는다.
+    체크리스트가 보이는 자리마다 이 단추가 있다 — 카드 · 📄 상세.
+    """
+    sp = c.get("spec") or {}
+    await api(s, "views.push" if push else "views.open", body={"trigger_id": trigger, "view": {
+        "type": "modal", "callback_id": "edit_list_submit", "private_metadata": c["card_ts"],
+        "title": {"type": "plain_text", "text": f"#{c['no']} 체크리스트"},
+        "submit": {"type": "plain_text", "text": "저장"}, "close": {"type": "plain_text", "text": "닫기"},
+        "blocks": [
+            {"type": "context", "elements": [{"type": "mrkdwn", "text": f"*{tag(c['no'], c)} {c['title']}*"}]},
+            {"type": "input", "block_id": "done_criteria", "optional": True,
+             "label": {"type": "plain_text", "text": "뭘 해야 하나요?"},
+             "element": {"type": "plain_text_input", "action_id": "v", "multiline": True,
+                         "initial_value": "\n".join(sp.get("done_criteria") or [])},
+             "hint": {"type": "plain_text", "text": "한 줄에 하나씩 · 「권한 표 쓰기」 처럼 할 거리로. 비우면 체크리스트가 없어져요"}},
+        ]}})
+
+
+async def save_list(s, payload):
+    """체크리스트만 저장한다. **체크해 둔 것은 문구가 그대로면 살아남는다** — 값으로 짝짓는다."""
+    v = payload["view"]
+    c = STATE["cards"].get(v.get("private_metadata"))
+    if not c:
+        return
+    raw = (((v["state"]["values"].get("done_criteria") or {}).get("v") or {}).get("value") or "")
+    old_title, old_spec = c["title"], dict(c.get("spec") or {})
+    sp = dict(c.get("spec") or {})
+    sp["done_criteria"] = core.clean_items(raw.splitlines())
+    c["spec"] = sp if any(sp.values()) else None
+    c["checked"] = [x for x in (c.get("checked") or []) if x in sp["done_criteria"]]
+    await record_change(s, c, payload.get("user", {}).get("id"), old_title, old_spec, "")
+    await redraw(s, c)
+    log(f"체크리스트 고침 #{c['no']} ({len(sp['done_criteria'])}개)")
+
+
 async def open_content_editor(s, trigger, c, push=False):
     """사람이 제목·이슈 정의를 직접 고친다. 비워 두면 그 칸은 없는 것으로."""
     sp = c.get("spec") or {}

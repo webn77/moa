@@ -287,13 +287,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789775750.062099"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -509,13 +516,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789794288.360539"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -715,6 +729,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789794427.895239"
+       },
        "text": {
         "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -961,13 +984,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749213.663579"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -1445,13 +1475,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749213.663579"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -1673,13 +1710,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749213.663579"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -1902,6 +1946,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749251.503309"
+       },
        "text": {
         "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -1995,6 +2048,332 @@
      "unfurl_links": false
     },
     "method": "chat.postMessage"
+   }
+  ],
+  "trail": []
+ },
+ "✍️ 체크리스트 저장 #12": {
+  "sent": [
+   {
+    "body": {
+     "channel": "C0EXAMPLEPRJ",
+     "text": "📝 9/21 체크리스트 −a / c +권한 표 쓰기 / 안 쓰는 항목 빼기 · 김하나 — <@U0EXAMPLEPM> 님, 이유를 한 줄 남겨 주시면 적어 둘게요 🙂",
+     "thread_ts": "1789749254.624039"
+    },
+    "method": "chat.postMessage"
+   },
+   {
+    "body": {
+     "blocks": [
+      {
+       "text": {
+        "text": "🟡 *PA-12 권한 정리 2*",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "elements": [
+        {
+         "text": "🕒 대기 · P3 · 담당 없음 (추천 박두리)  ·  🧩 기반 (운영·권한·안전)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "text": "✍️ *2/4 채워짐* — 남은 것: 담당 · 언제까지  (아무나 이어서 채우셔도 돼요)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "elements": [
+        {
+         "action_id": "pull_card",
+         "text": {
+          "text": "✋ 내가 할게요",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749254.624039"
+        },
+        {
+         "action_id": "edit_content",
+         "text": {
+          "text": "✏️ 설명 고치기",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749254.624039"
+        },
+        {
+         "action_id": "show_md",
+         "text": {
+          "text": "📄 상세",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749254.624039"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "text": {
+        "text": "⚙️ *이 할 일 설정* — AI가 먼저 정해 뒀어요. 담당 · 우선순위 · 목표일 · 상태, 다르면 고쳐 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "card:1789749254.624039",
+       "elements": [
+        {
+         "action_id": "set_assignee",
+         "placeholder": {
+          "text": "누가 맡을까요?",
+          "type": "plain_text"
+         },
+         "type": "users_select"
+        },
+        {
+         "action_id": "set_prio",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🟡 P3 보통",
+           "type": "plain_text"
+          },
+          "value": "3"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔴 P1 긴급",
+            "type": "plain_text"
+           },
+           "value": "1"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟠 P2 높음",
+            "type": "plain_text"
+           },
+           "value": "2"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🟡 P3 보통",
+            "type": "plain_text"
+           },
+           "value": "3"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⚪ P4 낮음",
+            "type": "plain_text"
+           },
+           "value": "4"
+          }
+         ],
+         "type": "static_select"
+        },
+        {
+         "action_id": "set_due",
+         "placeholder": {
+          "text": "목표일",
+          "type": "plain_text"
+         },
+         "type": "datepicker"
+        },
+        {
+         "action_id": "set_status",
+         "initial_option": {
+          "text": {
+           "emoji": true,
+           "text": "🕒 대기",
+           "type": "plain_text"
+          },
+          "value": "todo"
+         },
+         "options": [
+          {
+           "text": {
+            "emoji": true,
+            "text": "🕒 대기",
+            "type": "plain_text"
+           },
+           "value": "todo"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "👀 진행 중",
+            "type": "plain_text"
+           },
+           "value": "doing"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "⛔ 보류",
+            "type": "plain_text"
+           },
+           "value": "blocked"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "🔍 확인 대기",
+            "type": "plain_text"
+           },
+           "value": "review"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "✅ 완료",
+            "type": "plain_text"
+           },
+           "value": "done"
+          },
+          {
+           "text": {
+            "emoji": true,
+            "text": "❌ 취소",
+            "type": "plain_text"
+           },
+           "value": "cancelled"
+          }
+         ],
+         "type": "static_select"
+        }
+       ],
+       "type": "actions"
+      },
+      {
+       "elements": [
+        {
+         "text": "추천 담당 박두리 — 자리가 나면 자동으로 가요 · 우선순위 🟡 P3 (AI — 지금·다음 자리가 차서 백로그)",
+         "type": "mrkdwn"
+        }
+       ],
+       "type": "context"
+      },
+      {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749254.624039"
+       },
+       "text": {
+        "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
+      },
+      {
+       "block_id": "dc:1789749254.624039",
+       "elements": [
+        {
+         "action_id": "check_dc",
+         "options": [
+          {
+           "text": {
+            "text": "권한 표 쓰기",
+            "type": "mrkdwn"
+           },
+           "value": "0"
+          },
+          {
+           "text": {
+            "text": "안 쓰는 항목 빼기",
+            "type": "mrkdwn"
+           },
+           "value": "1"
+          }
+         ],
+         "type": "checkboxes"
+        }
+       ],
+       "type": "actions"
+      }
+     ],
+     "channel": "C0EXAMPLEPRJ",
+     "text": "🎫 #12 권한 정리 2",
+     "ts": "1789749254.624039"
+    },
+    "method": "chat.update"
+   }
+  ],
+  "trail": []
+ },
+ "✍️ 체크리스트 창 #12": {
+  "sent": [
+   {
+    "body": {
+     "trigger_id": "T",
+     "view": {
+      "blocks": [
+       {
+        "elements": [
+         {
+          "text": "*PA-12 권한 정리 2*",
+          "type": "mrkdwn"
+         }
+        ],
+        "type": "context"
+       },
+       {
+        "block_id": "done_criteria",
+        "element": {
+         "action_id": "v",
+         "initial_value": "a\nc",
+         "multiline": true,
+         "type": "plain_text_input"
+        },
+        "hint": {
+         "text": "한 줄에 하나씩 · 「권한 표 쓰기」 처럼 할 거리로. 비우면 체크리스트가 없어져요",
+         "type": "plain_text"
+        },
+        "label": {
+         "text": "뭘 해야 하나요?",
+         "type": "plain_text"
+        },
+        "optional": true,
+        "type": "input"
+       }
+      ],
+      "callback_id": "edit_list_submit",
+      "close": {
+       "text": "닫기",
+       "type": "plain_text"
+      },
+      "private_metadata": "1789749254.624039",
+      "submit": {
+       "text": "저장",
+       "type": "plain_text"
+      },
+      "title": {
+       "text": "#12 체크리스트",
+       "type": "plain_text"
+      },
+      "type": "modal"
+     }
+    },
+    "method": "views.open"
    }
   ],
   "trail": []
@@ -2326,6 +2705,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749254.624039"
+       },
        "text": {
         "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -2585,6 +2973,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749254.624039"
+       },
        "text": {
         "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -2828,6 +3225,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749231.241109"
+       },
        "text": {
         "text": "*▓▓▓▓▓▓▓▓▓▓ 체크리스트 3/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -3449,13 +3855,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749258.124529"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -3718,6 +4131,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749254.624039"
+       },
        "text": {
         "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -3968,6 +4390,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749231.241109"
+       },
        "text": {
         "text": "*▓▓▓░░░░░░░ 체크리스트 1/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -4086,7 +4517,7 @@
      "who": "박두리"
     },
     {
-     "at": 1790000023.0,
+     "at": 1790000024.0,
      "date": "2026-09-21",
      "icon": "🗓️",
      "kind": "meeting",
@@ -4163,7 +4594,7 @@
   "#12": {
    "assign_src": null,
    "assignee": null,
-   "checked": null,
+   "checked": [],
    "due": null,
    "due_src": null,
    "edits": [
@@ -4203,6 +4634,20 @@
      "ts": "1.5",
      "what": "제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 체크리스트 −b +c",
      "who": "김하나"
+    },
+    {
+     "at": 1790000020.0,
+     "by": "U0EXAMPLEPM",
+     "date": "2026-09-21",
+     "fields": [
+      "체크리스트"
+     ],
+     "icon": "📝",
+     "kind": "spec",
+     "reason": null,
+     "ts": "1.5",
+     "what": "체크리스트 −a / c +권한 표 쓰기 / 안 쓰는 항목 빼기",
+     "who": "김하나"
     }
    ],
    "finished": null,
@@ -4213,8 +4658,8 @@
    "spec": {
     "change": "",
     "done_criteria": [
-     "a",
-     "c"
+     "권한 표 쓰기",
+     "안 쓰는 항목 빼기"
     ],
     "expect": "",
     "not_doing": "n",
@@ -4235,7 +4680,7 @@
    "due_src": "human",
    "edits": [
     {
-     "at": 1790000021.0,
+     "at": 1790000022.0,
      "date": "2026-09-21",
      "icon": "👀",
      "kind": "event",
@@ -4244,7 +4689,7 @@
      "who": "김하나"
     },
     {
-     "at": 1790000022.0,
+     "at": 1790000023.0,
      "by": "U0EXAMPLEPM",
      "date": "2026-09-21",
      "fields": [
@@ -5677,7 +6122,7 @@
        {
         "elements": [
          {
-          "text": "완료 1 (계획대로 1) · 시작 2 · 변경 8",
+          "text": "완료 1 (계획대로 1) · 시작 2 · 변경 9",
           "type": "mrkdwn"
          }
         ],
@@ -5685,7 +6130,7 @@
        },
        {
         "text": {
-         "text": "🗓️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 회의 M9에서 다룸 · 주간 점검\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 목표일 없음→9/24 · 일정 위험 추천 적용·김하나 (<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게…> 목표일을 9/24로 미뤘어요)\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 시작 · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 체크리스트 −b +c · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 체크리스트 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n⛔ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 보류 · 박두리\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 — 계획대로 (목표일 9/21) · 박두리\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 3/3 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 1/3 · 박두리\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 시작 · 박두리\n↩️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘> — 못 받겠다고 하셨어요 · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 목표일 9/25→9/30 · 김하나 (고객 일정 때문)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 우선순위 P4→P2 · 김하나\n🗺️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 이렇게 할게요 · 박두리 (먼저 재현부터 해 볼게요)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 박두리→없음, 목표일 9/21→없음 · AI 자동 조정 (지금·다음 자리가 차서 백로그 · 배정이 풀려 제안 날짜도 뺌)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험> — 담당 없음→김하나, 목표일 없음→9/24 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 담당 없음→박두리 · 박두리\n",
+         "text": "🗓️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 회의 M9에서 다룸 · 주간 점검\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 목표일 없음→9/24 · 일정 위험 추천 적용·김하나 (<https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게…> 목표일을 9/24로 미뤘어요)\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749258124529|PA-13 봇이 브랜치와 PR까지 올리게 하…> — 시작 · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 체크리스트 −a / c +권한 표 쓰기 / 안 쓰는 항목 빼기 · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 체크리스트 −b +c · 김하나\n📝 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749254624039|PA-12 권한 정리 2> — 제목 수정, 왜 수정, 바뀌는 것 수정, 기대와 확인 수정, 하지 않는 것 수정, 체크리스트 −옛 +a / b · 대화로 정리 → 👍·김하나 (스레드 대화 참고)\n⛔ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749251503309|XX-11 AI에게 허용할 권한 단계와 기준…> — 보류 · 박두리\n✅ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 완료 — 계획대로 (목표일 9/21) · 박두리\n🔍 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 확인 대기 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 3/3 · 박두리\n☑ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 체크리스트 1/3 · 박두리\n👀 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749231241109|PA-10 봇을 재부팅해도 계속 돌게 하기> — 시작 · 박두리\n↩️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749217167879|PA-6 @봇 찾아줘> — 못 받겠다고 하셨어요 · 박두리\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 목표일 9/25→9/30 · 김하나 (고객 일정 때문)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 우선순위 P4→P2 · 김하나\n🗺️ <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 이렇게 할게요 · 박두리 (먼저 재현부터 해 볼게요)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789794288360539|PA-38 시험용 메시지 정리> — 담당 박두리→없음, 목표일 9/21→없음 · AI 자동 조정 (지금·다음 자리가 차서 백로그 · 배정이 풀려 제안 날짜도 뺌)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789775750062099|PA-25 인수인계 시험> — 담당 없음→김하나, 목표일 없음→9/24 · AI 자동 조정 (자리가 나서 우선순위 순으로 배정 · 예상 시간으로 계산한 제안)\n🔄 <https://example.slack.com/archives/C0EXAMPLEPRJ/p1789749213663579|PA-5 AI가 레포와 회의록을 읽고 답하…> — 담당 없음→박두리 · 박두리\n",
          "type": "mrkdwn"
         },
         "type": "section"
@@ -5977,13 +6422,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749258.124529"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",
@@ -6799,6 +7251,15 @@
        "type": "context"
       },
       {
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749231.241109"
+       },
        "text": {
         "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
         "type": "mrkdwn"
@@ -7066,6 +7527,15 @@
         "type": "section"
        },
        {
+        "accessory": {
+         "action_id": "edit_list",
+         "text": {
+          "text": "✍️ 체크리스트 고치기",
+          "type": "plain_text"
+         },
+         "type": "button",
+         "value": "1789749254.624039"
+        },
         "text": {
          "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
          "type": "mrkdwn"
@@ -7347,13 +7817,20 @@
        "type": "context"
       },
       {
-       "elements": [
-        {
-         "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-         "type": "mrkdwn"
-        }
-       ],
-       "type": "context"
+       "accessory": {
+        "action_id": "edit_list",
+        "text": {
+         "text": "✍️ 체크리스트 고치기",
+         "type": "plain_text"
+        },
+        "type": "button",
+        "value": "1789749213.663579"
+       },
+       "text": {
+        "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+        "type": "mrkdwn"
+       },
+       "type": "section"
       }
      ],
      "channel": "C0EXAMPLEPRJ",

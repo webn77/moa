@@ -132,6 +132,10 @@ def main():
                                                                        "after": {"v": {"value": "#14 #999"}},   # 없는 번호는 걸러진다
                                                                        "reason": {"v": {"value": "손으로 정함"}}})),
         ("📄 선행 넣은 뒤 상세 #12", lambda: act("show_md", PM, value=ts(12))),
+        # 체크리스트만 고치는 한 칸짜리 창 (2026-09-23) — 체크해 둔 것은 문구가 그대로면 살아남는다
+        ("✍️ 체크리스트 창 #12", lambda: act("edit_list", PM, value=ts(12))),
+        ("✍️ 체크리스트 저장 #12", lambda: submit("edit_list_submit", ts(12),
+                                              {"done_criteria": {"v": {"value": "권한 표 쓰기\n안 쓰는 항목 빼기"}}})),
         ("홈 ✏️ 창 #13", lambda: act("edit_card", PM, value=ts(13))),
         ("홈 ✏️ 저장 #13", lambda: submit("edit_card_submit", ts(13), {"s": {"status": {"selected_option": {"value": "doing"}}}})),
         ("위험 [미루기] #13", lambda: act("risk_fix", PM, value=f"delay:13:3")),

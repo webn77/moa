@@ -214,6 +214,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749231.241109"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -443,6 +452,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749251.503309"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -688,13 +706,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749254.624039"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #13": [
@@ -902,13 +927,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749258.124529"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #14": [
@@ -1100,6 +1132,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749261.680049"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -1345,13 +1386,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749265.278799"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #16": [
@@ -1559,13 +1607,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749269.133189"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #17": [
@@ -1773,6 +1828,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775680.992979"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -2050,13 +2114,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775687.744159"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #20": [
@@ -2328,13 +2399,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775739.678749"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #23": [
@@ -2542,6 +2620,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775743.015369"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -2787,13 +2874,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775746.410959"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #25": [
@@ -3001,13 +3095,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775750.062099"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #26": [
@@ -3295,6 +3396,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789788787.665609"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -3538,6 +3648,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792132.701589"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -3790,13 +3909,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792163.453589"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #33": [
@@ -4004,13 +4130,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792763.110749"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #34": [
@@ -4218,13 +4351,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792792.813279"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #35": [
@@ -4416,6 +4556,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794199.942679"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -4654,6 +4803,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794228.447349"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -4899,13 +5057,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794260.968539"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #38": [
@@ -5115,13 +5280,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794288.360539"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #39": [
@@ -5329,13 +5501,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794317.425659"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #4": [
@@ -5577,13 +5756,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794346.297319"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #41": [
@@ -5775,6 +5961,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794371.164169"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -6020,13 +6215,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794397.321529"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #43": [
@@ -6218,6 +6420,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794427.895239"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -6463,6 +6674,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795123.141839"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -6708,6 +6928,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795150.754579"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -6960,6 +7189,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795585.488129"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -7301,13 +7539,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749213.663579"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #50": [
@@ -7547,6 +7792,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835289.677499"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -7799,6 +8053,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835331.158699"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -8058,6 +8321,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835367.445089"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -8303,6 +8575,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835403.671929"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -8548,6 +8829,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835439.535709"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -8832,13 +9122,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749220.756859"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #8": [
@@ -9046,13 +9343,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749224.195209"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "card #9": [
@@ -9237,6 +9541,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749231.241109"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -9427,6 +9740,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749251.503309"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -9615,13 +9937,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749254.624039"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #13": [
@@ -9772,13 +10101,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749258.124529"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #14": [
@@ -9931,6 +10267,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749261.680049"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -10119,13 +10464,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749265.278799"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #16": [
@@ -10276,13 +10628,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749269.133189"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #17": [
@@ -10433,6 +10792,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775680.992979"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -10622,13 +10990,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775684.241679"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #19": [
@@ -10779,13 +11154,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775687.744159"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #20": [
@@ -10937,13 +11319,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775691.038629"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #21": [
@@ -11095,13 +11484,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775694.406969"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #22": [
@@ -11252,13 +11648,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775739.678749"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #23": [
@@ -11409,6 +11812,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775743.015369"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -11597,13 +12009,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775746.410959"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #25": [
@@ -11754,13 +12173,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775750.062099"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #26": [
@@ -11911,13 +12337,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789776734.457079"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #27": [
@@ -12068,13 +12501,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789777276.293389"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #29": [
@@ -12225,13 +12665,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789777340.503599"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #30": [
@@ -12384,6 +12831,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789788787.665609"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -12588,6 +13044,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792132.701589"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -12783,13 +13248,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792163.453589"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #33": [
@@ -12940,13 +13412,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792763.110749"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #34": [
@@ -13097,13 +13576,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792792.813279"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #35": [
@@ -13256,6 +13742,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794199.942679"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -13437,6 +13932,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794228.447349"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -13625,13 +14129,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794260.968539"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #38": [
@@ -13784,13 +14295,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794288.360539"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #39": [
@@ -13941,13 +14459,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794317.425659"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #4": [
@@ -14099,6 +14624,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789746579.189329"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -14296,13 +14830,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794346.297319"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #41": [
@@ -14455,6 +14996,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794371.164169"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -14643,13 +15193,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794397.321529"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #43": [
@@ -14802,6 +15359,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794427.895239"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -14990,6 +15556,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795123.141839"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -15178,6 +15753,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795150.754579"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -15373,6 +15957,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795585.488129"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -15561,6 +16154,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789798828.155859"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/1* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -15735,6 +16337,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789830121.876629"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -15923,6 +16534,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789830151.923589"
+   },
    "text": {
     "text": "*▓▓▓▓▓▓▓▓▓▓ 체크리스트 5/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -16162,13 +16782,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749213.663579"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #50": [
@@ -16321,6 +16948,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789830178.015189"
+   },
    "text": {
     "text": "*▓▓▓▓▓▓▓▓▓▓ 체크리스트 3/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -16532,6 +17168,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835289.677499"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -16727,6 +17372,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835331.158699"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -16929,6 +17583,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835367.445089"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -17117,6 +17780,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835403.671929"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -17305,6 +17977,15 @@
    "type": "context"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835439.535709"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -17500,13 +18181,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749217.167879"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #7": [
@@ -17657,13 +18345,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749220.756859"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #8": [
@@ -17814,13 +18509,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749224.195209"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "ctl #9": [
@@ -17971,13 +18673,20 @@
    "type": "context"
   },
   {
-   "elements": [
-    {
-     "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 스레드에 한두 줄 알려 주시면 정리해 둘게요",
-     "type": "mrkdwn"
-    }
-   ],
-   "type": "context"
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749227.704029"
+   },
+   "text": {
+    "text": "*체크리스트* 아직 없어요 — 뭘 해야 하는지 한 줄씩 적어 주세요",
+    "type": "mrkdwn"
+   },
+   "type": "section"
   }
  ],
  "detail #10": [
@@ -18022,6 +18731,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749231.241109"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -18149,6 +18867,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749251.503309"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -18468,6 +19195,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789749261.680049"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -18742,6 +19478,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775680.992979"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -19289,6 +20034,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789775743.015369"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -19836,6 +20590,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789788787.665609"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -19971,6 +20734,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789792132.701589"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -20333,6 +21105,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794199.942679"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/2* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -20438,6 +21219,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794228.447349"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -20793,6 +21583,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789746579.189329"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21002,6 +21801,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794371.164169"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21210,6 +22018,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789794427.895239"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21322,6 +22139,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795123.141839"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21434,6 +22260,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795150.754579"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21553,6 +22388,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789795585.488129"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21665,6 +22509,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789798828.155859"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/1* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21763,6 +22616,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789830121.876629"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -21884,6 +22746,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789830151.923589"
+   },
    "text": {
     "text": "*▓▓▓▓▓▓▓▓▓▓ 체크리스트 5/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -22152,6 +23023,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789830178.015189"
+   },
    "text": {
     "text": "*▓▓▓▓▓▓▓▓▓▓ 체크리스트 3/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -22296,6 +23176,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835289.677499"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -22415,6 +23304,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835331.158699"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/5* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -22541,6 +23439,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835367.445089"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -22653,6 +23560,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835403.671929"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/3* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
@@ -22765,6 +23681,15 @@
    "type": "section"
   },
   {
+   "accessory": {
+    "action_id": "edit_list",
+    "text": {
+     "text": "✍️ 체크리스트 고치기",
+     "type": "plain_text"
+    },
+    "type": "button",
+    "value": "1789835439.535709"
+   },
    "text": {
     "text": "*░░░░░░░░░░ 체크리스트 0/4* — 한 것을 체크해 주세요. 다 체크하면 요청하신 분께 확인을 부탁드려요",
     "type": "mrkdwn"
