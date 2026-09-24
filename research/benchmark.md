@@ -289,8 +289,8 @@ GitHub 쪽은 이미 `- [ ]` 로 나가고 있어 진행률이 그대로 뜬다 
 
 | 방식 | 사용자가 하는 일 | 플랜 | 우리 팀 |
 | --- | --- | --- | --- |
-| **Slackbot + 구글 캘린더 연결** | 「회의 잡아 줘」 → Slackbot 이 대신 만들고 초대 | **Business+ 이상** (1인 월 $15) | ❌ PA 는 무료 · 모아는 Pro 인데도 **업그레이드 화면**이 떴다 (9/25 실측) |
-| **Slackbot 스킬** (9월 「스킬 세트」) | 절차를 스킬로 적어 두면 말만 해도 알아서 고른다 | 유료 | ❌ |
+| **Slackbot + 구글 캘린더 연결** | 「회의 잡아 줘」 → Slackbot 이 대신 만들고 초대 | **Enterprise 계열만** (E+ V2 · Enterprise Select · Grid AI 애드온, 5/13 원문) — Business+ 도 안 된다 | ❌ PA 는 무료 · 모아는 Pro 인데도 **업그레이드 화면**이 떴다 (9/25 실측) |
+| **Slackbot 스킬** (8/27 「스킬 세트」) | 절차를 스킬로 적어 두면 말만 해도 알아서 고른다 | 유료 | ❌ |
 | **Google Calendar for Slack 앱** | 앱 홈 → 「Create event」 에 손으로 입력 | 무료 | ⭕ 설치됨 · 다른 봇이 대신 부를 API 는 없다 |
 | **워크플로 빌더 캘린더 단계** | 양식을 채우면 일정 | 유료 | ❌ |
 | **n8n · Zapier + AI** | 이모지를 달면 AI 가 날짜·장소를 읽어 일정 → **이모지로 참석 응답** | 외부 도구 | 참고 |
@@ -303,8 +303,8 @@ Slack 이 유료로 내놓은 「말하면 일정」 을 무료 Slack 에서 해
 
 **직접 써 보려다 알게 된 것 (2026-09-25)** — 모아 워크스페이스는 Pro(유료)라 Slackbot 과 나란히 재 보려 했다.
 Slackbot 을 열자 「Slackbot 의 AI 기능에 액세스하고 싶으신가요? — 지금 업그레이드」 가 떴다. Slack 문서로도
-Slackbot AI 는 **Business+ · Enterprise+** 기능이고 Free·Pro 는 맛보기뿐이다. 즉 **Pro 를 내는 팀도 「말하면 일정」 은
-못 쓴다** — 모아의 자리는 무료 팀만이 아니라 Pro 팀까지다. 그 사이 모아는 같은 일을 끝까지 했다:
+Slackbot AI 는 **Business+ · Enterprise+** 기능이고 Free·Pro 는 맛보기뿐이다. 그중 **「말하면 일정」 은 Enterprise 계열만**이다
+— 모아의 자리는 무료·Pro 팀만이 아니라 **Business+ 팀까지**다. 그 사이 모아는 같은 일을 끝까지 했다:
 DM 5칸 → 「모아」 캘린더에 일정 → 참석자 초대 메일 도착(학교 메일에서 확인). 출처:
 [Slackbot](https://slack.com/features/slackbot) · [Slack 플랜](https://slack.com/pricing)
 
@@ -328,3 +328,39 @@ DM 5칸 → 「모아」 캘린더에 일정 → 참석자 초대 메일 도착(
 [Agent sessions](https://docs.slack.dev/ai/agent-sessions/) ·
 [Claude Code in Slack](https://code.claude.com/docs/en/slack) ·
 [slackapi/slack-mcp-plugin#22](https://github.com/slackapi/slack-mcp-plugin/issues/22)
+
+## 🤖 Slackbot 이 가진 것 · 모아가 보완할 것 (2026-09-25 조사)
+
+Slackbot 은 **한 사람을 돕는 비서**다 — 검색·요약·초안·조사·스킬·예약 작업·외부 앱 연결(MCP). 모아는 **팀을 굴리는 비서**다 —
+요청을 카드로, 담당·우선순위·목표일, 먼저 챙기는 현황, 회의·캘린더. **Slackbot 에 팀 단위 배정·진척·마감 추적은 없다**
+(공식 자료 9곳 확인). 그 일은 Slack Lists(AI 아님)가 한다.
+
+| Slackbot 기능 | 플랜 | 모아 지금 |
+| --- | --- | --- |
+| 검색·답변(인용) · 요약 · 초안 | B+ · E+ | 부분 — `@정리` 로 이슈화. 과거 대화 찾기는 #64·#65·#73 대기 |
+| 캔버스 만들기·고치기 | B+ · E+ | ✅ 프로젝트 캔버스 한 장 |
+| 회의 준비 브리핑 | B+ · E+ | ❌ 10분 전 알림만 |
+| 예약 작업(사람이 만든 반복 루틴, 하루 3번 한도) | B+ · E+ | 부분 — 평일 9시 현황·저녁 7시 묶음은 **먼저** 보낸다. 사람이 루틴을 만드는 길은 없다 |
+| 스킬 · 스킬 세트(절차를 적어 두면 따른다) | 유료 | 부분 — 팀 문서(`priority.md` 등)를 규칙으로 따른다 |
+| 메일·캘린더 대신 처리 | **E 계열만** | ✅ 무료 Slack 에서 캘린더·초대 |
+| Slack 안 행동(채널·DM·초대·워크플로) | B+ V2 등 | 부분 — 카드·DM·알림 |
+| MCP 로 외부 앱 20개 넘게 | 유료 | ❌ (#72 밖의 문서 붙이기 대기) |
+| Deep Research · Big Mode · 인터랙티브 대시보드 · 음성 · CRM | B+ · E+ / 발표만 | ❌ — 모아의 일이 아니다 |
+| 한도 | B+ 1인 주 15메시지 | 설치한 사람의 Claude 구독 한도. 메시지는 Anthropic(Claude)으로 간다(`PRIVACY.md`) |
+
+### 보완 후보 — 효과 크고 작게 만들 수 있는 순
+
+| # | 무엇 | 왜 | 크기 | 이어지는 이슈 |
+| --- | --- | --- | --- | --- |
+| 1 | **회의 준비 브리핑** — 10분 전 알림에 「지난 회의 결정 · 걸린 이슈 상태 · 막힌 것」 세 줄을 붙인다 | 알림·회의록·이슈가 이미 다 있다. 엮기만 하면 된다 | 작음 | 회의 흐름 |
+| 2 | **스레드 요약 → 결정·할 일 뽑기** — 긴 스레드에서 「정한 것 / 할 일 / 누가」 를 뽑아 [적용] | Slackbot 의 대표 기능인데, 모아는 뽑은 것을 **카드로 바로 넘길 수 있다** | 중간 | #46 · #23 |
+| 3 | **팀 기억 묻기** — 「지난번에 결제 어떻게 정했지?」 에 출처 달린 답 | Slackbot 의 핵심. 인수인계(목표 4)와 바로 이어진다 | 중간~큼 | #64 · #65 · #73 |
+| 4 | **팀 루틴 만들기** — 「매주 금요일 4시 주간 보고」 를 말로 등록 | Slackbot 예약 작업은 **개인** 것이다. 모아는 팀 방에 올린다 | 중간 | #17 · #53 |
+| 5 | **팀 스킬** — 팀이 절차 md 를 두면 모아가 그 순서로 처리 | 팀 문서를 규칙으로 쓰는 지금 방식의 확장 | 중간 | — |
+| — | 외부 앱(MCP) · Deep Research · 받아쓰기 | 크고, 팀을 굴리는 일에서 멀다 — 나중 | 큼 | #72 |
+
+출처: [Feature Drop 2026-04(5/13)](https://slack.com/blog/news/slack-feature-drop-april2026) ·
+[Slackbot 기능](https://slack.com/features/slackbot) · [How to work with Slackbot](https://slack.com/help/articles/202026038-How-to-work-with-Slackbot) ·
+[한도](https://slack.com/help/articles/53579676130195-Slackbot-limits-and-credit-usage) · [Deep Work(8/27)](https://slack.com/blog/news/slackbot-ai-workspace-for-deep-work) ·
+[MCP 클라이언트(6/17)](https://slack.com/blog/news/slackbots-mcp-client) · [Techzine(4/16)](https://www.techzine.eu/news/applications/140545/salesforce-will-adjust-slackbot-limit-for-business-subscription/)
+
