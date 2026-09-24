@@ -404,8 +404,10 @@ def meet_room(st_or_m, dm=None):
 
     프로젝트 방을 못 찾을 때만(설정이 깨졌을 때) 대화하던 DM 에 둔다.
     """
+    # **약칭이 빈 글자인 프로젝트도 프로젝트다** — 첫 프로젝트는 약칭 없이 만들어진다.
+    # `if key` 로 가렸더니 「모아-시험」 회의가 프로젝트 방이 아니라 DM 에 남았다 (2026-09-24 실측)
     key = st_or_m.get("pkey") if isinstance(st_or_m, dict) else None
-    p = next((x for x in PROJECTS if (x.get("key") or "") == (key or "")), None) if key else None
+    p = next((x for x in PROJECTS if (x.get("key") or "") == key), None) if key is not None else None
     if p is None and len(PROJECTS) == 1:
         p = PROJECTS[0]
     return (p or {}).get("channel") or dm

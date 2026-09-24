@@ -371,6 +371,12 @@ class RoomTest(Base):
         p = PROJECTS[1]
         self.assertNotEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), p.get("request"))
 
+    def test_a_project_without_a_short_name_still_has_its_room(self):
+        """약칭이 빈 글자인 프로젝트(첫 프로젝트)도 **그 방으로** — DM 에 남았다 (2026-09-24 실측)."""
+        from common import PROJECTS
+        with mock.patch.dict(PROJECTS[0], {"key": "", "channel": "C0FIRST"}, clear=False):
+            self.assertEqual(meeting.meet_room({"pkey": ""}, dm="D0TEST"), "C0FIRST")
+
     def test_a_broken_project_keeps_it_in_the_dm(self):
         """프로젝트 방을 못 찾을 때만(설정이 깨졌을 때) 대화하던 DM 에 둔다."""
         from common import PROJECTS
