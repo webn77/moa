@@ -97,8 +97,9 @@ def _rrule(m):
     """회의 dict 의 `every`·`weekday`·`date` 로 RRULE 을 짓는다. 한 번짜리면 None.
 
     매주 `FREQ=WEEKLY;BYDAY=..` · 격주 `FREQ=WEEKLY;INTERVAL=2;BYDAY=..` ·
-    매달 `FREQ=MONTHLY;BYMONTHDAY=..` (2026-09-24 사장님 결정 그대로 — `core.next_meet` 은
-    매달을 「같은 요일의 같은 주차」로 셈하지만, 캘린더 RRULE 은 정한 대로 날짜로 둔다).
+    매달 `FREQ=MONTHLY;BYDAY=4TH` 식 — `core.next_meet` 이 매달을 **같은 요일의 같은 주차**로
+    보므로 캘린더도 그렇게 맞춘다. 날짜(`BYMONTHDAY`)로 두면 Slack 카드와 캘린더가 다른 날을
+    가리킨다. 다섯째 주는 없는 달이 있어 「마지막 주」(`-1`) 로 둔다.
     """
     every = m.get("every") or "once"
     if every == "once" or m.get("weekday") is None:
@@ -109,8 +110,8 @@ def _rrule(m):
     if every == "2week":
         return f"FREQ=WEEKLY;INTERVAL=2;BYDAY={day}"
     if every == "month":
-        d = datetime.date.fromisoformat(m["date"]).day
-        return f"FREQ=MONTHLY;BYMONTHDAY={d}"
+        nth = (datetime.date.fromisoformat(m["date"]).day - 1) // 7 + 1
+        return f"FREQ=MONTHLY;BYDAY={-1 if nth == 5 else nth}{day}"
     return None
 
 
@@ -156,7 +157,10 @@ async def stop_series(m):
     """
     if not ready() or not m.get("gcal_id") or not m.get("gcal_rrule"):
         return
-    until = datetime.date.today().strftime("%Y%m%d")
+    # 시간이 있는 반복 일정은 UNTIL 도 UTC 시각이어야 한다(RFC 5545) — 「오늘 밤 23:59 서울」 을 UTC 로
+    kst = datetime.timezone(datetime.timedelta(hours=9))
+    end = datetime.datetime.combine(datetime.date.today(), datetime.time(23, 59, 59), kst)
+    until = end.astimezone(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     rule = f"{m['gcal_rrule']};UNTIL={until}"
     token = await _access_token()
     cal_id = _token()["calendar_id"]
@@ -178,11 +182,25 @@ def _get(url, token):
 
 
 def _find_or_create_calendar(token):
-    """「모아」 캘린더를 찾는다 — **있으면 다시 만들지 않는다.**"""
-    d = _get(f"{API}/users/me/calendarList", token)
-    hit = next((c for c in d.get("items", []) if c.get("summary") == CAL_SUMMARY), None)
-    if hit:
-        return hit["id"]
+    """「모아」 캘린더를 찾는다 — **있으면 다시 만들지 않는다.**
+
+    전에 연결해 저장한 id 가 있으면 그것을 쓴다. 목록 조회(`calendarList`)는
+    `calendar.app.created` 권한으로는 막힐 수 있어서, 막히면 찾지 않고 새로 만든다.
+    """
+    if TOKEN_FILE.exists():
+        try:
+            saved = json.loads(TOKEN_FILE.read_text(encoding="utf-8")).get("calendar_id")
+        except (json.JSONDecodeError, OSError):
+            saved = None
+        if saved:
+            return saved
+    try:
+        d = _get(f"{API}/users/me/calendarList", token)
+        hit = next((c for c in d.get("items", []) if c.get("summary") == CAL_SUMMARY), None)
+        if hit:
+            return hit["id"]
+    except urllib.error.HTTPError as e:
+        print(f"캘린더 목록은 못 봤어요({e.code}) — 「{CAL_SUMMARY}」 캘린더를 새로 만들게요")
     req = urllib.request.Request(f"{API}/calendars",
         data=json.dumps({"summary": CAL_SUMMARY, "timeZone": TZ}).encode(),
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})

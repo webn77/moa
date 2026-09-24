@@ -130,9 +130,16 @@ class RRuleTest(GcalBase):
         self.assertEqual(self.http.bodies()[0]["recurrence"], ["RRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=TH"])
 
     def test_monthly_rrule(self):
+        # 매달은 「같은 요일의 같은 주차」 — core.next_meet 과 같은 셈. 9/22 는 넷째 화요일
+        m = make_meeting(every="month", weekday=1, date="2026-09-22")
+        run(gcal.create(m))
+        self.assertEqual(self.http.bodies()[0]["recurrence"], ["RRULE:FREQ=MONTHLY;BYDAY=4TU"])
+
+    def test_monthly_fifth_week_becomes_last(self):
+        # 다섯째 주는 없는 달이 있다 — 「마지막 화요일」 로 둔다 (9/29 는 다섯째 화요일)
         m = make_meeting(every="month", weekday=1, date="2026-09-29")
         run(gcal.create(m))
-        self.assertEqual(self.http.bodies()[0]["recurrence"], ["RRULE:FREQ=MONTHLY;BYMONTHDAY=29"])
+        self.assertEqual(self.http.bodies()[0]["recurrence"], ["RRULE:FREQ=MONTHLY;BYDAY=-1TU"])
 
     def test_time_zone_is_seoul(self):
         m = make_meeting()
@@ -170,9 +177,10 @@ class StopSeriesTest(GcalBase):
         m = make_meeting(every="week", weekday=1, gcal_id="evt9", gcal_rrule="FREQ=WEEKLY;BYDAY=TU")
         run(gcal.stop_series(m))
         patch = [kw for method, url, kw in self.http.calls if method == "PATCH"][0]
-        today = datetime.date.today().strftime("%Y%m%d")
+        # 시간이 있는 일정이라 UNTIL 은 UTC 시각 — 오늘 밤 23:59:59 서울 = 오늘 14:59:59Z
+        until = datetime.date.today().strftime("%Y%m%d") + "T145959Z"
         self.assertEqual(patch["json"]["recurrence"],
-                         [f"RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL={today}"])
+                         [f"RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL={until}"])
 
     def test_it_does_nothing_without_a_gcal_id(self):
         run(gcal.stop_series(make_meeting(every="week", weekday=1)))
