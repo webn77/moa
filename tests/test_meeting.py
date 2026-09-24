@@ -575,3 +575,41 @@ class DateTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WhoTest(Base):
+    """**참석자는 어느 답에든 `@사람` 으로 섞어 적는다** (2026-09-24 사장님: 「회의 참석자
+    슬랙에서 설정하면 그걸로」). 칸은 늘지 않는다."""
+
+    def test_mentions_with_the_time_are_the_attendees(self):
+        self.say("회의 만들자")
+        self.say("주간 점검")
+        self.say("1")
+        self.say("한 번만")
+        self.say("내일 3시 <@U1AAA> <@U2BBB|김철수>")
+        m = self.made()[0]
+        self.assertEqual(m["who"], ["U1AAA", "U2BBB"])
+        self.assertEqual(m["time"], [15, 0], "@사람을 떼고도 시간을 읽어야 한다")
+
+    def test_a_mention_alone_is_noted_and_the_step_is_asked_again(self):
+        self.say("회의 만들자")
+        self.say("주간 점검")
+        self.say("<@U1AAA>")
+        self.assertIn("참석자로 적어 뒀어요", self.last())
+        self.assertFalse(self.made())
+        st = STATE["new_meeting"][ME]
+        self.assertEqual(st["who"], ["U1AAA"])
+        self.assertEqual(st["title"], "주간 점검", "@사람이 이름을 덮으면 안 된다")
+
+    def test_the_same_person_twice_is_one(self):
+        self.say("회의 만들자 <@U1AAA>")
+        self.say("주간 점검 <@U1AAA>")
+        self.assertEqual(STATE["new_meeting"][ME]["who"], ["U1AAA"])
+
+    def test_no_mention_leaves_who_empty(self):
+        self.say("회의 만들자")
+        self.say("주간 점검")
+        self.say("1")
+        self.say("한 번만")
+        self.say("내일 3시")
+        self.assertNotIn("who", self.made()[0])

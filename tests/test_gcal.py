@@ -308,6 +308,21 @@ class MbuildTest(MeetingBase):
         attendees = fg.created[0][1]
         self.assertEqual(attendees, ["u1@x.com"])          # U2 는 이메일이 없어 빠지고, UBOT 은 아예 뺀다
 
+    def test_chosen_people_are_invited_instead_of_the_room(self):
+        """만들 때 `@사람` 으로 고르셨으면 **그분들만** — 방 전원이 아니다 (2026-09-24)."""
+        fg = FakeGcal(invite="room")
+        with mock.patch.object(meeting, "gcal", fg):
+            run(meeting._mbuild(None, "D0", "1.0", self._st(pkey="", who=["U1"]), "U0"))
+        self.assertEqual(fg.created[0][1], ["u1@x.com"])
+        self.assertNotIn(("conversations.members", {"channel": meeting.mch(self.made()[0]), "limit": 1000}),
+                         self.fake.sent, "고른 사람이 있는데 방 사람을 읽었다")
+
+    def test_chosen_people_work_even_in_owner_mode(self):
+        fg = FakeGcal(invite="owner")
+        with mock.patch.object(meeting, "gcal", fg):
+            run(meeting._mbuild(None, "D0", "1.0", self._st(who=["U1"]), "U0"))
+        self.assertEqual(fg.created[0][1], ["u1@x.com"])
+
     def test_missing_email_permission_still_makes_the_meeting_and_warns(self):
         fg = FakeGcal(invite="room")
         with mock.patch.object(meeting, "gcal", fg):

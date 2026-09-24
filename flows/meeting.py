@@ -308,8 +308,15 @@ MEET_START = re.compile(r"(회의|미팅)(?!록)\S*\s*(를|을|로|은|는)?\s*\
 # 않는다** (같은 저장소가 `NOT_MINE` 에 그렇게 적어 두고도 오늘 한 번 새게 두었다)
 MEET_NOT = re.compile(r"할\s*일|할일|이슈|업무|작업")
 _HEAD = re.compile(HEAD, re.I)
+# **참석자는 어느 답에든 `@사람` 으로 섞어 적는다** (2026-09-24 사장님: 「회의 참석자 슬랙에서
+# 설정하면 그걸로」). 칸을 하나 더 묻지 않는다 — 「쉽게 가야 해」. 안 적으면 프로젝트 방 사람 전원
+WHO = re.compile(r"<@([UW][A-Z0-9]+)(?:\|[^>]*)?>")
 STEP_WHAT = {"title": "무슨 회의인가", "project": "어느 프로젝트", "every": "한 번만인가 정기인가",
              "when": "언제"}
+
+
+def _who_line(uids):
+    return " ".join(f"<@{u}>" for u in uids)
 
 
 def _asking_meet(user):
@@ -426,6 +433,19 @@ async def maybe(s, e, q, force=False):
             STATE["new_meeting"].pop(user, None); save()
             return await maybe(s, e, q, force=force)
         return False
+    # 참석자 `@사람` 은 떼어 적어 두고, 남은 글자를 원래 답으로 읽는다
+    who = WHO.findall(q)
+    if who:
+        for uid in who:
+            if uid not in st.setdefault("who", []):
+                st["who"].append(uid)
+        q = WHO.sub(" ", q).strip()
+        save()
+        if not q and not opened:                     # `@사람` 만 보내셨다 — 적어 두고 하던 칸을 다시
+            n, total, what = _mwhere(st)
+            await _msay(s, ch, say("meet_who_noted", who=_who_line(st["who"])) + "\n\n"
+                        + say("ask_where", kind="회의 만들기", n=n, total=total, what=what), th)
+            return True
     if opened:
         # 「회의 만들자」 처럼 이름이 없으면 묻는다. 「회의 주간 점검」 이면 그게 곧 이름이다
         name = _title_after(q)
@@ -562,8 +582,13 @@ async def _room_emails(s, channel):
     나머지는 초대하되, **일정은 그래도 만든다** — 초대 못 한 것 때문에 회의 자체가 막히면 안 된다.
     """
     members = (await api(s, "conversations.members", channel=channel, limit=1000)).get("members") or []
+    return await _emails_of(s, members)
+
+
+async def _emails_of(s, uids):
+    """이 사람들의 이메일 — 봇·나간 사람은 뺀다. (이메일 목록, 하나라도 못 읽었나)."""
     emails, missed = [], False
-    for uid in members:
+    for uid in uids:
         u = (await api(s, "users.info", user=uid)).get("user") or {}
         if u.get("is_bot") or u.get("deleted"):
             continue
@@ -586,7 +611,9 @@ async def _gcal_note(s, m):
     if m.get("gcal_id") or not gcal.ready() or not m.get("time"):
         return ""
     attendees, missed = None, False
-    if gcal.INVITE == "room":
+    if m.get("who"):                                 # 만들 때 `@사람` 으로 고르셨다 — 그분들만
+        attendees, missed = await _emails_of(s, m["who"])
+    elif gcal.INVITE == "room":                      # 안 고르셨다 — 프로젝트 방 사람 전원
         attendees, missed = await _room_emails(s, mch(m))
     try:
         made = await gcal.create(m, attendees)
@@ -616,6 +643,8 @@ async def _mbuild(s, ch, th, st, user):
         log(f"회의 만들기 실패: {type(ex).__name__}: {ex}")
         await _msay(s, ch, say("mtg_fail", err=str(ex)[:120]), th)
         return True
+    if st.get("who"):
+        m["who"] = list(st["who"])
     when = core.meet_label(m)
     # 구글 캘린더는 회의가 **만들어진 뒤에** 붙인다 — `new_meeting` 자체는 건드리지 않아
     # 옛 시험·대역이 그대로 돈다 (2026-09-24)
