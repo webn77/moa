@@ -1,6 +1,6 @@
 ---
 kind: research
-updated: "2026-09-19"
+updated: "2026-09-24"
 source: obsidian 03_Projects/아이디어-검증/AI-역할분담-도우미.md (벤치마킹 부분만 옮김)
 ---
 
@@ -280,3 +280,44 @@ GitHub 쪽은 이미 `- [ ]` 로 나가고 있어 진행률이 그대로 뜬다 
 [Asana 하위 작업](https://asana.com/ko/guide/help/tasks/subtasks) ·
 [Todoist sub-tasks](https://www.todoist.com/help/todoist/features/use-sub-tasks-kMamDo) ·
 [Notion 할 일 목록](https://www.notion.com/templates/to-do-list)
+
+## 📅 Slack 에서 구글 캘린더 만들기 · Slack 의 AI 새 기능 (2026-09-24 조사)
+
+사장님 질문 둘 — 「Slack 이벤트를 LLM 에 알려 주는 게 새로 생겼다던데」 · 「Slack 에서 구글 캘린더 만들어 주는 스킬이 있다」.
+
+### 캘린더를 Slack 안에서 만드는 길
+
+| 방식 | 사용자가 하는 일 | 플랜 | 우리 팀 |
+| --- | --- | --- | --- |
+| **Slackbot + 구글 캘린더 연결** | 「회의 잡아 줘」 → Slackbot 이 대신 만들고 초대 | 유료 + Slackbot | ❌ 무료 플랜 |
+| **Slackbot 스킬** (9월 「스킬 세트」) | 절차를 스킬로 적어 두면 말만 해도 알아서 고른다 | 유료 | ❌ |
+| **Google Calendar for Slack 앱** | 앱 홈 → 「Create event」 에 손으로 입력 | 무료 | ⭕ 설치됨 · 다른 봇이 대신 부를 API 는 없다 |
+| **워크플로 빌더 캘린더 단계** | 양식을 채우면 일정 | 유료 | ❌ |
+| **n8n · Zapier + AI** | 이모지를 달면 AI 가 날짜·장소를 읽어 일정 → **이모지로 참석 응답** | 외부 도구 | 참고 |
+
+**결론 — 우리가 고른 것** (2026-09-24, 이동원 결정): **봇 전용 구글 계정**으로 일정을 만들고 참석자를 이메일로
+초대한다. 사용자가 할 일은 없고, 알림·참석 응답은 이미 깔린 Google Calendar for Slack 앱이 한다.
+Slack 이 유료로 내놓은 「말하면 일정」 을 무료 Slack 에서 해 주는 것이 곧 우리 자리다 (#45).
+**Slackbot 과 방향이 같다** — 절차를 적어 두고 말로 부르는 것(스킬)이 우리의 단계형 흐름과 같은 생각이다.
+가져올 것: 이모지로 참석 응답 (n8n 사례).
+
+### Slack 의 AI 쪽 새 기능 — 「이벤트를 LLM 에」
+
+| 무엇 | 언제 | 우리와의 관계 |
+| --- | --- | --- |
+| **Claude Code 채널** (research preview) | 2026-03~ | Slack DM·멘션을 켜 둔 Claude 세션에 밀어 넣는다. 우리는 Socket Mode + `claude -p` 로 **이미 같은 일을 한다**. Slack 공식 플러그인은 아직 미지원(slackapi/slack-mcp-plugin#22 열림) |
+| **Agent Sessions API** | 8/20 | `agents.sessions.setStatus` 가 `assistant.threads.setStatus` 를 대신한다. 옛 것은 **호환 다리로 아직 돈다**, 종료일 없음. 새 것은 **맞춤 로딩 문구를 받지 않는다** — 우리가 `agent_view` 를 켠 이유(우리 말로 상태)가 사라질 수 있다 |
+| **`assistant_view` 종료** | 2027-02 | 우리는 이미 `agent_view` 라 해당 없음 |
+| **Slack Code 채널** (`code_channels`) | 8/20 · CLI 9/11 | 코딩 에이전트를 태그하면 전용 채널 — diff·미리보기 |
+| **Claude Code in Slack** | — | 채널에서 `@Claude` → 클라우드 세션 → PR. Claude Pro/Max + GitHub 연결, **DM 은 안 됨**, 각자 자기 계정 한도로 |
+
+출처: [Slackbot 스킬](https://slack.com/help/articles/51448833927187-Browse-share-and-create-Slackbot-skills) ·
+[Google Calendar for Slack](https://slack.com/help/articles/206329808-Google-Calendar-for-Slack) ·
+[Slack 커넥터 — Create a calendar event](https://api.slack.com/reference/connectors/google.calendar/create_event) ·
+[n8n — Slack·캘린더·AI 로 행사 운영](https://blog.n8n.io/organise-an-event-using-slack-google-calendar-and-ai/) ·
+[Slack Feature Drop 2026-08](https://slack.com/blog/news/slack-feature-drop-august2026) ·
+[Agent 메시징 변경 (2026-08-20)](https://docs.slack.dev/changelog/2026/08/20/agent-updates/) ·
+[Agent 메시징으로 옮기기](https://docs.slack.dev/ai/migrating-to-agent-messaging) ·
+[Agent sessions](https://docs.slack.dev/ai/agent-sessions/) ·
+[Claude Code in Slack](https://code.claude.com/docs/en/slack) ·
+[slackapi/slack-mcp-plugin#22](https://github.com/slackapi/slack-mcp-plugin/issues/22)
