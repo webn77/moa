@@ -18,6 +18,7 @@
 """
 import asyncio, json, re, datetime
 import core
+import gcal
 import gh_link
 from flows.ask import ASKING, HEAD, NOPE, cancelled, titleable
 # 프로젝트를 고르는 세 함수는 할 일 등록과 **똑같아야 한다** — 베끼면 갈라진다
@@ -554,6 +555,52 @@ def _weekday_pick(text):
     return f"{core.WEEK[int(s) - 1]}요일" if s.isdigit() and 1 <= int(s) <= 7 else text
 
 
+async def _room_emails(s, channel):
+    """그 방 사람 전원의 이메일 — 봇은 뺀다 (`is_bot`). (이메일 목록, 하나라도 못 읽었나) 를 돌려준다.
+
+    `users:read.email` 권한이 없으면 프로필에 `email` 이 안 온다 — 그때는 그 사람만 빼고
+    나머지는 초대하되, **일정은 그래도 만든다** — 초대 못 한 것 때문에 회의 자체가 막히면 안 된다.
+    """
+    members = (await api(s, "conversations.members", channel=channel, limit=1000)).get("members") or []
+    emails, missed = [], False
+    for uid in members:
+        u = (await api(s, "users.info", user=uid)).get("user") or {}
+        if u.get("is_bot") or u.get("deleted"):
+            continue
+        email = (u.get("profile") or {}).get("email")
+        if email:
+            emails.append(email)
+        else:
+            missed = True
+    return emails, missed
+
+
+async def _gcal_note(s, m):
+    """회의를 구글 캘린더에 올리고, DM 안내 끝에 붙일 한 줄을 돌려준다 (없으면 빈 글자).
+
+    **멱등** — 이미 `gcal_id` 가 있으면(재시도) 다시 만들지 않는다. `ready()` 가 False 면
+    (연결 안 된 팀) 조용히 건너뛴다. **실패해도 회의는 이미 만들어져 있다** — 여기서 나는
+    예외는 로그 ⚠️ 로만 남기고 회의 만들기 자체를 막지 않는다.
+    """
+    if m.get("gcal_id") or not gcal.ready():
+        return ""
+    attendees, missed = None, False
+    if gcal.INVITE == "room":
+        attendees, missed = await _room_emails(s, mch(m))
+    try:
+        made = await gcal.create(m, attendees)
+    except Exception as ex:
+        log(f"⚠️ 구글 캘린더 만들기 실패: {type(ex).__name__}: {ex}")
+        made = None
+    save()
+    if not made:
+        return ""
+    note = say("gcal_added", link=made["gcal_link"]) if made.get("gcal_link") else say("gcal_added_plain")
+    if missed:
+        note += "\n" + say("gcal_no_email")
+    return note
+
+
 async def _mbuild(s, ch, th, st, user):
     """다 물었다 — 회의 카드를 만든다. 대화는 여기 DM 에 남고, **카드는 프로젝트가 정한 방에**
     간다 (`meet_room`). 그 프로젝트가 방을 비워 뒀으면 카드도 이 DM 에 남는다."""
@@ -569,12 +616,16 @@ async def _mbuild(s, ch, th, st, user):
         await _msay(s, ch, say("mtg_fail", err=str(ex)[:120]), th)
         return True
     when = core.meet_label(m)
+    # 구글 캘린더는 회의가 **만들어진 뒤에** 붙인다 — `new_meeting` 자체는 건드리지 않아
+    # 옛 시험·대역이 그대로 돈다 (2026-09-24)
+    gcal_note = await _gcal_note(s, m)
     if room == ch:                                   # 방에 안 올렸다 — 카드가 바로 여기 있다
         key = "meet_made_here" if (m.get("every") or "once") == "once" else "meet_made_here_every"
-        await _msay(s, ch, say(key, title=m["title"], when=when), th)
-        return True
-    key = "meet_made" if (m.get("every") or "once") == "once" else "meet_made_every"
-    await _msay(s, ch, say(key, title=m["title"], when=when, ch=room), th)
+        text = say(key, title=m["title"], when=when)
+    else:
+        key = "meet_made" if (m.get("every") or "once") == "once" else "meet_made_every"
+        text = say(key, title=m["title"], when=when, ch=room)
+    await _msay(s, ch, text + (f"\n{gcal_note}" if gcal_note else ""), th)
     return True
 
 
@@ -660,10 +711,19 @@ async def soon_meetings(s, now=None):
 
 
 async def stop_every(s, card_ts, user):
-    """정기 끄기 — **이 회의는 그대로 두고** 다음 회만 안 만든다. 지우는 게 아니다."""
+    """정기 끄기 — **이 회의는 그대로 두고** 다음 회만 안 만든다. 지우는 게 아니다.
+
+    캘린더에 올라간 반복 일정도 오늘까지만 돌게 끊는다(`gcal.stop_series`) — 안 그러면
+    「정기 끄기」 를 눌러도 구글 캘린더에는 계속 초대가 온다. 캘린더 쪽이 실패해도 정기
+    끄기 자체는 그대로 된다 — 카드가 먼저다.
+    """
     m = STATE.get("meetings", {}).get(card_ts)
     if not m or (m.get("every") or "once") == "once":
         return
+    try:
+        await gcal.stop_series(m)
+    except Exception as ex:
+        log(f"⚠️ 구글 캘린더 정기 끄기 실패: {type(ex).__name__}: {ex}")
     m["every"] = "once"
     save()
     await api(s, "chat.update", body={"channel": mch(m), "ts": card_ts,

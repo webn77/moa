@@ -63,6 +63,7 @@ oauth_config:
       - reactions:read
       - reactions:write        # 하는 동안 ⏳ 를 달아 둔다         # 👀 ⛔ ✅ 로 상태 바꾸기
       - users:read             # 이름 표시 · 앱 홈
+      - users:read.email       # 구글 캘린더 초대(gcal.invite: "room")용 — 재설치 필요 (2026-09-24)
 settings:
   event_subscriptions:
     bot_events:
