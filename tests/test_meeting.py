@@ -350,8 +350,7 @@ class EveryTest(Base):
 
 
 class RoomTest(Base):
-    """**어느 방에 올릴지는 프로젝트가 정한다** (2026-09-23 사장님: 「어느 프로젝트 방에
-    올릴건지 정해야 하고 … 프로젝트 방에 올려도 되고 안올려도 되고」)."""
+    """**회의는 항상 그 프로젝트 방에** (2026-09-24 사장님: 「프로젝트 방이 기본적으로 있잖아」)."""
 
     def test_it_follows_the_project(self):
         from common import PROJECTS
@@ -359,30 +358,23 @@ class RoomTest(Base):
                          PROJECTS[1].get("channel"), "두 번째 프로젝트의 방으로 안 갔다")
 
     def test_it_never_falls_to_the_team_room(self):
-        """`meeting` 이 없으면 **프로젝트 방**이다 — 팀 대화방(요청 방)이 아니다 (2026-09-24)."""
+        """팀 대화방(요청 방)으로 떨어지지 않는다 — 예전에는 그랬다 (2026-09-24)."""
         from common import PROJECTS
         p = PROJECTS[1]
-        room = meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST")
-        self.assertNotEqual(room, p.get("request"))
-        with mock.patch.dict(p, {"channel": ""}, clear=False):
-            self.assertEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), "D0TEST",
-                             "프로젝트 방도 없으면 DM 에 둔다")
+        self.assertNotEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), p.get("request"))
 
-    def test_an_empty_room_means_dm_only(self):
-        """`meeting` 을 **빈 글자로 적어 두면** 아무 방에도 안 올리고 DM 에만 둔다.
-        설정에 없는 것과 일부러 비운 것은 다르다."""
+    def test_a_broken_project_keeps_it_in_the_dm(self):
+        """프로젝트 방을 못 찾을 때만(설정이 깨졌을 때) 대화하던 DM 에 둔다."""
         from common import PROJECTS
-        p = PROJECTS[0]
-        with mock.patch.dict(p, {"meeting": ""}, clear=False):
+        p = PROJECTS[1]
+        with mock.patch.dict(p, {"channel": ""}, clear=False):
             self.assertEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), "D0TEST")
-        with mock.patch.dict(p, {"meeting": "C0MEET"}, clear=False):
-            self.assertEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), "C0MEET")
 
-    def test_a_dm_only_meeting_still_knows_its_room(self):
-        """방을 비운 프로젝트의 회의도 `channel` 이 차 있어야 한다 — 비면 회의록 확정·정기
+    def test_a_dm_meeting_still_knows_its_room(self):
+        """DM 에 남은 회의도 `channel` 이 차 있어야 한다 — 비면 회의록 확정·정기
         끄기가 어디에 말해야 할지 모른다."""
         from common import PROJECTS
-        with mock.patch.dict(PROJECTS[0], {"meeting": ""}, clear=False):
+        with mock.patch.dict(PROJECTS[0], {"channel": ""}, clear=False):
             self.say("회의 만들자")
             self.say("주간 점검")
             self.say("1")

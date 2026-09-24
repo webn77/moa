@@ -383,24 +383,20 @@ async def _after_name(s, ch, th, st, name):
 
 
 def meet_room(st_or_m, dm=None):
-    """이 회의 카드를 **어느 방에** 둘까 (2026-09-23 사장님: 「어느 프로젝트 방에 올릴건지
-    정해야 하고 … 프로젝트 방에 올려도 되고 안올려도 되고」).
+    """이 회의 카드를 **어느 방에** 둘까 — **항상 그 프로젝트 방**이다 (2026-09-24 사장님:
+    「회의는 팀대화가 아니라 프로젝트 방에 기록하는 게 맞다」 · 「프로젝트 방이 기본적으로 있잖아」).
 
-      프로젝트의 `meeting` → 없으면 **그 프로젝트 방**(`channel`) → 그것도 없으면 DM
+    프로젝트를 만들면 방이 같이 생기므로 묻지도 고르지도 않는다. 예전에는 프로젝트마다 `meeting`
+    칸으로 방을 따로 정하거나 비워서 DM 에만 둘 수 있었는데, 아무 프로젝트도 안 써서 지웠다.
+    그리고 그게 없을 때 `request` 로 떨어져서, 요청 방을 같이 쓰는 프로젝트들의 회의가 전부
+    #팀-대화 에 쌓였다.
 
-    **팀 대화방(요청 방)에는 올리지 않는다** (2026-09-24 사장님: 「회의는 팀대화가 아니라
-    프로젝트 방에 기록하는 게 맞다」). 예전에는 `request` 로 떨어져서, 요청 방을 같이 쓰는
-    프로젝트들의 회의가 전부 #팀-대화 에 쌓였다.
-
-    `meeting` 을 **빈 글자로 적어 두면 아무 방에도 안 올린다** — 그때는 DM 에만 둔다.
-    설정에 없는 것과 일부러 비운 것은 다르므로 `in` 으로 가린다.
+    프로젝트 방을 못 찾을 때만(설정이 깨졌을 때) 대화하던 DM 에 둔다.
     """
     key = st_or_m.get("pkey") if isinstance(st_or_m, dict) else None
     p = next((x for x in PROJECTS if (x.get("key") or "") == (key or "")), None) if key else None
     if p is None and len(PROJECTS) == 1:
         p = PROJECTS[0]
-    if p is not None and "meeting" in p:
-        return p["meeting"] or dm            # 일부러 비웠다 — DM 에만
     return (p or {}).get("channel") or dm
 
 
@@ -608,7 +604,7 @@ async def _gcal_note(s, m):
 
 async def _mbuild(s, ch, th, st, user):
     """다 물었다 — 회의 카드를 만든다. 대화는 여기 DM 에 남고, **카드는 프로젝트가 정한 방에**
-    간다 (`meet_room`). 그 프로젝트가 방을 비워 뒀으면 카드도 이 DM 에 남는다."""
+    간다 (`meet_room`). 프로젝트 방을 못 찾을 때만 카드도 이 DM 에 남는다."""
     STATE.get("new_meeting", {}).pop(user, None)
     save()
     room = meet_room(st, dm=ch)
