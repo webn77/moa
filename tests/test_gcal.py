@@ -323,6 +323,13 @@ class MbuildTest(MeetingBase):
             run(meeting._mbuild(None, "D0", "1.0", self._st(who=["U1"]), "U0"))
         self.assertEqual(fg.created[0][1], ["u1@x.com"])
 
+    def test_everyone_means_the_room_even_in_owner_mode(self):
+        """⑤ 에서 「모두」 를 고르셨으면 설정이 owner 여도 방 사람 전원이다."""
+        fg = FakeGcal(invite="owner")
+        with mock.patch.object(meeting, "gcal", fg):
+            run(meeting._mbuild(None, "D0", "1.0", self._st(pkey="", who_all=True), "U0"))
+        self.assertEqual(fg.created[0][1], ["u1@x.com"])
+
     def test_missing_email_permission_still_makes_the_meeting_and_warns(self):
         fg = FakeGcal(invite="room")
         with mock.patch.object(meeting, "gcal", fg):

@@ -308,11 +308,13 @@ MEET_START = re.compile(r"(회의|미팅)(?!록)\S*\s*(를|을|로|은|는)?\s*\
 # 않는다** (같은 저장소가 `NOT_MINE` 에 그렇게 적어 두고도 오늘 한 번 새게 두었다)
 MEET_NOT = re.compile(r"할\s*일|할일|이슈|업무|작업")
 _HEAD = re.compile(HEAD, re.I)
-# **참석자는 어느 답에든 `@사람` 으로 섞어 적는다** (2026-09-24 사장님: 「회의 참석자 슬랙에서
-# 설정하면 그걸로」). 칸을 하나 더 묻지 않는다 — 「쉽게 가야 해」. 안 적으면 프로젝트 방 사람 전원
+# **참석자는 ⑤ 에서 묻는다** (2026-09-24 사장님: 「초대할 사람을 누구냐고 물어보고 안 적으면
+# 전원 · 혼자만 참석하는 것일 수도」). 앞 칸 답에 `@사람` 을 섞어 적으셨으면 적어 두고 ⑤ 는 건너뛴다
 WHO = re.compile(r"<@([UW][A-Z0-9]+)(?:\|[^>]*)?>")
 STEP_WHAT = {"title": "무슨 회의인가", "project": "어느 프로젝트", "every": "한 번만인가 정기인가",
-             "when": "언제"}
+             "when": "언제", "who": "누구를 초대할까"}
+WHO_ALL = re.compile(r"^\s*(1|1번|모두|전원|다|전부|다같이|다 같이|방 사람 모두|모두 초대)\s*[.!]?\s*$")
+WHO_SOLO = re.compile(r"^\s*(2|2번|나만|저만|혼자|혼자만|나 혼자|저 혼자|나|저)\s*[.!]?\s*$")
 
 
 def _who_line(uids):
@@ -333,7 +335,7 @@ def _msteps(st):
     out = ["title"]
     if not st.get("proj_known"):
         out.append("project")
-    return out + ["every", "when"]
+    return out + ["every", "when", "who"]
 
 
 def _mwhere(st):
@@ -377,6 +379,8 @@ async def _mask(s, ch, th, st, step, head=""):
     elif step == "when":
         text = (say("meet_ask_date", step=no) if st.get("every") == "once"
                 else say("meet_ask_weekday", step=no, every=core.EVERY[st["every"]]))
+    elif step == "who":
+        text = say("meet_ask_who", step=no)
     else:
         return False
     await _msay(s, ch, head + text, th)
@@ -441,7 +445,7 @@ async def maybe(s, e, q, force=False):
                 st["who"].append(uid)
         q = WHO.sub(" ", q).strip()
         save()
-        if not q and not opened:                     # `@사람` 만 보내셨다 — 적어 두고 하던 칸을 다시
+        if not q and not opened and st.get("step") != "who":   # `@사람` 만 — 적어 두고 하던 칸을 다시
             n, total, what = _mwhere(st)
             await _msay(s, ch, say("meet_who_noted", who=_who_line(st["who"])) + "\n\n"
                         + say("ask_where", kind="회의 만들기", n=n, total=total, what=what), th)
@@ -535,6 +539,20 @@ async def maybe(s, e, q, force=False):
             await _msay(s, ch, say("meet_ask_time"), th)
             return True
         st["time"] = list(hm)
+        if st.get("who"):                            # 앞 칸에서 `@사람` 을 이미 적으셨다
+            return await _mbuild(s, ch, th, st, user)
+        return await _mask(s, ch, th, st, "who")
+
+    # ⑤ 누구를 초대할까 — `@사람` · 1 모두(기본) · 2 나만
+    if step == "who":
+        if st.get("who"):                            # 맨 위에서 `@사람` 을 떼어 적어 뒀다
+            return await _mbuild(s, ch, th, st, user)
+        if WHO_SOLO.match(q):
+            st["who"] = [user]                       # 만든 사람 — 다른 팀원이 만들어도 그 사람 캘린더에
+        elif WHO_ALL.match(q):
+            st["who_all"] = True
+        else:
+            return await _magain(s, ch, th, st, say("meet_who_bad"))
         return await _mbuild(s, ch, th, st, user)
     return False
 
@@ -613,7 +631,7 @@ async def _gcal_note(s, m):
     attendees, missed = None, False
     if m.get("who"):                                 # 만들 때 `@사람` 으로 고르셨다 — 그분들만
         attendees, missed = await _emails_of(s, m["who"])
-    elif gcal.INVITE == "room":                      # 안 고르셨다 — 프로젝트 방 사람 전원
+    elif m.get("who_all") or gcal.INVITE == "room":  # 「모두」 · 안 고르셨다 — 프로젝트 방 사람 전원
         attendees, missed = await _room_emails(s, mch(m))
     try:
         made = await gcal.create(m, attendees)
@@ -645,6 +663,8 @@ async def _mbuild(s, ch, th, st, user):
         return True
     if st.get("who"):
         m["who"] = list(st["who"])
+    elif st.get("who_all"):
+        m["who_all"] = True
     when = core.meet_label(m)
     # 구글 캘린더는 회의가 **만들어진 뒤에** 붙인다 — `new_meeting` 자체는 건드리지 않아
     # 옛 시험·대역이 그대로 돈다 (2026-09-24)

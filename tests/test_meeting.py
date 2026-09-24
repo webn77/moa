@@ -159,8 +159,8 @@ class StartTest(Base):
 
 
 class StepTest(Base):
-    def test_once_takes_four_questions(self):
-        """한 번만 하는 회의 — 이름 · 프로젝트 · 한 번/정기 · 언제(+몇 시).
+    def test_once_takes_five_questions(self):
+        """한 번만 하는 회의 — 이름 · 프로젝트 · 한 번/정기 · 언제(+몇 시) · 누구를 초대할까.
 
         **날짜와 시간은 한 칸이다** — 「내일 2시」 라고 한 번에 말씀하시면 거기서 끝난다
         (2026-09-23 사장님: 「몇시에 잡는지 이게 중요해」 · 「쉽게 가야해」).
@@ -174,6 +174,8 @@ class StepTest(Base):
         self.say("한 번만")
         self.assertIn("언제", self.last())
         self.say("내일 오후 2시")
+        self.assertIn("누구를 초대", self.last())
+        self.say("1")
         self.assertEqual(len(self.made()), 1)
         m = self.made()[0]
         self.assertEqual(m["title"], "결제 점검")
@@ -189,6 +191,7 @@ class StepTest(Base):
         self.say("매주")
         self.assertIn("요일", self.last())
         self.say("화요일 10시")
+        self.say("1")
         m = self.made()[0]
         self.assertEqual((m["every"], m["weekday"]), ("week", 1))
         self.assertEqual(datetime.date.fromisoformat(m["date"]).weekday(), 1)
@@ -203,6 +206,7 @@ class StepTest(Base):
             self.say("1")
             self.say(n)
             self.say("화요일 10시" if want != "once" else "내일 10시")
+            self.say("1")
             self.assertEqual(self.made()[0]["every"], want, n)
 
     def test_numbers_work_for_the_weekday_too(self):
@@ -220,15 +224,17 @@ class StepTest(Base):
             self.say(n)                       # 요일만 — 시간은 봇이 한 번 더 묻는다
             self.assertIn("몇 시", self.last())
             self.say("10시")
+            self.say("1")
             self.assertEqual(self.made()[0]["weekday"], wd, n)
 
-    def test_the_card_goes_to_the_team_room_not_the_dm(self):
-        """**카드는 팀 대화방에** (2026-09-20 결정) — 대화만 DM 에 남는다."""
+    def test_the_card_goes_to_the_project_room_not_the_dm(self):
+        """**카드는 프로젝트 방에** (2026-09-24 사장님) — 대화만 DM 에 남는다."""
         self.say("회의 만들자")
         self.say("주간 점검")
         self.say("1")
         self.say("한 번만")
         self.say("내일 10시")
+        self.say("1")
         self.assertTrue(self.fake.cards(), "회의 카드가 안 올라갔다")
         self.assertNotEqual(self.fake.cards()[0]["channel"], DM["channel"])
 
@@ -264,6 +270,7 @@ class LostTest(Base):
         self.say("1")
         self.say("매주")
         self.say("화요일 10시")
+        self.say("1")
         self.assertNotIn(" 으로", self.last())
         self.assertIn("화요일", self.last())
 
@@ -273,7 +280,7 @@ class LostTest(Base):
         self.say("주간 점검")
         self.say("1")
         self.say("음")
-        self.assertIn("3/4", self.last())
+        self.assertIn("3/5", self.last())
         self.assertIn("취소", self.last())
 
     def test_that_is_not_it_rewinds(self):
@@ -285,6 +292,7 @@ class LostTest(Base):
         self.say("1")
         self.say("한 번만")
         self.say("내일 10시")
+        self.say("1")
         self.assertEqual(self.made()[0]["title"], "결제 점검")
 
     def test_cancel_leaves_nothing_behind(self):
@@ -380,6 +388,7 @@ class RoomTest(Base):
             self.say("1")
             self.say("한 번만")
             self.say("내일 10시")
+            self.say("1")
         m = self.made()[0]
         self.assertEqual(m["channel"], DM["channel"])
         self.assertTrue(meeting.mch(m))
@@ -606,10 +615,45 @@ class WhoTest(Base):
         self.say("주간 점검 <@U1AAA>")
         self.assertEqual(STATE["new_meeting"][ME]["who"], ["U1AAA"])
 
+    def _to_who(self):
+        self.say("회의 만들자")
+        self.say("주간 점검")
+        self.say("1")
+        self.say("한 번만")
+        self.say("내일 3시")
+        self.assertIn("누구를 초대", self.last())
+
+    def test_one_means_everyone_in_the_room(self):
+        self._to_who()
+        self.say("1")
+        m = self.made()[0]
+        self.assertTrue(m.get("who_all"))
+        self.assertNotIn("who", m)
+
+    def test_just_me_invites_only_the_maker(self):
+        """**혼자 챙기는 일정도 있다** (사장님: 「혼자만 참석하는 걸 수도」) — 만든 사람만."""
+        for word in ("2", "나만", "혼자"):
+            STATE.pop("new_meeting", None); STATE.pop("meetings", None)
+            self._to_who()
+            self.say(word)
+            self.assertEqual(self.made()[0]["who"], [ME], word)
+
+    def test_mentions_at_the_who_step(self):
+        self._to_who()
+        self.say("<@U1AAA> <@U2BBB>")
+        self.assertEqual(self.made()[0]["who"], ["U1AAA", "U2BBB"])
+
+    def test_an_unreadable_who_asks_again(self):
+        self._to_who()
+        self.say("음")
+        self.assertFalse(self.made())
+        self.assertIn("5/5", self.last())
+
     def test_no_mention_leaves_who_empty(self):
         self.say("회의 만들자")
         self.say("주간 점검")
         self.say("1")
         self.say("한 번만")
         self.say("내일 3시")
+        self.say("1")
         self.assertNotIn("who", self.made()[0])
