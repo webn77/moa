@@ -386,7 +386,11 @@ def meet_room(st_or_m, dm=None):
     """이 회의 카드를 **어느 방에** 둘까 (2026-09-23 사장님: 「어느 프로젝트 방에 올릴건지
     정해야 하고 … 프로젝트 방에 올려도 되고 안올려도 되고」).
 
-      프로젝트의 `meeting` → 없으면 그 프로젝트의 `request` → 그것도 없으면 팀 대화방
+      프로젝트의 `meeting` → 없으면 **그 프로젝트 방**(`channel`) → 그것도 없으면 DM
+
+    **팀 대화방(요청 방)에는 올리지 않는다** (2026-09-24 사장님: 「회의는 팀대화가 아니라
+    프로젝트 방에 기록하는 게 맞다」). 예전에는 `request` 로 떨어져서, 요청 방을 같이 쓰는
+    프로젝트들의 회의가 전부 #팀-대화 에 쌓였다.
 
     `meeting` 을 **빈 글자로 적어 두면 아무 방에도 안 올린다** — 그때는 DM 에만 둔다.
     설정에 없는 것과 일부러 비운 것은 다르므로 `in` 으로 가린다.
@@ -397,7 +401,7 @@ def meet_room(st_or_m, dm=None):
         p = PROJECTS[0]
     if p is not None and "meeting" in p:
         return p["meeting"] or dm            # 일부러 비웠다 — DM 에만
-    return (p or {}).get("request") or REQUEST
+    return (p or {}).get("channel") or dm
 
 
 async def maybe(s, e, q, force=False):

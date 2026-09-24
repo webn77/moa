@@ -356,7 +356,17 @@ class RoomTest(Base):
     def test_it_follows_the_project(self):
         from common import PROJECTS
         self.assertEqual(meeting.meet_room({"pkey": PROJECTS[1].get("key")}),
-                         PROJECTS[1].get("request"), "두 번째 프로젝트의 방으로 안 갔다")
+                         PROJECTS[1].get("channel"), "두 번째 프로젝트의 방으로 안 갔다")
+
+    def test_it_never_falls_to_the_team_room(self):
+        """`meeting` 이 없으면 **프로젝트 방**이다 — 팀 대화방(요청 방)이 아니다 (2026-09-24)."""
+        from common import PROJECTS
+        p = PROJECTS[1]
+        room = meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST")
+        self.assertNotEqual(room, p.get("request"))
+        with mock.patch.dict(p, {"channel": ""}, clear=False):
+            self.assertEqual(meeting.meet_room({"pkey": p.get("key")}, dm="D0TEST"), "D0TEST",
+                             "프로젝트 방도 없으면 DM 에 둔다")
 
     def test_an_empty_room_means_dm_only(self):
         """`meeting` 을 **빈 글자로 적어 두면** 아무 방에도 안 올리고 DM 에만 둔다.
