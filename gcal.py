@@ -231,6 +231,8 @@ def connect():
             q = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             got["code"] = (q.get("code") or [None])[0]
             self.send_response(200)
+            # 글자 인코딩을 안 알리면 브라우저가 다른 인코딩으로 읽어 한국어가 깨진다 (2026-09-24 사장님 화면)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
             self.end_headers()
             self.wfile.write("연결됐어요 — 이 창은 닫으셔도 돼요.".encode("utf-8"))
 
