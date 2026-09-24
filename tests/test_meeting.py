@@ -655,6 +655,26 @@ class WhoTest(Base):
         self.assertFalse(self.made())
         self.assertIn("5/5", self.last())
 
+    def test_that_is_not_it_at_who_keeps_the_title(self):
+        """⑤ 에서 「그게 아니라 나만」 — 이름이 「나만」 이 되면 안 된다 (2026-09-25 검토가 잡았다)."""
+        self._to_who()
+        self.say("그게 아니라 나만")
+        m = self.made()[0]
+        self.assertEqual(m["title"], "주간 점검")
+        self.assertEqual(m["who"], [ME])
+
+    def test_that_is_not_it_alone_at_who_asks_again(self):
+        self._to_who()
+        self.say("그게 아니라")
+        self.assertFalse(self.made())
+        self.assertIn("누구를 초대", self.last())
+        self.assertEqual(STATE["new_meeting"][ME]["title"], "주간 점검")
+
+    def test_that_is_not_it_with_a_mention_at_who(self):
+        self._to_who()
+        self.say("그게 아니라 <@U9ZZZ>")
+        self.assertEqual(self.made()[0]["who"], ["U9ZZZ"])
+
     def test_no_mention_leaves_who_empty(self):
         self.say("회의 만들자")
         self.say("주간 점검")

@@ -72,7 +72,7 @@ def meeting_blocks(m):
     # 정기 회의는 **다음이 언제인지 카드에 적어 둔다** — 안 적으면 「정기라고 했는데 다음이
     # 오긴 하나」 를 아무도 확인할 수 없다. 끄는 길도 같은 자리에 둔다 (2026-09-23)
     if (m.get("every") or "once") != "once" and m.get("weekday") is not None:
-        nxt = core.next_meet(m["every"], m["weekday"], m["date"])
+        nxt = core.next_meet(m["every"], m["weekday"], m["date"], nth=m.get("nth"))
         blocks.append({"type": "section", "text": {"type": "mrkdwn",
                        "text": say("meet_card_every", label=core.meet_label(m), next=nxt or "미정")},
                        "accessory": {"type": "button", "text": {"type": "plain_text", "text": "정기 끄기"},
@@ -479,14 +479,24 @@ async def maybe(s, e, q, force=False):
     # 「그게 아니라」 — 그 칸을 비우고 다시 묻는다
     if NOPE.match(_HEAD.sub("", q.strip())):
         rest = NOPE.sub("", _HEAD.sub("", q.strip())).strip(" ,.!~")
-        st.pop({"title": "title", "every": "every", "when": "when"}.get(step, "title"), None)
-        if step == "when":
-            st.pop("date", None); st.pop("weekday", None)
-        if rest and titleable(rest) and not ASKING.search(rest):
-            st["title"] = rest[:60]
-            return await _after_name(s, ch, th, st, rest[:60])
-        st["step"] = "title"
-        return await _magain(s, ch, th, st, say("meet_nope"))
+        # ⑤ 에서의 「그게 아니라」 는 **초대할 사람을 다시 고르자**는 말이다 — 이름을 비우면 안 된다.
+        # 예전에는 이름을 지우고 「나만」 을 새 이름으로 받았다 (2026-09-25 검토가 잡았다)
+        if step == "who":
+            st.pop("who", None); st.pop("who_all", None)
+            if who:                                  # 「그게 아니라 @김철수」 — 새로 부른 사람으로 바꾼다
+                st["who"] = list(dict.fromkeys(who))
+            elif not rest:
+                return await _mask(s, ch, th, st, "who")
+            q = rest
+        else:
+            st.pop({"title": "title", "every": "every", "when": "when"}.get(step, "title"), None)
+            if step == "when":
+                st.pop("date", None); st.pop("weekday", None)
+            if rest and titleable(rest) and not ASKING.search(rest):
+                st["title"] = rest[:60]
+                return await _after_name(s, ch, th, st, rest[:60])
+            st["step"] = "title"
+            return await _magain(s, ch, th, st, say("meet_nope"))
 
     # ① 무슨 회의인가 — **적으신 그대로** 받는다.
     # 다만 「만들자」 처럼 **만들자는 낱말만** 오면 이름이 아니다 — 봇이 물은 것을 되풀이하신 것이다
@@ -529,7 +539,10 @@ async def maybe(s, e, q, force=False):
                 if wd is None:
                     return await _magain(s, ch, th, st, say("meet_weekday_bad"))
                 st["weekday"] = wd
-                st["date"] = core.next_meet(st["every"], wd, datetime.date.today() - datetime.timedelta(days=1))
+                yesterday = datetime.date.today() - datetime.timedelta(days=1)
+                if st["every"] == "month":           # 주차는 **만들 때 한 번** 정해 적어 둔다 (core.month_nth)
+                    st["nth"] = core.month_nth(wd, yesterday)
+                st["date"] = core.next_meet(st["every"], wd, yesterday, nth=st.get("nth"))
         # **시간은 같은 칸에서 한 번 더 여쭌다** — 칸을 늘리지 않으려는 것이다 (사장님: 「쉽게 가야해」).
         # 「내일 2시」 처럼 한 번에 말씀하시면 여기서 바로 잡히고, 안 적으셨으면 한 줄 더 오간다
         hm = core.meet_time(q)
@@ -663,6 +676,8 @@ async def _mbuild(s, ch, th, st, user):
         log(f"회의 만들기 실패: {type(ex).__name__}: {ex}")
         await _msay(s, ch, say("mtg_fail", err=str(ex)[:120]), th)
         return True
+    if st.get("nth") is not None:
+        m["nth"] = st["nth"]
     if st.get("who"):
         m["who"] = list(st["who"])
     elif st.get("who_all"):
@@ -804,11 +819,17 @@ async def due_meetings(s, today=None):
             live[key] = m
     for m in live.values():
         every = m["every"]
-        nxt = core.next_meet(every, m["weekday"], m["date"])
+        nxt = core.next_meet(every, m["weekday"], m["date"], nth=m.get("nth"))
         if not nxt or datetime.date.fromisoformat(nxt) > today:
             continue                          # 아직 그날이 아니다
+        # **시간·프로젝트도 넘긴다** — 안 넘겨서 둘째 회부터 시간이 비어 10분 전 알림이 안 갔다
+        # (2026-09-25 검토가 잡았다)
         new = await new_meeting(s, m["title"], m.get("issue"), m["by"], mch(m),
-                                every=every, date=nxt, weekday=m["weekday"])
+                                every=every, date=nxt, weekday=m["weekday"],
+                                time=m.get("time"), pkey=m.get("pkey"))
+        for k in ("nth", "who", "who_all"):
+            if m.get(k) is not None:
+                new[k] = m[k]
         # **캘린더는 반복 일정 하나** — 다시 만들지 않고 같은 gcal_id 를 물려준다. 안 물려주면
         # 「정기 끄기」 가 이 새 카드에서 눌렸을 때 gcal_id 를 몰라 캘린더 쪽은 계속 돈다
         for k in ("gcal_id", "gcal_link", "gcal_rrule"):

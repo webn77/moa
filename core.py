@@ -687,7 +687,20 @@ def meet_when(text, today=None):
     return False
 
 
-def next_meet(every, weekday, after=None):
+def month_nth(weekday, after):
+    """매달 회의의 **주차** — 1~4, 다섯째는 -1(마지막 주). `after` 가 회의 요일이 아니면 그 뒤 첫 회의 요일로 센다.
+
+    **만들 때 한 번 정해서 회의에 적어 둔다** (`m["nth"]`). 날짜만 보고 다시 세면 다섯째(마지막) 화요일이
+    넷째뿐인 달을 지나며 「넷째」 로 굳는다 — 구글 캘린더 반복(마지막 주)과 12월에 갈렸다 (2026-09-25 검토)."""
+    import datetime
+    if isinstance(after, str):
+        after = datetime.date.fromisoformat(after)
+    ref = after if after.weekday() == weekday else after + datetime.timedelta(days=(weekday - after.weekday()) % 7)
+    n = (ref.day - 1) // 7 + 1
+    return -1 if n == 5 else n
+
+
+def next_meet(every, weekday, after=None, nth=None):
     """정기 회의의 **다음 날짜**. `after` 다음으로 오는 날 — 같은 날은 돌려주지 않는다.
 
     매달은 **같은 요일의 같은 주차**로 본다 (넷째 화요일 식) — 날짜로 매기면 「31일」 이
@@ -705,10 +718,23 @@ def next_meet(every, weekday, after=None):
     if isinstance(after, str):
         after = datetime.date.fromisoformat(after)
     nxt = after + datetime.timedelta(days=(weekday - after.weekday()) % 7 or 7)
-    nxt += datetime.timedelta(days={"week": 0, "2week": 7, "month": 21}[every])
-    if every == "month" and nxt.month == after.month:
-        nxt += datetime.timedelta(days=7)
-    return nxt.isoformat()
+    if every != "month":
+        return (nxt + datetime.timedelta(days=7 if every == "2week" else 0)).isoformat()
+    # 매달 — **다음 달의 같은 주차 같은 요일**(`nth`, -1 은 마지막 주). 예전에는 「4주 뒤, 아직 같은 달이면
+    # 한 주 더」 로 셌는데 그러면 넷째 화요일(9/22) 다음이 셋째 화요일(10/20)이 됐다 — 구글 캘린더 반복
+    # (BYDAY=4TU → 10/27)과 다른 날이다 (2026-09-25 검토가 잡았다). `nth` 를 안 주면(옛 회의) 날짜로 센다
+    ref = after if after.weekday() == weekday else nxt
+    nth = nth if nth is not None else month_nth(weekday, ref)
+    y, mo = (ref.year + 1, 1) if ref.month == 12 else (ref.year, ref.month + 1)
+    first = datetime.date(y, mo, 1)
+    day1 = first + datetime.timedelta(days=(weekday - first.weekday()) % 7)
+    if nth == -1:                                    # 마지막 주 — 다섯째가 있으면 다섯째, 없으면 넷째
+        out = day1 + datetime.timedelta(days=28)
+        if out.month != mo:
+            out -= datetime.timedelta(days=7)
+    else:
+        out = day1 + datetime.timedelta(days=7 * (nth - 1))
+    return out.isoformat()
 
 
 def meet_label(m):

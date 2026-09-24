@@ -2,8 +2,8 @@
 
   · 계정은 **사장님 기존 구글 계정** — 봇은 그 안에 「모아」 보조 캘린더를 스스로 만들고 그것만 다룬다
   · 권한은 `calendar.app.created` 하나 (「제한」 등급) — 막히면 사람이 `config.json` 의 `gcal.scope` 를 바꾼다
-  · 첫 시험은 `gcal.invite: "owner"`(기본 — 초대 안 함) 만 실제로 돌린다. `"room"`(방 사람 전원)은
-    코드·시험까지만 두고 아직 켜지 않는다
+  · 초대는 회의 ⑤ 에서 고른 사람(@사람 · 모두 · 나만). 안 고른 옛 흐름은 `gcal.invite`
+    (`"owner"` 초대 안 함 | `"room"` 방 사람 전원)를 따른다 — 두 팀 모두 `room` (2026-09-24)
   · 회의 60분(`gcal.minutes`) · 시간대 `Asia/Seoul` · **시간이 없는 회의는 올리지 않는다**
 
 구글 라이브러리를 쓰지 않는다 — 의존성은 `aiohttp`·`pyyaml` 뿐이라(README), OAuth·Calendar REST 를
@@ -97,9 +97,9 @@ def _rrule(m):
     """회의 dict 의 `every`·`weekday`·`date` 로 RRULE 을 짓는다. 한 번짜리면 None.
 
     매주 `FREQ=WEEKLY;BYDAY=..` · 격주 `FREQ=WEEKLY;INTERVAL=2;BYDAY=..` ·
-    매달 `FREQ=MONTHLY;BYDAY=4TH` 식 — `core.next_meet` 이 매달을 **같은 요일의 같은 주차**로
-    보므로 캘린더도 그렇게 맞춘다. 날짜(`BYMONTHDAY`)로 두면 Slack 카드와 캘린더가 다른 날을
-    가리킨다. 다섯째 주는 없는 달이 있어 「마지막 주」(`-1`) 로 둔다.
+    매달 `FREQ=MONTHLY;BYDAY=4TH` 식 — 주차는 만들 때 정해 둔 `m["nth"]`(없으면 `core.month_nth`)를
+    쓴다. `core.next_meet` 도 같은 값을 쓰므로 Slack 카드와 캘린더가 같은 날을 가리킨다(1년치 시험).
+    다섯째 주는 없는 달이 있어 「마지막 주」(`-1`) 로 둔다.
     """
     every = m.get("every") or "once"
     if every == "once" or m.get("weekday") is None:
@@ -110,8 +110,9 @@ def _rrule(m):
     if every == "2week":
         return f"FREQ=WEEKLY;INTERVAL=2;BYDAY={day}"
     if every == "month":
-        nth = (datetime.date.fromisoformat(m["date"]).day - 1) // 7 + 1
-        return f"FREQ=MONTHLY;BYDAY={-1 if nth == 5 else nth}{day}"
+        import core
+        nth = m.get("nth") if m.get("nth") is not None else core.month_nth(m["weekday"], m["date"])
+        return f"FREQ=MONTHLY;BYDAY={nth}{day}"
     return None
 
 

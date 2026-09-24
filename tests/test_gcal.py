@@ -141,6 +141,29 @@ class RRuleTest(GcalBase):
         run(gcal.create(m))
         self.assertEqual(self.http.bodies()[0]["recurrence"], ["RRULE:FREQ=MONTHLY;BYDAY=-1TU"])
 
+    def test_monthly_calendar_and_cards_agree_for_a_year(self):
+        """**카드의 다음 회와 캘린더 반복이 같은 날이어야 한다** (2026-09-25 검토가 잡았다 — 9/22 에
+        시작하면 카드는 10/20, 캘린더는 10/27 이었다). 반복 규칙을 손으로 펼쳐 12번 맞대 본다."""
+        import calendar
+        import core
+
+        def expand(rule, year, month, wd):
+            n = int(rule.split("BYDAY=")[1][:-2])
+            days = [d for d in range(1, calendar.monthrange(year, month)[1] + 1)
+                    if datetime.date(year, month, d).weekday() == wd]
+            return datetime.date(year, month, days[n - 1 if n > 0 else n])
+
+        for start in ("2026-09-01", "2026-09-08", "2026-09-22", "2026-09-29", "2026-10-08", "2026-12-31"):
+            d = datetime.date.fromisoformat(start)
+            nth = core.month_nth(d.weekday(), d)          # 만들 때 한 번 정해 적어 둔다 — 실제 흐름과 같다
+            m = make_meeting(every="month", weekday=d.weekday(), date=start, nth=nth)
+            run(gcal.create(m))
+            rule = self.http.bodies()[-1]["recurrence"][0]
+            card = d
+            for _ in range(12):
+                card = datetime.date.fromisoformat(core.next_meet("month", d.weekday(), card, nth=nth))
+                self.assertEqual(card, expand(rule, card.year, card.month, d.weekday()), f"{start} 시작 · {rule}")
+
     def test_time_zone_is_seoul(self):
         m = make_meeting()
         run(gcal.create(m))
@@ -390,6 +413,21 @@ class DueMeetingsTest(MeetingBase):
             self.assertEqual(new["gcal_id"], "evt1")
             run(meeting.stop_every(None, new["card_ts"], "U0"))
         self.assertEqual(fg.stopped, ["evt1"], "새 카드에서 정기를 꺼도 캘린더가 안 멈췄다")
+
+
+    def test_the_new_card_keeps_time_project_and_nth(self):
+        """**둘째 회부터 시간이 비면 10분 전 알림이 안 간다** — 시간·프로젝트·주차를 넘긴다 (2026-09-25 검토)."""
+        fg = FakeGcal()
+        with mock.patch.object(meeting, "gcal", fg):
+            m = run(meeting.new_meeting(None, "월간 점검", None, "이동원", "C0TEAM",
+                                        every="month", date="2026-09-22", weekday=1, time=[14, 0], pkey="CH"))
+            m["nth"] = 4
+            run(meeting.due_meetings(None, datetime.date(2026, 10, 27)))
+            new = [x for x in self.made() if x["id"] != m["id"]][0]
+        self.assertEqual(new["date"], "2026-10-27", "넷째 화요일")
+        self.assertEqual(new["time"], [14, 0])
+        self.assertEqual(new["pkey"], "CH")
+        self.assertEqual(new["nth"], 4)
 
 
 class StopEveryTest(MeetingBase):
