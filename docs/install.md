@@ -99,7 +99,9 @@ Slack 매니페스트에 아이콘 항목이 없어서 이것만 손으로 올�
    → **OAuth 클라이언트 ID 만들기** → 애플리케이션 유형 **데스크톱 앱**
 2. **Calendar API** 를 사용 설정 (API 및 서비스 → 라이브러리)
 3. 받은 클라이언트를 JSON 으로 다운로드해서 데이터 폴더에 `gcal_client.json` 이름으로 둔다
-4. `python3 gcal.py connect` — 브라우저 주소가 뜨면 열어서 로그인·동의하고, 「모아」 캘린더를 만든다
+4. `MOA_DATA=~/teams/우리팀 python3 gcal.py connect` — **`MOA_DATA` 를 꼭 같이 줘야 한다**
+   (안 주면 코드 폴더를 데이터 폴더로 보고 `config.json` 이 없다며 멈춘다). 브라우저 주소가
+   뜨면 열어서 로그인·동의하고, 「모아」 캘린더를 만든다
 
 연결 안 해도 봇은 그대로 돈다 — 회의 카드만 생기고 캘린더에는 조용히 안 올라간다(`bot.log` 에 한 줄).
 초대 대상·회의 길이는 데이터 폴더 `config.json` 의 `gcal`(`invite`: `"owner"`|`"room"`, `minutes`)로 바꾼다.

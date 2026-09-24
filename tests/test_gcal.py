@@ -316,13 +316,13 @@ class MbuildTest(MeetingBase):
         self.assertNotIn("캘린더", self.fake.texts()[-1])
 
     def test_gcal_failure_does_not_block_the_meeting(self):
-        """**캘린더 실패해도 회의는 만들어진다** (사장님 결정)."""
+        """**캘린더 실패해도 회의는 만들어진다** — 계획: 「로그 ⚠️ + DM 스레드에 한 줄」."""
         fg = FakeGcal(fail=True)
         with mock.patch.object(meeting, "gcal", fg):
             run(meeting._mbuild(None, "D0", "1.0", self._st(), "U0"))
-        self.assertTrue(self.made())
+        self.assertTrue(self.made(), "캘린더가 실패했다고 회의까지 안 만들면 안 된다")
         self.assertNotIn("gcal_id", self.made()[0])
-        self.assertNotIn("캘린더", self.fake.texts()[-1])
+        self.assertIn("캘린더에는 못 올렸어요", self.fake.texts()[-1])
 
     def test_idempotent_does_not_create_twice(self):
         """회의 dict 에 `gcal_id` 가 있으면 다시 만들지 않는다 (재시작·재시도)."""
@@ -346,6 +346,20 @@ class DueMeetingsTest(MeetingBase):
             made = run(meeting.due_meetings(None, datetime.date(2026, 10, 6)))
         self.assertEqual(len(made), 1)
         self.assertFalse(fg.created, "다음 회차를 열면서 캘린더를 또 만들었다")
+
+    def test_the_new_card_inherits_the_calendar_event(self):
+        """새 카드가 `gcal_id` 를 물려받아야 — 안 그러면 그 카드의 「정기 끄기」 가
+        캘린더 쪽은 못 끈다 (계획: 「새 카드는 원래 회의의 gcal_id 를 물려받거나」)."""
+        fg = FakeGcal()
+        with mock.patch.object(meeting, "gcal", fg):
+            m = run(meeting.new_meeting(None, "주간 점검", None, "이동원", "C0TEAM",
+                                        every="week", date="2026-09-29", weekday=1))
+            m["gcal_id"], m["gcal_link"], m["gcal_rrule"] = "evt1", "https://x/evt1", "FREQ=WEEKLY;BYDAY=TU"
+            run(meeting.due_meetings(None, datetime.date(2026, 10, 6)))
+            new = [x for x in self.made() if x["id"] != m["id"]][0]
+            self.assertEqual(new["gcal_id"], "evt1")
+            run(meeting.stop_every(None, new["card_ts"], "U0"))
+        self.assertEqual(fg.stopped, ["evt1"], "새 카드에서 정기를 꺼도 캘린더가 안 멈췄다")
 
 
 class StopEveryTest(MeetingBase):

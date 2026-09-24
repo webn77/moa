@@ -579,10 +579,11 @@ async def _gcal_note(s, m):
     """회의를 구글 캘린더에 올리고, DM 안내 끝에 붙일 한 줄을 돌려준다 (없으면 빈 글자).
 
     **멱등** — 이미 `gcal_id` 가 있으면(재시도) 다시 만들지 않는다. `ready()` 가 False 면
-    (연결 안 된 팀) 조용히 건너뛴다. **실패해도 회의는 이미 만들어져 있다** — 여기서 나는
-    예외는 로그 ⚠️ 로만 남기고 회의 만들기 자체를 막지 않는다.
+    (연결 안 된 팀) 이나 시간이 없는 회의면 — 캘린더 이야기 자체를 꺼내지 않고 조용히
+    건너뛴다(사장님 결정, 실패가 아니다). **캘린더가 진짜 실패해도 회의는 이미 만들어져
+    있다** — 다만 그건 조용히 넘어가지 않고 한 줄 알린다(계획: 「로그 ⚠️ + DM 스레드에 한 줄」).
     """
-    if m.get("gcal_id") or not gcal.ready():
+    if m.get("gcal_id") or not gcal.ready() or not m.get("time"):
         return ""
     attendees, missed = None, False
     if gcal.INVITE == "room":
@@ -594,7 +595,7 @@ async def _gcal_note(s, m):
         made = None
     save()
     if not made:
-        return ""
+        return say("gcal_fail")
     note = say("gcal_added", link=made["gcal_link"]) if made.get("gcal_link") else say("gcal_added_plain")
     if missed:
         note += "\n" + say("gcal_no_email")
@@ -757,6 +758,11 @@ async def due_meetings(s, today=None):
             continue                          # 아직 그날이 아니다
         new = await new_meeting(s, m["title"], m.get("issue"), m["by"], mch(m),
                                 every=every, date=nxt, weekday=m["weekday"])
+        # **캘린더는 반복 일정 하나** — 다시 만들지 않고 같은 gcal_id 를 물려준다. 안 물려주면
+        # 「정기 끄기」 가 이 새 카드에서 눌렸을 때 gcal_id 를 몰라 캘린더 쪽은 계속 돈다
+        for k in ("gcal_id", "gcal_link", "gcal_rrule"):
+            if m.get(k):
+                new[k] = m[k]
         # **정기 표시는 맨 마지막 회에만 둔다** — 회마다 남겨 두면 「정기 끄기」 가 여러 장에
         # 흩어져서, 어느 것을 눌러야 멈추는지 알 수 없다. 옛 회는 지난 회의로 조용히 남는다
         m["every"] = "once"
