@@ -5,3 +5,5 @@ __pycache__/
 state.json
 example/bot.log
 bot.pid
+# 구글 캘린더 비밀값 — MOA_DATA 없이 돌리면 데이터 폴더가 코드 폴더가 된다 (2026-09-25 검토)
+gcal_*.json

@@ -63,6 +63,13 @@ class GcalBase(unittest.TestCase):
     """`gcal.py` 만 본다 — 토큰·클라이언트 파일을 시험마다 데이터 폴더에 두고 지운다."""
 
     def setUp(self):
+        # **실제 데이터 폴더에 쓰면 안 된다** — 밖에서 MOA_DATA 를 주고 돌리면 운영 중인 봇의 진짜
+        # 토큰을 가짜로 덮고 tearDown 에서 지운다 (2026-09-25 검토가 잡았다). 시험마다 임시 폴더로
+        import tempfile, pathlib
+        self._tmp = pathlib.Path(tempfile.mkdtemp(prefix="moa-gcal-"))
+        self._files = mock.patch.multiple(gcal, CLIENT_FILE=self._tmp / "gcal_client.json",
+                                          TOKEN_FILE=self._tmp / "gcal_token.json")
+        self._files.start()
         gcal.CLIENT_FILE.write_text(json.dumps({"client_id": "id", "client_secret": "secret"}),
                                     encoding="utf-8")
         gcal.TOKEN_FILE.write_text(json.dumps({"refresh_token": "r", "calendar_id": "cal-1"}),
@@ -74,9 +81,9 @@ class GcalBase(unittest.TestCase):
 
     def tearDown(self):
         self.patch.stop()
-        for f in (gcal.CLIENT_FILE, gcal.TOKEN_FILE):
-            if f.exists():
-                f.unlink()
+        self._files.stop()
+        import shutil
+        shutil.rmtree(self._tmp, True)
         gcal._cache["token"], gcal._cache["exp"] = None, 0.0
 
 
@@ -196,14 +203,28 @@ class RRuleTest(GcalBase):
 
 
 class StopSeriesTest(GcalBase):
-    def test_it_patches_until_today(self):
-        m = make_meeting(every="week", weekday=1, gcal_id="evt9", gcal_rrule="FREQ=WEEKLY;BYDAY=TU")
+    def _until(self, date):
+        m = make_meeting(every="week", weekday=1, date=date, gcal_id="evt9", gcal_rrule="FREQ=WEEKLY;BYDAY=TU")
         run(gcal.stop_series(m))
-        patch = [kw for method, url, kw in self.http.calls if method == "PATCH"][0]
+        patch = [kw for method, url, kw in self.http.calls if method == "PATCH"][-1]
+        return patch["json"]["recurrence"][0]
+
+    def test_a_past_card_stops_tonight(self):
         # 시간이 있는 일정이라 UNTIL 은 UTC 시각 — 오늘 밤 23:59:59 서울 = 오늘 14:59:59Z
         until = datetime.date.today().strftime("%Y%m%d") + "T145959Z"
-        self.assertEqual(patch["json"]["recurrence"],
-                         [f"RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL={until}"])
+        self.assertEqual(self._until("2020-01-07"), f"RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL={until}")
+
+    def test_a_future_card_keeps_its_own_meeting(self):
+        """**이 카드의 회의까지는 남긴다** — 만든 날 바로 끄면 아직 안 온 첫 회가 빠졌다 (2026-09-25 검토)."""
+        future = (datetime.date.today() + datetime.timedelta(days=4)).isoformat()
+        until = future.replace("-", "") + "T145959Z"
+        self.assertEqual(self._until(future), f"RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL={until}")
+
+    def test_it_never_touches_the_real_data_folder(self):
+        """시험의 가짜 토큰이 **운영 봇의 진짜 토큰 자리**에 쓰이면 안 된다 (2026-09-25 검토)."""
+        import config
+        self.assertNotEqual(gcal.TOKEN_FILE.parent, config.DATA)
+        self.assertNotEqual(gcal.CLIENT_FILE.parent, config.DATA)
 
     def test_it_does_nothing_without_a_gcal_id(self):
         run(gcal.stop_series(make_meeting(every="week", weekday=1)))
@@ -352,6 +373,34 @@ class MbuildTest(MeetingBase):
         with mock.patch.object(meeting, "gcal", fg):
             run(meeting._mbuild(None, "D0", "1.0", self._st(pkey="", who_all=True), "U0"))
         self.assertEqual(fg.created[0][1], ["u1@x.com"])
+
+    def test_unreadable_room_warns_instead_of_inviting_nobody(self):
+        """방 사람을 못 읽으면(`not_in_channel` 등) 0명 초대를 조용히 넘기지 않는다 (2026-09-25 검토)."""
+        orig = self.fake.api
+
+        async def fail_members(s, method, body=None, **params):
+            if method == "conversations.members":
+                return {"ok": False, "error": "not_in_channel"}
+            return await orig(s, method, body, **params)
+        fg = FakeGcal(invite="room")
+        with mock.patch.object(meeting, "gcal", fg), mock.patch.object(meeting, "api", fail_members):
+            run(meeting._mbuild(None, "D0", "1.0", self._st(pkey=""), "U0"))
+        self.assertTrue(self.made())
+        self.assertIn("초대는 못 했어요", self.fake.texts()[-1])
+
+    def test_slack_breaking_while_reading_emails_still_answers(self):
+        """이메일을 모으다 Slack 이 끊겨도 회의는 남고 **답이 나간다** (2026-09-25 검토)."""
+        orig = self.fake.api
+
+        async def boom(s, method, body=None, **params):
+            if method == "users.info":
+                raise ConnectionError("slack down")
+            return await orig(s, method, body, **params)
+        fg = FakeGcal(invite="room")
+        with mock.patch.object(meeting, "gcal", fg), mock.patch.object(meeting, "api", boom):
+            run(meeting._mbuild(None, "D0", "1.0", self._st(pkey=""), "U0"))
+        self.assertTrue(self.made())
+        self.assertIn("회의로 잡았어요", self.fake.texts()[-1])
 
     def test_missing_email_permission_still_makes_the_meeting_and_warns(self):
         fg = FakeGcal(invite="room")

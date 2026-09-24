@@ -675,6 +675,15 @@ class WhoTest(Base):
         self.say("그게 아니라 <@U9ZZZ>")
         self.assertEqual(self.made()[0]["who"], ["U9ZZZ"])
 
+    def test_a_mention_inside_a_question_is_not_an_attendee(self):
+        """「@김 도 초대할 수 있나요?」 는 질문이다 — 받아 적으면 ⑤ 의 「모두」 가 무시됐다 (2026-09-25 검토)."""
+        self._to_who()
+        self.say("<@U1AAA> 도 초대할 수 있나요?")
+        self.say("1")
+        m = self.made()[0]
+        self.assertTrue(m.get("who_all"))
+        self.assertNotIn("who", m)
+
     def test_no_mention_leaves_who_empty(self):
         self.say("회의 만들자")
         self.say("주간 점검")

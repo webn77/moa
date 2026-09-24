@@ -159,8 +159,11 @@ async def stop_series(m):
     if not ready() or not m.get("gcal_id") or not m.get("gcal_rrule"):
         return
     # 시간이 있는 반복 일정은 UNTIL 도 UTC 시각이어야 한다(RFC 5545) — 「오늘 밤 23:59 서울」 을 UTC 로
+    # **이 카드의 회의까지는 남긴다** — 카드 안내가 「이 회의는 그대로」 다. 오늘로 끊으면 아직 안 온
+    # 첫 회(만든 날 끄면)가 반복 끝보다 뒤라서 빠진다 (2026-09-25 검토)
     kst = datetime.timezone(datetime.timedelta(hours=9))
-    end = datetime.datetime.combine(datetime.date.today(), datetime.time(23, 59, 59), kst)
+    last = max(datetime.date.today(), datetime.date.fromisoformat(m.get("date") or datetime.date.today().isoformat()))
+    end = datetime.datetime.combine(last, datetime.time(23, 59, 59), kst)
     until = end.astimezone(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     rule = f"{m['gcal_rrule']};UNTIL={until}"
     token = await _access_token()

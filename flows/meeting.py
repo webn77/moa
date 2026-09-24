@@ -440,7 +440,9 @@ async def maybe(s, e, q, force=False):
             return await maybe(s, e, q, force=force)
         return False
     # 참석자 `@사람` 은 떼어 적어 두고, 남은 글자를 원래 답으로 읽는다
-    who = WHO.findall(q)
+    # **묻는 말에 섞인 @사람 은 참석자가 아니다** — 「@김 도 초대할 수 있나요?」 를 받아 적으면
+    # ⑤ 의 답(모두)이 무시됐다 (2026-09-25 검토). 떼어만 두고 적지 않는다
+    who = [] if ASKING.search(WHO.sub(" ", q)) else WHO.findall(q)
     if who:
         for uid in who:
             if uid not in st.setdefault("who", []):
@@ -614,8 +616,10 @@ async def _room_emails(s, channel):
     `users:read.email` 권한이 없으면 프로필에 `email` 이 안 온다 — 그때는 그 사람만 빼고
     나머지는 초대하되, **일정은 그래도 만든다** — 초대 못 한 것 때문에 회의 자체가 막히면 안 된다.
     """
-    members = (await api(s, "conversations.members", channel=channel, limit=1000)).get("members") or []
-    return await _emails_of(s, members)
+    d = await api(s, "conversations.members", channel=channel, limit=1000)
+    if not d.get("ok", True):                        # 방 사람을 못 읽었다 — 조용히 0명이 되면 안 된다 (2026-09-25 검토)
+        return [], True
+    return await _emails_of(s, d.get("members") or [])
 
 
 async def _emails_of(s, uids):
@@ -644,11 +648,12 @@ async def _gcal_note(s, m):
     if m.get("gcal_id") or not gcal.ready() or not m.get("time"):
         return ""
     attendees, missed = None, False
-    if m.get("who"):                                 # 만들 때 `@사람` 으로 고르셨다 — 그분들만
-        attendees, missed = await _emails_of(s, m["who"])
-    elif m.get("who_all") or gcal.INVITE == "room":  # 「모두」 · 안 고르셨다 — 프로젝트 방 사람 전원
-        attendees, missed = await _room_emails(s, mch(m))
     try:
+        # 이메일 모으기도 **try 안에** — Slack 이 끊기면 예외가 나서 「회의로 잡았어요」 까지 안 나갔다 (2026-09-25 검토)
+        if m.get("who"):                             # 만들 때 `@사람` 으로 고르셨다 — 그분들만
+            attendees, missed = await _emails_of(s, m["who"])
+        elif m.get("who_all") or gcal.INVITE == "room":  # 「모두」 · 안 고르셨다 — 프로젝트 방 사람 전원
+            attendees, missed = await _room_emails(s, mch(m))
         made = await gcal.create(m, attendees)
     except Exception as ex:
         log(f"⚠️ 구글 캘린더 만들기 실패: {type(ex).__name__}: {ex}")
